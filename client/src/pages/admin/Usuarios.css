@@ -1,0 +1,23 @@
+.buscar_button{
+  background-color:#77d9a1 ;
+  color: white;
+  cursor: pointer;
+  margin-right: 10px;
+}
+
+.buscar_button:hover{
+    background-color:white;
+    color:#77d9a1;
+    border-color:#77d9a1;
+}
+.delete_button{
+  background-color:#fa8787 ;
+  color: white;
+  cursor: pointer;
+}
+
+.delete_button:hover{
+  background-color:white;
+    color: #fa8787;
+    border-color:#fa8787;
+}

@@ -1,0 +1,39 @@
+services:
+  database:
+    image: postgres:16
+    container_name: CD_database
+    ports:
+      - "8080:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: contra1234$
+      POSTGRES_DB: CasaDavid
+    volumes:
+      - db:/var/lib/postgresql/data
+
+  server:
+    depends_on:
+      - database
+    build: .
+    container_name: CD_server
+    ports:
+      - "3001:3001"
+    develop:
+      watch:
+        - action: sync
+          path: ./server
+          target: /app/server
+
+  client:
+    build: ./client
+    container_name: CD_client
+    ports:
+      - "3000:3000"
+    develop:
+      watch:
+        - action: sync
+          path: ./client/src
+          target: /app/src
+
+volumes:
+  db:

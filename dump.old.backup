@@ -1,0 +1,2672 @@
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 17.0 (Debian 17.0-1.pgdg120+1)
+-- Dumped by pg_dump version 17.0 (Debian 17.0-1.pgdg120+1)
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET transaction_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- Name: public; Type: SCHEMA; Schema: -; Owner: postgres
+--
+
+-- *not* creating schema, since initdb creates it
+
+
+ALTER SCHEMA public OWNER TO postgres;
+
+--
+-- Name: SCHEMA public; Type: COMMENT; Schema: -; Owner: postgres
+--
+
+COMMENT ON SCHEMA public IS '';
+
+
+--
+-- Name: enum_cama_tipo; Type: TYPE; Schema: public; Owner: postgres
+--
+
+CREATE TYPE public.enum_cama_tipo AS ENUM (
+    'INDIVIDUAL',
+    'MATRIMONIAL',
+    'CAMAROTE'
+);
+
+
+ALTER TYPE public.enum_cama_tipo OWNER TO postgres;
+
+--
+-- Name: enum_habitacion_genero; Type: TYPE; Schema: public; Owner: postgres
+--
+
+CREATE TYPE public.enum_habitacion_genero AS ENUM (
+    'MASCULINO',
+    'FEMENINO',
+    'OTRO'
+);
+
+
+ALTER TYPE public.enum_habitacion_genero OWNER TO postgres;
+
+--
+-- Name: enum_persona_genero; Type: TYPE; Schema: public; Owner: postgres
+--
+
+CREATE TYPE public.enum_persona_genero AS ENUM (
+    'MASCULINO',
+    'FEMENINO',
+    'OTRO'
+);
+
+
+ALTER TYPE public.enum_persona_genero OWNER TO postgres;
+
+--
+-- Name: enum_usuario_rol; Type: TYPE; Schema: public; Owner: postgres
+--
+
+CREATE TYPE public.enum_usuario_rol AS ENUM (
+    'admin',
+    'usuario',
+    'otro'
+);
+
+
+ALTER TYPE public.enum_usuario_rol OWNER TO postgres;
+
+SET default_tablespace = '';
+
+SET default_table_access_method = heap;
+
+--
+-- Name: MotivoIngresos; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public."MotivoIngresos" (
+    motivo_id integer NOT NULL,
+    motivo character varying(255) NOT NULL,
+    "createdAt" timestamp with time zone NOT NULL,
+    "updatedAt" timestamp with time zone NOT NULL
+);
+
+
+ALTER TABLE public."MotivoIngresos" OWNER TO postgres;
+
+--
+-- Name: MotivoIngresos_motivo_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public."MotivoIngresos_motivo_id_seq"
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public."MotivoIngresos_motivo_id_seq" OWNER TO postgres;
+
+--
+-- Name: MotivoIngresos_motivo_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public."MotivoIngresos_motivo_id_seq" OWNED BY public."MotivoIngresos".motivo_id;
+
+
+--
+-- Name: afiliado; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.afiliado (
+    id_afiliado integer NOT NULL,
+    dni character varying(20),
+    nombre character varying(100),
+    condicion character varying(60)
+);
+
+
+ALTER TABLE public.afiliado OWNER TO postgres;
+
+--
+-- Name: afiliado_id_afiliado_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.afiliado_id_afiliado_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.afiliado_id_afiliado_seq OWNER TO postgres;
+
+--
+-- Name: afiliado_id_afiliado_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.afiliado_id_afiliado_seq OWNED BY public.afiliado.id_afiliado;
+
+
+--
+-- Name: afiliado_reservacion; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.afiliado_reservacion (
+    id_afiliado_reservacion integer NOT NULL,
+    id_afiliado integer NOT NULL,
+    id_reservacion integer NOT NULL
+);
+
+
+ALTER TABLE public.afiliado_reservacion OWNER TO postgres;
+
+--
+-- Name: afiliado_reservacion_id_afiliado_reservacion_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.afiliado_reservacion_id_afiliado_reservacion_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.afiliado_reservacion_id_afiliado_reservacion_seq OWNER TO postgres;
+
+--
+-- Name: afiliado_reservacion_id_afiliado_reservacion_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.afiliado_reservacion_id_afiliado_reservacion_seq OWNED BY public.afiliado_reservacion.id_afiliado_reservacion;
+
+
+--
+-- Name: cama; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.cama (
+    id_cama integer NOT NULL,
+    id_habitacion integer NOT NULL,
+    nomre character varying(30) NOT NULL,
+    tipo public.enum_cama_tipo NOT NULL,
+    disponible boolean DEFAULT true
+);
+
+
+ALTER TABLE public.cama OWNER TO postgres;
+
+--
+-- Name: cama_id_cama_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.cama_id_cama_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.cama_id_cama_seq OWNER TO postgres;
+
+--
+-- Name: cama_id_cama_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.cama_id_cama_seq OWNED BY public.cama.id_cama;
+
+
+--
+-- Name: causa_visita; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.causa_visita (
+    id_causa_visita integer NOT NULL,
+    causa character varying(255)
+);
+
+
+ALTER TABLE public.causa_visita OWNER TO postgres;
+
+--
+-- Name: causa_visita_id_causa_visita_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.causa_visita_id_causa_visita_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.causa_visita_id_causa_visita_seq OWNER TO postgres;
+
+--
+-- Name: causa_visita_id_causa_visita_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.causa_visita_id_causa_visita_seq OWNED BY public.causa_visita.id_causa_visita;
+
+
+--
+-- Name: departamento; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.departamento (
+    departamento_id integer NOT NULL,
+    nombre character varying(255)
+);
+
+
+ALTER TABLE public.departamento OWNER TO postgres;
+
+--
+-- Name: departamento_departamento_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.departamento_departamento_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.departamento_departamento_id_seq OWNER TO postgres;
+
+--
+-- Name: departamento_departamento_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.departamento_departamento_id_seq OWNED BY public.departamento.departamento_id;
+
+
+--
+-- Name: habitacion; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.habitacion (
+    id_habitacion integer NOT NULL,
+    id_lugar integer NOT NULL,
+    nombre character varying(30) NOT NULL,
+    genero public.enum_habitacion_genero NOT NULL,
+    disponible boolean DEFAULT true
+);
+
+
+ALTER TABLE public.habitacion OWNER TO postgres;
+
+--
+-- Name: habitacion_id_habitacion_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.habitacion_id_habitacion_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.habitacion_id_habitacion_seq OWNER TO postgres;
+
+--
+-- Name: habitacion_id_habitacion_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.habitacion_id_habitacion_seq OWNED BY public.habitacion.id_habitacion;
+
+
+--
+-- Name: hospital; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.hospital (
+    id_hospital integer NOT NULL,
+    nombre character varying(100) NOT NULL,
+    direccion text NOT NULL
+);
+
+
+ALTER TABLE public.hospital OWNER TO postgres;
+
+--
+-- Name: hospital_id_hospital_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.hospital_id_hospital_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.hospital_id_hospital_seq OWNER TO postgres;
+
+--
+-- Name: hospital_id_hospital_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.hospital_id_hospital_seq OWNED BY public.hospital.id_hospital;
+
+
+--
+-- Name: huesped; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.huesped (
+    id_huesped integer NOT NULL,
+    id_persona integer NOT NULL,
+    activo boolean,
+    reingreso boolean NOT NULL
+);
+
+
+ALTER TABLE public.huesped OWNER TO postgres;
+
+--
+-- Name: huesped_id_huesped_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.huesped_id_huesped_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.huesped_id_huesped_seq OWNER TO postgres;
+
+--
+-- Name: huesped_id_huesped_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.huesped_id_huesped_seq OWNED BY public.huesped.id_huesped;
+
+
+--
+-- Name: iglesia; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.iglesia (
+    id_iglesia integer NOT NULL,
+    nombre character varying(100) NOT NULL
+);
+
+
+ALTER TABLE public.iglesia OWNER TO postgres;
+
+--
+-- Name: iglesia_huesped; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.iglesia_huesped (
+    id_iglesia_huesped integer NOT NULL,
+    id_iglesia integer NOT NULL,
+    id_huesped integer NOT NULL
+);
+
+
+ALTER TABLE public.iglesia_huesped OWNER TO postgres;
+
+--
+-- Name: iglesia_huesped_id_iglesia_huesped_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.iglesia_huesped_id_iglesia_huesped_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.iglesia_huesped_id_iglesia_huesped_seq OWNER TO postgres;
+
+--
+-- Name: iglesia_huesped_id_iglesia_huesped_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.iglesia_huesped_id_iglesia_huesped_seq OWNED BY public.iglesia_huesped.id_iglesia_huesped;
+
+
+--
+-- Name: iglesia_id_iglesia_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.iglesia_id_iglesia_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.iglesia_id_iglesia_seq OWNER TO postgres;
+
+--
+-- Name: iglesia_id_iglesia_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.iglesia_id_iglesia_seq OWNED BY public.iglesia.id_iglesia;
+
+
+--
+-- Name: lista_negra; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.lista_negra (
+    id_lista_negra integer NOT NULL,
+    id_persona integer NOT NULL,
+    id_regla integer NOT NULL,
+    observacion text
+);
+
+
+ALTER TABLE public.lista_negra OWNER TO postgres;
+
+--
+-- Name: lista_negra_id_lista_negra_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.lista_negra_id_lista_negra_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.lista_negra_id_lista_negra_seq OWNER TO postgres;
+
+--
+-- Name: lista_negra_id_lista_negra_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.lista_negra_id_lista_negra_seq OWNED BY public.lista_negra.id_lista_negra;
+
+
+--
+-- Name: lista_solicitud; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.lista_solicitud (
+    id_lista_solicitud integer NOT NULL,
+    id_paciente_huesped integer NOT NULL,
+    observacion text,
+    fecha_entrada date NOT NULL,
+    fecha_salida date,
+    becada boolean,
+    id_afiliado integer
+);
+
+
+ALTER TABLE public.lista_solicitud OWNER TO postgres;
+
+--
+-- Name: lista_solicitud_id_lista_solicitud_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.lista_solicitud_id_lista_solicitud_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.lista_solicitud_id_lista_solicitud_seq OWNER TO postgres;
+
+--
+-- Name: lista_solicitud_id_lista_solicitud_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.lista_solicitud_id_lista_solicitud_seq OWNED BY public.lista_solicitud.id_lista_solicitud;
+
+
+--
+-- Name: lugar; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.lugar (
+    id_lugar integer NOT NULL,
+    codigo character varying(10) NOT NULL
+);
+
+
+ALTER TABLE public.lugar OWNER TO postgres;
+
+--
+-- Name: lugar_id_lugar_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.lugar_id_lugar_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.lugar_id_lugar_seq OWNER TO postgres;
+
+--
+-- Name: lugar_id_lugar_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.lugar_id_lugar_seq OWNED BY public.lugar.id_lugar;
+
+
+--
+-- Name: municipio; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.municipio (
+    municipio_id integer NOT NULL,
+    departamento_id integer,
+    nombre character varying(255)
+);
+
+
+ALTER TABLE public.municipio OWNER TO postgres;
+
+--
+-- Name: municipio_municipio_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.municipio_municipio_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.municipio_municipio_id_seq OWNER TO postgres;
+
+--
+-- Name: municipio_municipio_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.municipio_municipio_id_seq OWNED BY public.municipio.municipio_id;
+
+
+--
+-- Name: ocupacion; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.ocupacion (
+    id_ocupacion integer NOT NULL,
+    descripcion text NOT NULL
+);
+
+
+ALTER TABLE public.ocupacion OWNER TO postgres;
+
+--
+-- Name: ocupacion_id_ocupacion_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.ocupacion_id_ocupacion_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.ocupacion_id_ocupacion_seq OWNER TO postgres;
+
+--
+-- Name: ocupacion_id_ocupacion_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.ocupacion_id_ocupacion_seq OWNED BY public.ocupacion.id_ocupacion;
+
+
+--
+-- Name: ofrenda; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.ofrenda (
+    id_ofrenda integer NOT NULL,
+    id_reservacion integer,
+    valor numeric(10,2) NOT NULL,
+    fecha date NOT NULL
+);
+
+
+ALTER TABLE public.ofrenda OWNER TO postgres;
+
+--
+-- Name: ofrenda_id_ofrenda_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.ofrenda_id_ofrenda_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.ofrenda_id_ofrenda_seq OWNER TO postgres;
+
+--
+-- Name: ofrenda_id_ofrenda_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.ofrenda_id_ofrenda_seq OWNED BY public.ofrenda.id_ofrenda;
+
+
+--
+-- Name: paciente; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.paciente (
+    id_paciente integer NOT NULL,
+    id_person integer NOT NULL,
+    id_hospital integer,
+    id_piso integer,
+    id_sala integer,
+    id_causa_visita integer NOT NULL,
+    observacion text
+);
+
+
+ALTER TABLE public.paciente OWNER TO postgres;
+
+--
+-- Name: paciente_huesped; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.paciente_huesped (
+    id_paciente_huesped integer NOT NULL,
+    id_paciente integer NOT NULL,
+    id_huesped integer NOT NULL,
+    parentesco_paciente character varying(50)
+);
+
+
+ALTER TABLE public.paciente_huesped OWNER TO postgres;
+
+--
+-- Name: paciente_huesped_id_paciente_huesped_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.paciente_huesped_id_paciente_huesped_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.paciente_huesped_id_paciente_huesped_seq OWNER TO postgres;
+
+--
+-- Name: paciente_huesped_id_paciente_huesped_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.paciente_huesped_id_paciente_huesped_seq OWNED BY public.paciente_huesped.id_paciente_huesped;
+
+
+--
+-- Name: paciente_id_paciente_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.paciente_id_paciente_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.paciente_id_paciente_seq OWNER TO postgres;
+
+--
+-- Name: paciente_id_paciente_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.paciente_id_paciente_seq OWNED BY public.paciente.id_paciente;
+
+
+--
+-- Name: patrono; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.patrono (
+    id_patrono integer NOT NULL,
+    nombre character varying(100) NOT NULL
+);
+
+
+ALTER TABLE public.patrono OWNER TO postgres;
+
+--
+-- Name: patrono_afiliado; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.patrono_afiliado (
+    id_patrono_afiliado integer NOT NULL,
+    id_patrono integer NOT NULL,
+    id_afiliado integer NOT NULL
+);
+
+
+ALTER TABLE public.patrono_afiliado OWNER TO postgres;
+
+--
+-- Name: patrono_afiliado_id_patrono_afiliado_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.patrono_afiliado_id_patrono_afiliado_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.patrono_afiliado_id_patrono_afiliado_seq OWNER TO postgres;
+
+--
+-- Name: patrono_afiliado_id_patrono_afiliado_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.patrono_afiliado_id_patrono_afiliado_seq OWNED BY public.patrono_afiliado.id_patrono_afiliado;
+
+
+--
+-- Name: patrono_id_patrono_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.patrono_id_patrono_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.patrono_id_patrono_seq OWNER TO postgres;
+
+--
+-- Name: patrono_id_patrono_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.patrono_id_patrono_seq OWNED BY public.patrono.id_patrono;
+
+
+--
+-- Name: persona; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.persona (
+    id_persona integer NOT NULL,
+    id_ocupacion integer,
+    municipio_id integer,
+    id_lugar integer NOT NULL,
+    dni character varying(20),
+    primer_nombre character varying(30) NOT NULL,
+    segundo_nombre character varying(30),
+    primer_apellido character varying(30) NOT NULL,
+    segundo_apellido character varying(30),
+    direccion text,
+    telefono character varying(15),
+    genero public.enum_persona_genero NOT NULL,
+    fecha_nacimiento date NOT NULL
+);
+
+
+ALTER TABLE public.persona OWNER TO postgres;
+
+--
+-- Name: persona_id_persona_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.persona_id_persona_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.persona_id_persona_seq OWNER TO postgres;
+
+--
+-- Name: persona_id_persona_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.persona_id_persona_seq OWNED BY public.persona.id_persona;
+
+
+--
+-- Name: piso; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.piso (
+    id_piso integer NOT NULL,
+    id_hospital integer NOT NULL,
+    nombre_piso character varying(25) NOT NULL
+);
+
+
+ALTER TABLE public.piso OWNER TO postgres;
+
+--
+-- Name: piso_id_piso_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.piso_id_piso_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.piso_id_piso_seq OWNER TO postgres;
+
+--
+-- Name: piso_id_piso_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.piso_id_piso_seq OWNED BY public.piso.id_piso;
+
+
+--
+-- Name: privilegio; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.privilegio (
+    id_privilegio integer NOT NULL,
+    descripcion character varying(355) NOT NULL
+);
+
+
+ALTER TABLE public.privilegio OWNER TO postgres;
+
+--
+-- Name: procedencia; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.procedencia (
+    id_procedencia integer NOT NULL,
+    departamento character varying(50) NOT NULL,
+    municipio character varying(50) NOT NULL
+);
+
+
+ALTER TABLE public.procedencia OWNER TO postgres;
+
+--
+-- Name: procedencia_id_procedencia_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.procedencia_id_procedencia_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.procedencia_id_procedencia_seq OWNER TO postgres;
+
+--
+-- Name: procedencia_id_procedencia_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.procedencia_id_procedencia_seq OWNED BY public.procedencia.id_procedencia;
+
+
+--
+-- Name: reglamento; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.reglamento (
+    id_regla integer NOT NULL,
+    descripcion_regla text NOT NULL
+);
+
+
+ALTER TABLE public.reglamento OWNER TO postgres;
+
+--
+-- Name: reglamento_id_regla_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.reglamento_id_regla_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.reglamento_id_regla_seq OWNER TO postgres;
+
+--
+-- Name: reglamento_id_regla_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.reglamento_id_regla_seq OWNED BY public.reglamento.id_regla;
+
+
+--
+-- Name: reservacion; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.reservacion (
+    id_reservacion integer NOT NULL,
+    id_paciente_huesped integer NOT NULL,
+    id_cama integer,
+    id_hospital integer NOT NULL,
+    activa boolean DEFAULT true,
+    fecha_entrada date NOT NULL,
+    fecha_salida date,
+    becado boolean DEFAULT false NOT NULL
+);
+
+
+ALTER TABLE public.reservacion OWNER TO postgres;
+
+--
+-- Name: reservacion_id_reservacion_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.reservacion_id_reservacion_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.reservacion_id_reservacion_seq OWNER TO postgres;
+
+--
+-- Name: reservacion_id_reservacion_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.reservacion_id_reservacion_seq OWNED BY public.reservacion.id_reservacion;
+
+
+--
+-- Name: sala; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.sala (
+    id_sala integer NOT NULL,
+    id_piso integer NOT NULL,
+    nombre_sala character varying(25) NOT NULL
+);
+
+
+ALTER TABLE public.sala OWNER TO postgres;
+
+--
+-- Name: sala_id_sala_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.sala_id_sala_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.sala_id_sala_seq OWNER TO postgres;
+
+--
+-- Name: sala_id_sala_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.sala_id_sala_seq OWNED BY public.sala.id_sala;
+
+
+--
+-- Name: usuario; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.usuario (
+    id_usuario integer NOT NULL,
+    id_persona integer NOT NULL,
+    id_hospital integer,
+    nickname character varying(25) NOT NULL,
+    contrasena character varying(100) NOT NULL,
+    rol public.enum_usuario_rol NOT NULL
+);
+
+
+ALTER TABLE public.usuario OWNER TO postgres;
+
+--
+-- Name: usuario_id_usuario_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.usuario_id_usuario_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.usuario_id_usuario_seq OWNER TO postgres;
+
+--
+-- Name: usuario_id_usuario_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.usuario_id_usuario_seq OWNED BY public.usuario.id_usuario;
+
+
+--
+-- Name: usuario_privilegio; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.usuario_privilegio (
+    id_usuario_privilegio integer NOT NULL,
+    id_usuario integer NOT NULL,
+    id_privilegio integer NOT NULL
+);
+
+
+ALTER TABLE public.usuario_privilegio OWNER TO postgres;
+
+--
+-- Name: usuario_privilegio_id_usuario_privilegio_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.usuario_privilegio_id_usuario_privilegio_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.usuario_privilegio_id_usuario_privilegio_seq OWNER TO postgres;
+
+--
+-- Name: usuario_privilegio_id_usuario_privilegio_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.usuario_privilegio_id_usuario_privilegio_seq OWNED BY public.usuario_privilegio.id_usuario_privilegio;
+
+
+--
+-- Name: MotivoIngresos motivo_id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."MotivoIngresos" ALTER COLUMN motivo_id SET DEFAULT nextval('public."MotivoIngresos_motivo_id_seq"'::regclass);
+
+
+--
+-- Name: afiliado id_afiliado; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.afiliado ALTER COLUMN id_afiliado SET DEFAULT nextval('public.afiliado_id_afiliado_seq'::regclass);
+
+
+--
+-- Name: afiliado_reservacion id_afiliado_reservacion; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.afiliado_reservacion ALTER COLUMN id_afiliado_reservacion SET DEFAULT nextval('public.afiliado_reservacion_id_afiliado_reservacion_seq'::regclass);
+
+
+--
+-- Name: cama id_cama; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.cama ALTER COLUMN id_cama SET DEFAULT nextval('public.cama_id_cama_seq'::regclass);
+
+
+--
+-- Name: causa_visita id_causa_visita; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.causa_visita ALTER COLUMN id_causa_visita SET DEFAULT nextval('public.causa_visita_id_causa_visita_seq'::regclass);
+
+
+--
+-- Name: departamento departamento_id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.departamento ALTER COLUMN departamento_id SET DEFAULT nextval('public.departamento_departamento_id_seq'::regclass);
+
+
+--
+-- Name: habitacion id_habitacion; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.habitacion ALTER COLUMN id_habitacion SET DEFAULT nextval('public.habitacion_id_habitacion_seq'::regclass);
+
+
+--
+-- Name: hospital id_hospital; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.hospital ALTER COLUMN id_hospital SET DEFAULT nextval('public.hospital_id_hospital_seq'::regclass);
+
+
+--
+-- Name: huesped id_huesped; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.huesped ALTER COLUMN id_huesped SET DEFAULT nextval('public.huesped_id_huesped_seq'::regclass);
+
+
+--
+-- Name: iglesia id_iglesia; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.iglesia ALTER COLUMN id_iglesia SET DEFAULT nextval('public.iglesia_id_iglesia_seq'::regclass);
+
+
+--
+-- Name: iglesia_huesped id_iglesia_huesped; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.iglesia_huesped ALTER COLUMN id_iglesia_huesped SET DEFAULT nextval('public.iglesia_huesped_id_iglesia_huesped_seq'::regclass);
+
+
+--
+-- Name: lista_negra id_lista_negra; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.lista_negra ALTER COLUMN id_lista_negra SET DEFAULT nextval('public.lista_negra_id_lista_negra_seq'::regclass);
+
+
+--
+-- Name: lista_solicitud id_lista_solicitud; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.lista_solicitud ALTER COLUMN id_lista_solicitud SET DEFAULT nextval('public.lista_solicitud_id_lista_solicitud_seq'::regclass);
+
+
+--
+-- Name: lugar id_lugar; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.lugar ALTER COLUMN id_lugar SET DEFAULT nextval('public.lugar_id_lugar_seq'::regclass);
+
+
+--
+-- Name: municipio municipio_id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.municipio ALTER COLUMN municipio_id SET DEFAULT nextval('public.municipio_municipio_id_seq'::regclass);
+
+
+--
+-- Name: ocupacion id_ocupacion; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.ocupacion ALTER COLUMN id_ocupacion SET DEFAULT nextval('public.ocupacion_id_ocupacion_seq'::regclass);
+
+
+--
+-- Name: ofrenda id_ofrenda; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.ofrenda ALTER COLUMN id_ofrenda SET DEFAULT nextval('public.ofrenda_id_ofrenda_seq'::regclass);
+
+
+--
+-- Name: paciente id_paciente; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.paciente ALTER COLUMN id_paciente SET DEFAULT nextval('public.paciente_id_paciente_seq'::regclass);
+
+
+--
+-- Name: paciente_huesped id_paciente_huesped; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.paciente_huesped ALTER COLUMN id_paciente_huesped SET DEFAULT nextval('public.paciente_huesped_id_paciente_huesped_seq'::regclass);
+
+
+--
+-- Name: patrono id_patrono; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.patrono ALTER COLUMN id_patrono SET DEFAULT nextval('public.patrono_id_patrono_seq'::regclass);
+
+
+--
+-- Name: patrono_afiliado id_patrono_afiliado; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.patrono_afiliado ALTER COLUMN id_patrono_afiliado SET DEFAULT nextval('public.patrono_afiliado_id_patrono_afiliado_seq'::regclass);
+
+
+--
+-- Name: persona id_persona; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.persona ALTER COLUMN id_persona SET DEFAULT nextval('public.persona_id_persona_seq'::regclass);
+
+
+--
+-- Name: piso id_piso; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.piso ALTER COLUMN id_piso SET DEFAULT nextval('public.piso_id_piso_seq'::regclass);
+
+
+--
+-- Name: procedencia id_procedencia; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.procedencia ALTER COLUMN id_procedencia SET DEFAULT nextval('public.procedencia_id_procedencia_seq'::regclass);
+
+
+--
+-- Name: reglamento id_regla; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.reglamento ALTER COLUMN id_regla SET DEFAULT nextval('public.reglamento_id_regla_seq'::regclass);
+
+
+--
+-- Name: reservacion id_reservacion; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.reservacion ALTER COLUMN id_reservacion SET DEFAULT nextval('public.reservacion_id_reservacion_seq'::regclass);
+
+
+--
+-- Name: sala id_sala; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.sala ALTER COLUMN id_sala SET DEFAULT nextval('public.sala_id_sala_seq'::regclass);
+
+
+--
+-- Name: usuario id_usuario; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.usuario ALTER COLUMN id_usuario SET DEFAULT nextval('public.usuario_id_usuario_seq'::regclass);
+
+
+--
+-- Name: usuario_privilegio id_usuario_privilegio; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.usuario_privilegio ALTER COLUMN id_usuario_privilegio SET DEFAULT nextval('public.usuario_privilegio_id_usuario_privilegio_seq'::regclass);
+
+
+--
+-- Data for Name: MotivoIngresos; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public."MotivoIngresos" (motivo_id, motivo, "createdAt", "updatedAt") FROM stdin;
+\.
+
+
+--
+-- Data for Name: afiliado; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.afiliado (id_afiliado, dni, nombre, condicion) FROM stdin;
+\.
+
+
+--
+-- Data for Name: afiliado_reservacion; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.afiliado_reservacion (id_afiliado_reservacion, id_afiliado, id_reservacion) FROM stdin;
+\.
+
+
+--
+-- Data for Name: cama; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.cama (id_cama, id_habitacion, nomre, tipo, disponible) FROM stdin;
+\.
+
+
+--
+-- Data for Name: causa_visita; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.causa_visita (id_causa_visita, causa) FROM stdin;
+\.
+
+
+--
+-- Data for Name: departamento; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.departamento (departamento_id, nombre) FROM stdin;
+1	ATLANTIDA
+2	CHOLUTECA
+3	COLON
+4	COMAYAGUA
+5	COPAN
+6	CORTES
+7	EL PARAISO
+8	FRANCISCO MORAZAN
+9	GRACIAS A DIOS
+10	INTIBUCA
+11	ISLAS DE LA BAHIA
+12	LA PAZ
+13	LEMPIRA
+14	OCOTEPEQUE
+15	OLANCHO
+16	SANTA BARBARA
+17	VALLE
+18	YORO
+\.
+
+
+--
+-- Data for Name: habitacion; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.habitacion (id_habitacion, id_lugar, nombre, genero, disponible) FROM stdin;
+\.
+
+
+--
+-- Data for Name: hospital; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.hospital (id_hospital, nombre, direccion) FROM stdin;
+\.
+
+
+--
+-- Data for Name: huesped; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.huesped (id_huesped, id_persona, activo, reingreso) FROM stdin;
+\.
+
+
+--
+-- Data for Name: iglesia; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.iglesia (id_iglesia, nombre) FROM stdin;
+\.
+
+
+--
+-- Data for Name: iglesia_huesped; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.iglesia_huesped (id_iglesia_huesped, id_iglesia, id_huesped) FROM stdin;
+\.
+
+
+--
+-- Data for Name: lista_negra; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.lista_negra (id_lista_negra, id_persona, id_regla, observacion) FROM stdin;
+\.
+
+
+--
+-- Data for Name: lista_solicitud; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.lista_solicitud (id_lista_solicitud, id_paciente_huesped, observacion, fecha_entrada, fecha_salida, becada, id_afiliado) FROM stdin;
+\.
+
+
+--
+-- Data for Name: lugar; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.lugar (id_lugar, codigo) FROM stdin;
+1	SPS
+2	TGU
+\.
+
+
+--
+-- Data for Name: municipio; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.municipio (municipio_id, departamento_id, nombre) FROM stdin;
+1	1	LA CEIBA
+2	1	EL PORVENIR
+3	1	ESPARTA
+4	1	JUTICALPA
+5	1	LA MASICA
+6	1	SAN FRANCISCO
+7	1	TELA
+8	1	ARIZONA
+9	2	CHOLUTECA
+10	2	APACILAGUA
+11	2	CONCEPCION DE MARIA
+12	2	DUYURE
+13	2	EL CORPUS
+14	2	EL TRIUNFO
+15	2	MARCOVIA
+16	2	MOROLICA
+17	2	NAMASIGUE
+18	2	OROCUINA
+19	2	PESPIRE
+20	2	SAN ANTONIO DE FLORES
+21	2	SAN ISIDRO
+22	2	SAN JOSE
+23	2	SAN MARCOS DE COLON
+24	2	SANTA ANA DE YUSGUARE
+25	3	TRUJJILLO
+26	3	BALFATE
+27	3	IRIONA
+28	3	LIMON
+29	3	SABA
+30	3	SANTA FE
+31	3	SANTA ROSA DE AGUAN
+32	3	SONAGUERA
+33	3	TOCOA
+34	3	BONITO ORIENTAL
+35	4	COMAYAGUA
+36	4	AJUTERIQUE
+37	4	EL ROSARIO
+38	4	ESQUIAS
+39	4	HUMUYA
+40	4	LA LIBERTAD
+41	4	LA LIBERTAD
+42	4	VILLA DE SAN ANTONIO
+43	4	LA TRINIDAD
+44	4	LEJAMANI
+45	4	MEAMBAR
+46	4	MINAS DE ORO
+47	4	OJOS DE AGUA
+48	4	SAN JERONIMO
+49	4	SAN JOSE DE COMAYAGUA
+50	4	SAN JOSE DEL POTRERO
+51	4	SAN LUIS
+52	4	SAN SEBASTIAN
+53	4	SIGUATEPEQUE
+54	4	LAMANI
+55	4	LAS LAJAS
+56	4	TAULABE
+57	5	SANTA ROSA DE COPAN
+58	5	CABAÑAS
+59	5	CONCEPCION
+60	5	COPAN RUINAS
+61	5	CORQUIN
+62	5	CUCUYAGUA
+63	5	DOLORES
+64	5	DULCE NOMBRE
+65	5	EL PARAISO
+66	5	FLORIDA
+67	5	LA JIGUA
+68	5	LA UNION
+69	5	NUEVA ARCADIA
+70	5	SAN AGUSTIN
+71	5	SAN ANTONIO
+72	5	SAN JERONIMO
+73	5	SAN JOSE
+74	5	SAN JUAN DE OPOA
+75	5	SAN NICOLAS
+76	5	SAN PEDRO
+77	5	SANTA RITA
+78	5	VERACRUZ
+79	6	SAN PEDRO SULA
+80	6	CHOLOMA
+81	6	PUERTO CORTES
+82	6	VILLANUEVA
+83	6	SANTA CRUZ DE YOJOA
+84	6	LA LIMA
+85	6	SAN ANTONIO DE CORTES
+86	6	SAN FRANCISCO DE YOJOA
+87	6	SAN MANUEL
+88	6	OMOA
+89	6	PIMIENTA
+90	6	POTRERILLOS
+91	7	YUSCARAN
+92	7	ALAUCA
+93	7	DANLI
+94	7	EL PARAISO
+95	7	GUINOPE
+96	7	JACALEAPA
+97	7	LIURE
+98	7	MOROCELI
+99	7	OROPOLI
+100	7	POTRERILLOS
+101	7	SAN ANTONIO DE FLORES
+102	7	SAN LUCAS
+103	7	SAN MATIAS
+104	7	SOLEDAD
+105	7	TEUPASENTI
+106	7	TEXIGUAT
+107	7	TROJES
+108	7	VADO ANCHO
+109	7	YAUYUPE
+110	8	DISTRITO CENTRAL
+111	8	MARALE
+112	8	EL PORVENIR
+113	8	SAN IGNACIO
+114	8	ORICA
+115	8	VALLECILLO
+116	8	CEDROS
+117	8	GUAIMACA
+118	8	TALANGA
+119	8	CANTARRANAS
+120	8	SANTA LUCIA
+121	8	VALLE DE ANGELES
+122	8	VILLA DE SAN FRANCISCO
+123	8	SAN ANTONIO DE ORIENTE
+124	8	TATUMBLA
+125	8	LEPATERIQUE
+126	8	OJOJONA
+127	8	SANTA ANA
+128	8	SAN BUENAVENTURA
+129	8	MARAITA
+130	8	CURAREN
+131	8	REITOCA
+132	8	SABANAGRANDE
+133	8	NUEVA ARMENIA
+134	8	LA VENTA
+135	8	ALAUBAREN
+136	8	SAN MIGUELITO
+137	8	LA LIBERTIDAD
+138	9	PUERTO LEMPIRA
+139	9	AHUAS
+140	9	BRUS LAGUNA
+141	9	JUAN FRANCISCO BULNES
+142	9	VILLEDA MORALES
+143	9	WAMPUSIRPI
+144	10	LA ESPERANZA
+145	10	CAMASCA
+146	10	COLOMONCAGUA
+147	10	CONCEPCION
+148	10	DOLORES
+149	10	INTIBUCA
+150	10	JESUS DE OTORO
+151	10	MAGDALENA
+152	10	MASAGUARA
+153	10	SAN ANTONIO
+154	10	SAN ISIDRO
+155	10	SAN JUAN
+156	10	SAN MARCOS DE LA SIERRA
+157	10	SAN MIGUEL GUANCAPLA
+158	10	SANTA LUCIA
+159	10	YAMARANGUILA
+160	10	SAN FRANCISCO DE OPALACA
+161	11	GUANAJA
+162	11	J. SANTOS GUARDIOLA
+163	11	ROATAN
+164	11	UTILA
+165	11	VIVORILLO
+166	12	LA PAZ
+167	12	AGUANQUETERIQUE
+168	12	CANE
+169	12	CHINCALA
+170	12	GUAJIQUIRO
+171	12	LAUTERIQUE
+172	12	MARCALA
+173	12	MERCEDES DE ORIENTE
+174	12	OPATORO
+175	12	SAN ANTONIO DEL NORTE
+176	12	SAN JOSE
+177	12	SAN JUAN
+178	12	SAN PEDRO DE TUTULE
+179	12	SANTA ANA
+180	12	SANTA ELENA
+181	12	SANTA MARIA
+182	12	SANTIAGO DE PURINGLA
+183	12	YARULA
+184	13	GRACIAS
+185	13	BELEN
+186	13	CANDELARIA
+187	13	COLOLACA
+188	13	ERANDIQUE
+189	13	GUALCINCE
+190	13	GUARITA
+191	13	LA CAMPA
+192	13	LA IGUALA
+193	13	LAS FLORES
+194	13	LA UNION
+195	13	LA VIRTUD
+196	13	LEPAERA
+197	13	MAPULACA
+198	13	PIRAERA
+199	13	SAN ANDRES
+200	13	SAN FRANCISCO
+201	13	SAN JUAN GUARITA
+202	13	SAN MANUEL COLOHETE
+203	13	SAN MARCOS DE CAIQUIN
+204	13	SAN RAFAEL
+205	13	SAN SEBASTIAN
+206	13	SANTA CRUZ
+207	13	TALGUA
+208	13	TAMBLA
+209	13	TOMALA
+210	13	VALLADOLID
+211	13	VIRGEN
+212	14	OCOTEPEQUE
+213	14	BELEN GUALCHO
+214	14	CONCEPCION
+215	14	DOLORES MERENDON
+216	14	FRATERNIDAD
+217	14	LA ENCARNACION
+218	14	LA LABOR
+219	14	LUCERNA
+220	14	MERCEDES
+221	14	SAN FERNANDO
+222	14	SAN FRANCISCO DEL VALLE
+223	14	SAN JORGE
+224	14	SAN MARCOS
+225	14	SANTA FE
+226	14	SENSENTI
+227	14	SINUAPA
+228	15	CAMPAMENTO
+229	15	CATACAMAS
+230	15	CONCORDIA
+231	15	DULCE NOMBRE DE CULMI
+232	15	EL ROSARIO
+233	15	ESQUIPULAS DEL NORTE
+234	15	GUALACO
+235	15	GUARIZAMA
+236	15	GUATA
+237	15	GUAYAPE
+238	15	JANO
+239	15	JUTICALPA
+240	15	LA UNION
+241	15	MANGULILE
+242	15	MANTO
+243	15	PATUCA
+244	15	SALAMA
+245	15	SAN ESTEBAN
+246	15	SAN FRANCISCO DE BECERRA
+247	15	SAN FRANCISCO DE LA PAZ
+248	15	SANTA MARIA DEL REAL
+249	15	SILCA
+250	15	YOCON
+251	16	SANTA BARBARA
+252	16	ARADA
+253	16	ATIMA
+254	16	AZACUALPA
+255	16	CEGUACA
+256	16	CHINDA
+257	16	CONCEPCION DEL NORTE
+258	16	CONCEPCION DEL SUR
+259	16	EL NISPERO
+260	16	GUALALA
+261	16	ILAMA
+262	16	LAS VEGAS
+263	16	MACUELIZO
+264	16	NARANJITO
+265	16	NUEVA FRONTERA
+266	16	NUEVO CELILAC
+267	16	PETOA
+268	16	PROTECCION
+269	16	QUIMISTAN
+270	16	SAN FRANCISCO DE OJUERA
+271	16	SAN JOSE DE LAS COLINAS
+272	16	SAN LUIS
+273	16	SAN MARCOS
+274	16	SAN NICOLAS
+275	16	SAN PEDRO ZACAPA
+276	16	SANTA RITA
+277	16	SAN VICENTE CENTENARIO
+278	16	TRINIDAD
+279	17	NACAOME
+280	17	ALIANZA
+281	17	AMAPALA
+282	17	ARAMECINA
+283	17	CARIDAD
+284	17	GOASCORAN
+285	17	LANGUE
+286	17	SAN FRANCISCO DE CORAY
+287	17	SAN LORENZO
+288	18	YORO
+289	18	ARENAL
+290	18	EL NEGRITO
+291	18	EL PROGRESO
+292	18	JOCON
+293	18	MORAZAN
+294	18	OLANCHITO
+295	18	SANTA RITA
+296	18	SULACO
+297	18	VICTORIA
+298	18	YORITO
+\.
+
+
+--
+-- Data for Name: ocupacion; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.ocupacion (id_ocupacion, descripcion) FROM stdin;
+1	INGENIERO
+2	CONSTRUCTOR
+3	JORNALERO
+4	YAPPER
+\.
+
+
+--
+-- Data for Name: ofrenda; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.ofrenda (id_ofrenda, id_reservacion, valor, fecha) FROM stdin;
+\.
+
+
+--
+-- Data for Name: paciente; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.paciente (id_paciente, id_person, id_hospital, id_piso, id_sala, id_causa_visita, observacion) FROM stdin;
+\.
+
+
+--
+-- Data for Name: paciente_huesped; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.paciente_huesped (id_paciente_huesped, id_paciente, id_huesped, parentesco_paciente) FROM stdin;
+\.
+
+
+--
+-- Data for Name: patrono; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.patrono (id_patrono, nombre) FROM stdin;
+\.
+
+
+--
+-- Data for Name: patrono_afiliado; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.patrono_afiliado (id_patrono_afiliado, id_patrono, id_afiliado) FROM stdin;
+\.
+
+
+--
+-- Data for Name: persona; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.persona (id_persona, id_ocupacion, municipio_id, id_lugar, dni, primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, direccion, telefono, genero, fecha_nacimiento) FROM stdin;
+1	4	90	1	0505-2005-00577	Jorge	Fernando	Hernandez	Cruz	Pueblo Good Sight, Disco 2, Registro 4	9870238	MASCULINO	2005-08-28
+\.
+
+
+--
+-- Data for Name: piso; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.piso (id_piso, id_hospital, nombre_piso) FROM stdin;
+\.
+
+
+--
+-- Data for Name: privilegio; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.privilegio (id_privilegio, descripcion) FROM stdin;
+\.
+
+
+--
+-- Data for Name: procedencia; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.procedencia (id_procedencia, departamento, municipio) FROM stdin;
+\.
+
+
+--
+-- Data for Name: reglamento; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.reglamento (id_regla, descripcion_regla) FROM stdin;
+\.
+
+
+--
+-- Data for Name: reservacion; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.reservacion (id_reservacion, id_paciente_huesped, id_cama, id_hospital, activa, fecha_entrada, fecha_salida, becado) FROM stdin;
+\.
+
+
+--
+-- Data for Name: sala; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.sala (id_sala, id_piso, nombre_sala) FROM stdin;
+\.
+
+
+--
+-- Data for Name: usuario; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.usuario (id_usuario, id_persona, id_hospital, nickname, contrasena, rol) FROM stdin;
+1	1	\N	fer-hnndz	$2b$10$bxrezJG94skDK2579JpM6eNhAQd5qMRZKS3d76SaKvnpQUNcr4sEW	admin
+\.
+
+
+--
+-- Data for Name: usuario_privilegio; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.usuario_privilegio (id_usuario_privilegio, id_usuario, id_privilegio) FROM stdin;
+\.
+
+
+--
+-- Name: MotivoIngresos_motivo_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public."MotivoIngresos_motivo_id_seq"', 1, false);
+
+
+--
+-- Name: afiliado_id_afiliado_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.afiliado_id_afiliado_seq', 1, false);
+
+
+--
+-- Name: afiliado_reservacion_id_afiliado_reservacion_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.afiliado_reservacion_id_afiliado_reservacion_seq', 1, false);
+
+
+--
+-- Name: cama_id_cama_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.cama_id_cama_seq', 1, false);
+
+
+--
+-- Name: causa_visita_id_causa_visita_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.causa_visita_id_causa_visita_seq', 1, false);
+
+
+--
+-- Name: departamento_departamento_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.departamento_departamento_id_seq', 18, true);
+
+
+--
+-- Name: habitacion_id_habitacion_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.habitacion_id_habitacion_seq', 1, false);
+
+
+--
+-- Name: hospital_id_hospital_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.hospital_id_hospital_seq', 1, false);
+
+
+--
+-- Name: huesped_id_huesped_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.huesped_id_huesped_seq', 1, false);
+
+
+--
+-- Name: iglesia_huesped_id_iglesia_huesped_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.iglesia_huesped_id_iglesia_huesped_seq', 1, false);
+
+
+--
+-- Name: iglesia_id_iglesia_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.iglesia_id_iglesia_seq', 1, false);
+
+
+--
+-- Name: lista_negra_id_lista_negra_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.lista_negra_id_lista_negra_seq', 1, false);
+
+
+--
+-- Name: lista_solicitud_id_lista_solicitud_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.lista_solicitud_id_lista_solicitud_seq', 1, false);
+
+
+--
+-- Name: lugar_id_lugar_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.lugar_id_lugar_seq', 2, true);
+
+
+--
+-- Name: municipio_municipio_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.municipio_municipio_id_seq', 298, true);
+
+
+--
+-- Name: ocupacion_id_ocupacion_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.ocupacion_id_ocupacion_seq', 4, true);
+
+
+--
+-- Name: ofrenda_id_ofrenda_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.ofrenda_id_ofrenda_seq', 1, false);
+
+
+--
+-- Name: paciente_huesped_id_paciente_huesped_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.paciente_huesped_id_paciente_huesped_seq', 1, false);
+
+
+--
+-- Name: paciente_id_paciente_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.paciente_id_paciente_seq', 1, false);
+
+
+--
+-- Name: patrono_afiliado_id_patrono_afiliado_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.patrono_afiliado_id_patrono_afiliado_seq', 1, false);
+
+
+--
+-- Name: patrono_id_patrono_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.patrono_id_patrono_seq', 1, false);
+
+
+--
+-- Name: persona_id_persona_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.persona_id_persona_seq', 1, true);
+
+
+--
+-- Name: piso_id_piso_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.piso_id_piso_seq', 1, false);
+
+
+--
+-- Name: procedencia_id_procedencia_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.procedencia_id_procedencia_seq', 1, false);
+
+
+--
+-- Name: reglamento_id_regla_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.reglamento_id_regla_seq', 1, false);
+
+
+--
+-- Name: reservacion_id_reservacion_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.reservacion_id_reservacion_seq', 1, false);
+
+
+--
+-- Name: sala_id_sala_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.sala_id_sala_seq', 1, false);
+
+
+--
+-- Name: usuario_id_usuario_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.usuario_id_usuario_seq', 1, true);
+
+
+--
+-- Name: usuario_privilegio_id_usuario_privilegio_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.usuario_privilegio_id_usuario_privilegio_seq', 1, false);
+
+
+--
+-- Name: MotivoIngresos MotivoIngresos_motivo_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."MotivoIngresos"
+    ADD CONSTRAINT "MotivoIngresos_motivo_key" UNIQUE (motivo);
+
+
+--
+-- Name: MotivoIngresos MotivoIngresos_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."MotivoIngresos"
+    ADD CONSTRAINT "MotivoIngresos_pkey" PRIMARY KEY (motivo_id);
+
+
+--
+-- Name: afiliado afiliado_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.afiliado
+    ADD CONSTRAINT afiliado_pkey PRIMARY KEY (id_afiliado);
+
+
+--
+-- Name: afiliado_reservacion afiliado_reservacion_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.afiliado_reservacion
+    ADD CONSTRAINT afiliado_reservacion_pkey PRIMARY KEY (id_afiliado_reservacion);
+
+
+--
+-- Name: cama cama_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.cama
+    ADD CONSTRAINT cama_pkey PRIMARY KEY (id_cama);
+
+
+--
+-- Name: causa_visita causa_visita_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.causa_visita
+    ADD CONSTRAINT causa_visita_pkey PRIMARY KEY (id_causa_visita);
+
+
+--
+-- Name: departamento departamento_nombre_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.departamento
+    ADD CONSTRAINT departamento_nombre_key UNIQUE (nombre);
+
+
+--
+-- Name: departamento departamento_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.departamento
+    ADD CONSTRAINT departamento_pkey PRIMARY KEY (departamento_id);
+
+
+--
+-- Name: habitacion habitacion_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.habitacion
+    ADD CONSTRAINT habitacion_pkey PRIMARY KEY (id_habitacion);
+
+
+--
+-- Name: hospital hospital_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.hospital
+    ADD CONSTRAINT hospital_pkey PRIMARY KEY (id_hospital);
+
+
+--
+-- Name: huesped huesped_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.huesped
+    ADD CONSTRAINT huesped_pkey PRIMARY KEY (id_huesped);
+
+
+--
+-- Name: iglesia_huesped iglesia_huesped_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.iglesia_huesped
+    ADD CONSTRAINT iglesia_huesped_pkey PRIMARY KEY (id_iglesia_huesped);
+
+
+--
+-- Name: iglesia iglesia_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.iglesia
+    ADD CONSTRAINT iglesia_pkey PRIMARY KEY (id_iglesia);
+
+
+--
+-- Name: lista_negra lista_negra_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.lista_negra
+    ADD CONSTRAINT lista_negra_pkey PRIMARY KEY (id_lista_negra);
+
+
+--
+-- Name: lista_solicitud lista_solicitud_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.lista_solicitud
+    ADD CONSTRAINT lista_solicitud_pkey PRIMARY KEY (id_lista_solicitud);
+
+
+--
+-- Name: lugar lugar_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.lugar
+    ADD CONSTRAINT lugar_pkey PRIMARY KEY (id_lugar);
+
+
+--
+-- Name: municipio municipio_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.municipio
+    ADD CONSTRAINT municipio_pkey PRIMARY KEY (municipio_id);
+
+
+--
+-- Name: ocupacion ocupacion_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.ocupacion
+    ADD CONSTRAINT ocupacion_pkey PRIMARY KEY (id_ocupacion);
+
+
+--
+-- Name: ofrenda ofrenda_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.ofrenda
+    ADD CONSTRAINT ofrenda_pkey PRIMARY KEY (id_ofrenda);
+
+
+--
+-- Name: paciente_huesped paciente_huesped_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.paciente_huesped
+    ADD CONSTRAINT paciente_huesped_pkey PRIMARY KEY (id_paciente_huesped);
+
+
+--
+-- Name: paciente paciente_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.paciente
+    ADD CONSTRAINT paciente_pkey PRIMARY KEY (id_paciente);
+
+
+--
+-- Name: patrono_afiliado patrono_afiliado_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.patrono_afiliado
+    ADD CONSTRAINT patrono_afiliado_pkey PRIMARY KEY (id_patrono_afiliado);
+
+
+--
+-- Name: patrono patrono_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.patrono
+    ADD CONSTRAINT patrono_pkey PRIMARY KEY (id_patrono);
+
+
+--
+-- Name: persona persona_dni_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.persona
+    ADD CONSTRAINT persona_dni_key UNIQUE (dni);
+
+
+--
+-- Name: persona persona_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.persona
+    ADD CONSTRAINT persona_pkey PRIMARY KEY (id_persona);
+
+
+--
+-- Name: piso piso_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.piso
+    ADD CONSTRAINT piso_pkey PRIMARY KEY (id_piso);
+
+
+--
+-- Name: privilegio privilegio_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.privilegio
+    ADD CONSTRAINT privilegio_pkey PRIMARY KEY (id_privilegio);
+
+
+--
+-- Name: procedencia procedencia_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.procedencia
+    ADD CONSTRAINT procedencia_pkey PRIMARY KEY (id_procedencia);
+
+
+--
+-- Name: reglamento reglamento_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.reglamento
+    ADD CONSTRAINT reglamento_pkey PRIMARY KEY (id_regla);
+
+
+--
+-- Name: reservacion reservacion_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.reservacion
+    ADD CONSTRAINT reservacion_pkey PRIMARY KEY (id_reservacion);
+
+
+--
+-- Name: sala sala_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.sala
+    ADD CONSTRAINT sala_pkey PRIMARY KEY (id_sala);
+
+
+--
+-- Name: usuario usuario_nickname_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.usuario
+    ADD CONSTRAINT usuario_nickname_key UNIQUE (nickname);
+
+
+--
+-- Name: usuario usuario_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.usuario
+    ADD CONSTRAINT usuario_pkey PRIMARY KEY (id_usuario);
+
+
+--
+-- Name: usuario_privilegio usuario_privilegio_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.usuario_privilegio
+    ADD CONSTRAINT usuario_privilegio_pkey PRIMARY KEY (id_usuario_privilegio);
+
+
+--
+-- Name: MotivoIngresos MotivoIngresos_motivo_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."MotivoIngresos"
+    ADD CONSTRAINT "MotivoIngresos_motivo_id_fkey" FOREIGN KEY (motivo_id) REFERENCES public.paciente(id_paciente) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: afiliado_reservacion afiliado_reservacion_id_afiliado_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.afiliado_reservacion
+    ADD CONSTRAINT afiliado_reservacion_id_afiliado_fkey FOREIGN KEY (id_afiliado) REFERENCES public.afiliado(id_afiliado) ON UPDATE CASCADE;
+
+
+--
+-- Name: afiliado_reservacion afiliado_reservacion_id_reservacion_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.afiliado_reservacion
+    ADD CONSTRAINT afiliado_reservacion_id_reservacion_fkey FOREIGN KEY (id_reservacion) REFERENCES public.reservacion(id_reservacion) ON UPDATE CASCADE;
+
+
+--
+-- Name: cama cama_id_habitacion_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.cama
+    ADD CONSTRAINT cama_id_habitacion_fkey FOREIGN KEY (id_habitacion) REFERENCES public.habitacion(id_habitacion) ON UPDATE CASCADE;
+
+
+--
+-- Name: habitacion habitacion_id_lugar_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.habitacion
+    ADD CONSTRAINT habitacion_id_lugar_fkey FOREIGN KEY (id_lugar) REFERENCES public.lugar(id_lugar) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: huesped huesped_id_persona_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.huesped
+    ADD CONSTRAINT huesped_id_persona_fkey FOREIGN KEY (id_persona) REFERENCES public.persona(id_persona) ON UPDATE CASCADE;
+
+
+--
+-- Name: iglesia_huesped iglesia_huesped_id_huesped_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.iglesia_huesped
+    ADD CONSTRAINT iglesia_huesped_id_huesped_fkey FOREIGN KEY (id_huesped) REFERENCES public.huesped(id_huesped) ON UPDATE CASCADE;
+
+
+--
+-- Name: iglesia_huesped iglesia_huesped_id_iglesia_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.iglesia_huesped
+    ADD CONSTRAINT iglesia_huesped_id_iglesia_fkey FOREIGN KEY (id_iglesia) REFERENCES public.iglesia(id_iglesia) ON UPDATE CASCADE;
+
+
+--
+-- Name: lista_negra lista_negra_id_persona_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.lista_negra
+    ADD CONSTRAINT lista_negra_id_persona_fkey FOREIGN KEY (id_persona) REFERENCES public.persona(id_persona) ON UPDATE CASCADE;
+
+
+--
+-- Name: lista_negra lista_negra_id_regla_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.lista_negra
+    ADD CONSTRAINT lista_negra_id_regla_fkey FOREIGN KEY (id_regla) REFERENCES public.reglamento(id_regla) ON UPDATE CASCADE;
+
+
+--
+-- Name: lista_solicitud lista_solicitud_id_afiliado_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.lista_solicitud
+    ADD CONSTRAINT lista_solicitud_id_afiliado_fkey FOREIGN KEY (id_afiliado) REFERENCES public.afiliado(id_afiliado) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: lista_solicitud lista_solicitud_id_paciente_huesped_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.lista_solicitud
+    ADD CONSTRAINT lista_solicitud_id_paciente_huesped_fkey FOREIGN KEY (id_paciente_huesped) REFERENCES public.paciente_huesped(id_paciente_huesped) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: municipio municipio_departamento_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.municipio
+    ADD CONSTRAINT municipio_departamento_id_fkey FOREIGN KEY (departamento_id) REFERENCES public.departamento(departamento_id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: ofrenda ofrenda_id_reservacion_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.ofrenda
+    ADD CONSTRAINT ofrenda_id_reservacion_fkey FOREIGN KEY (id_reservacion) REFERENCES public.reservacion(id_reservacion) ON UPDATE CASCADE;
+
+
+--
+-- Name: paciente_huesped paciente_huesped_id_huesped_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.paciente_huesped
+    ADD CONSTRAINT paciente_huesped_id_huesped_fkey FOREIGN KEY (id_huesped) REFERENCES public.huesped(id_huesped) ON UPDATE CASCADE;
+
+
+--
+-- Name: paciente_huesped paciente_huesped_id_paciente_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.paciente_huesped
+    ADD CONSTRAINT paciente_huesped_id_paciente_fkey FOREIGN KEY (id_paciente) REFERENCES public.paciente(id_paciente) ON UPDATE CASCADE;
+
+
+--
+-- Name: paciente paciente_id_causa_visita_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.paciente
+    ADD CONSTRAINT paciente_id_causa_visita_fkey FOREIGN KEY (id_causa_visita) REFERENCES public.causa_visita(id_causa_visita) ON UPDATE CASCADE;
+
+
+--
+-- Name: paciente paciente_id_hospital_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.paciente
+    ADD CONSTRAINT paciente_id_hospital_fkey FOREIGN KEY (id_hospital) REFERENCES public.hospital(id_hospital) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: paciente paciente_id_person_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.paciente
+    ADD CONSTRAINT paciente_id_person_fkey FOREIGN KEY (id_person) REFERENCES public.persona(id_persona) ON UPDATE CASCADE;
+
+
+--
+-- Name: paciente paciente_id_piso_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.paciente
+    ADD CONSTRAINT paciente_id_piso_fkey FOREIGN KEY (id_piso) REFERENCES public.piso(id_piso) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: paciente paciente_id_sala_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.paciente
+    ADD CONSTRAINT paciente_id_sala_fkey FOREIGN KEY (id_sala) REFERENCES public.sala(id_sala) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: patrono_afiliado patrono_afiliado_id_afiliado_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.patrono_afiliado
+    ADD CONSTRAINT patrono_afiliado_id_afiliado_fkey FOREIGN KEY (id_afiliado) REFERENCES public.afiliado(id_afiliado) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: patrono_afiliado patrono_afiliado_id_patrono_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.patrono_afiliado
+    ADD CONSTRAINT patrono_afiliado_id_patrono_fkey FOREIGN KEY (id_patrono) REFERENCES public.patrono(id_patrono) ON UPDATE CASCADE;
+
+
+--
+-- Name: persona persona_id_lugar_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.persona
+    ADD CONSTRAINT persona_id_lugar_fkey FOREIGN KEY (id_lugar) REFERENCES public.lugar(id_lugar) ON UPDATE CASCADE;
+
+
+--
+-- Name: persona persona_id_ocupacion_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.persona
+    ADD CONSTRAINT persona_id_ocupacion_fkey FOREIGN KEY (id_ocupacion) REFERENCES public.ocupacion(id_ocupacion) ON UPDATE CASCADE;
+
+
+--
+-- Name: piso piso_id_hospital_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.piso
+    ADD CONSTRAINT piso_id_hospital_fkey FOREIGN KEY (id_hospital) REFERENCES public.hospital(id_hospital) ON UPDATE CASCADE;
+
+
+--
+-- Name: reservacion reservacion_id_cama_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.reservacion
+    ADD CONSTRAINT reservacion_id_cama_fkey FOREIGN KEY (id_cama) REFERENCES public.cama(id_cama) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: reservacion reservacion_id_hospital_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.reservacion
+    ADD CONSTRAINT reservacion_id_hospital_fkey FOREIGN KEY (id_hospital) REFERENCES public.hospital(id_hospital) ON UPDATE CASCADE;
+
+
+--
+-- Name: reservacion reservacion_id_paciente_huesped_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.reservacion
+    ADD CONSTRAINT reservacion_id_paciente_huesped_fkey FOREIGN KEY (id_paciente_huesped) REFERENCES public.paciente_huesped(id_paciente_huesped) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: sala sala_id_piso_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.sala
+    ADD CONSTRAINT sala_id_piso_fkey FOREIGN KEY (id_piso) REFERENCES public.piso(id_piso) ON UPDATE CASCADE;
+
+
+--
+-- Name: usuario usuario_id_hospital_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.usuario
+    ADD CONSTRAINT usuario_id_hospital_fkey FOREIGN KEY (id_hospital) REFERENCES public.hospital(id_hospital) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: usuario usuario_id_persona_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.usuario
+    ADD CONSTRAINT usuario_id_persona_fkey FOREIGN KEY (id_persona) REFERENCES public.persona(id_persona) ON UPDATE CASCADE;
+
+
+--
+-- Name: usuario_privilegio usuario_privilegio_id_privilegio_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.usuario_privilegio
+    ADD CONSTRAINT usuario_privilegio_id_privilegio_fkey FOREIGN KEY (id_privilegio) REFERENCES public.privilegio(id_privilegio) ON UPDATE CASCADE;
+
+
+--
+-- Name: usuario_privilegio usuario_privilegio_id_usuario_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.usuario_privilegio
+    ADD CONSTRAINT usuario_privilegio_id_usuario_fkey FOREIGN KEY (id_usuario) REFERENCES public.usuario(id_usuario) ON UPDATE CASCADE;
+
+
+--
+-- Name: SCHEMA public; Type: ACL; Schema: -; Owner: postgres
+--
+
+REVOKE USAGE ON SCHEMA public FROM PUBLIC;
+
+
+--
+-- PostgreSQL database dump complete
+--
+
