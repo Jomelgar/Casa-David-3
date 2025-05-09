@@ -16,7 +16,7 @@ function PopUpDeleteRoom({ message, onConfirm, onCancel, roomData }) {
           value={selectedRoomName}
           onChange={(e) => setSelectedRoomName(e.target.value)}
         >
-          <option value="">¿Qué habitación deseas eliminar?</option>
+          <option value="">Seleccione una habitacion</option>
           {roomData.map((room) => (
             <option
               key={room.id}

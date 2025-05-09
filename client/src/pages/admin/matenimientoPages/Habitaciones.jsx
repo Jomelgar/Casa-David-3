@@ -30,7 +30,7 @@ import UserApi from "../../../api/User.api";
 import ReservacionesApi from "../../../api/Reservaciones.api";
 import { getUserFromToken } from "../../../utilities/auth.utils";
 
-const { PORT_API, URL_HOSTING } = require("../../../config");
+const { PORT_CLIENT, URL_HOSTING } = require("../../../config");
 
 /**
  * Represents a single bed component.
@@ -281,7 +281,7 @@ function Card({ habitacionId, roomName, gender, initialBedData }) {
     process.env.NODE_ENV === "production"
       ? URL_HOSTING +
         `mantenimiento/habitaciones/dormitorio/?id_habitacion=${habitacionId}`
-      : `http://localhost:${PORT_API}/mantenimiento/habitaciones/dormitorio/?id_habitacion=${habitacionId}`;
+      : `http://localhost:${PORT_CLIENT}/mantenimiento/habitaciones/dormitorio/?id_habitacion=${habitacionId}`;
 
   return (
     <div className="room_container">
