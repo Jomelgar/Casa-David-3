@@ -1,4 +1,4 @@
-const Municipio = require('../models/municipio')
+const {Municipio} = require('../models/persona')
 
 exports.getAllMunicipio = async () => {
     const municipios = await Municipio.findAll();

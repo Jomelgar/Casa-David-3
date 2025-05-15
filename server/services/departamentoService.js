@@ -1,5 +1,5 @@
 const Departamento = require('../models/departamento')
-const Municipio = require('../models/municipio');
+const {Municipio} = require('../models/persona');
 
 exports.getAllDepartamento = async () => {
     const departamentos = await Departamento.findAll();

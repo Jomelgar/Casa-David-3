@@ -3,6 +3,7 @@ const sequelize = require("../Db");
 const { PacienteHuesped } = require("./huesped");
 const { Hospital } = require("./hospital");
 const { Lugar } = require("./persona");
+const { Pais } = require("./pais"); 
 const { afiliado, Afiliado } = require("./afiliado");
 
 const Reservacion = sequelize.define(
@@ -157,6 +158,11 @@ const Ofrenda = sequelize.define(
     id_reservacion: {
       type: DataTypes.INTEGER,
     },
+    id_pais:
+    {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    },
     valor: {
       type: DataTypes.DECIMAL(10, 2),
       allowNull: false,
@@ -228,6 +234,8 @@ Habitacion.belongsTo(Lugar, { foreignKey: "id_lugar" });
 Ofrenda.belongsTo(Reservacion, { foreignKey: "id_reservacion" });
 Reservacion.hasMany(Ofrenda, { foreignKey: "id_reservacion" });
 
+Ofrenda.belongsTo(Pais,{foreignKey: "id_pais"});
+Pais.hasMany(Ofrenda,{foreignKey: "id_pais"});
 //revisar
 PacienteHuesped.hasMany(Reservacion, { foreignKey: "id_paciente_huesped" });
 Reservacion.belongsTo(PacienteHuesped, { foreignKey: "id_paciente_huesped" });

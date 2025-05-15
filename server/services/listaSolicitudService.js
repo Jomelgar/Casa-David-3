@@ -1,5 +1,5 @@
 const { ListaSolicitud } = require("../models/lista");
-const { Persona, Ocupacion, Procedencia, Lugar } = require("../models/persona");
+const { Persona, Ocupacion, Procedencia, Lugar, Municipio } = require("../models/persona");
 const {
   Huesped,
   PacienteHuesped,
@@ -9,7 +9,6 @@ const sequelize = require("../Db");
 const Paciente = require("../models/paciente");
 const { Hospital } = require("../models/hospital");
 const { Patrono, PatronoAfiliado, Afiliado } = require("../models/afiliado");
-const Municipio = require("../models/municipio")
 const { Reservacion } = require("../models/reservaciones")
 const { Usuario } = require("../models/usuario")
 const handlePersona = async (personaData) => {

@@ -1,6 +1,6 @@
 const sequelize = require("../Db");
 const Sequelize = require("sequelize");
-
+const {Pais} = require("./pais");
 
 const Departamento = sequelize.define('Departamento', {
     departamento_id: {
@@ -10,12 +10,20 @@ const Departamento = sequelize.define('Departamento', {
     },
     nombre: {
         type: Sequelize.STRING,
-        unique: true
+        unique: false
+    },
+    id_pais: {
+        type: Sequelize.INTEGER,
+        allowNull: false
     }
 },
     {
         tableName: 'departamento',
+        fields: ['nombre'],
         timestamps: false
-    });
+    }
+);
 
-module.exports = Departamento;
+Departamento.belongsTo(Pais,{foreignKey: "id_pais"});
+Pais.hasMany(Departamento,{foreignKey: "id_pais"});
+module.exports = {Departamento};

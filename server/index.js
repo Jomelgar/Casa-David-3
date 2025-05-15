@@ -10,24 +10,15 @@ process.env.REACT_APP_BACKEND_PORT = port;
 const authenticateJWT = require("./middleware/authenticateJWT");
 const path = require("path");
 
-const { Persona } = require("./models/persona");
+const { Persona, Municipio } = require("./models/persona");
 const CausaVisita = require("./models/causaVisita");
 const { Usuario } = require("./models/usuario");
 const Paciente = require("./models/paciente")
-const Departamento = require("./models/departamento");
-const Municipio = require("./models/municipio");
+const {Departamento} = require("./models/departamento");
+const {Pais} = require("./models/pais");
+const paisData = require("./paisData.json");
 const departamentoData = require("./departamentoData.json");
 const { CambioReserva } = require("./models/reservaciones")
-
-// Define las relaciones después de importar ambos modelos
-Departamento.hasMany(Municipio, { foreignKey: 'departamento_id' });
-Municipio.belongsTo(Departamento, { foreignKey: 'departamento_id' });
-
-Municipio.hasMany(Persona, { foreignKey: 'municipio_id' });
-Persona.belongsTo(Municipio, { foreignKey: 'municipio_id' });
-
-CambioReserva.hasMany(Usuario, { foreignKey: 'responsable_id' });
-Usuario.belongsTo(CambioReserva, { foreignKey: 'responsable_id' });
 
 //Routes
 const routes = require("./routes/routes");
@@ -78,33 +69,41 @@ const initApp = async () => {
 // TODO: Analizar como migrar procedencia_id a municipio_id
 const syncDb = async () => {
 
-  // Check amount of departamentos
-  const Departamento = require("./models/departamento");
+  // Check amount of departamentos and paises
+  const paisCount = await Pais.count();
   const departamentoCount = await Departamento.count();
 
   console.log("Cantidad de Departamentos: ", departamentoCount)
-  if (departamentoCount !== 18) {
+  if (paisCount === 0) {
     console.log("Syncing all map data...")
+    await Pais.sync({ force : true });
     await Departamento.sync({ force: true });
     await Municipio.sync({ force: true });
 
-    for (const departamento of Object.keys(departamentoData)) {
-      console.log("----------")
-      console.log("Creating departamento: ", departamento);
-      const newDepartamento = await Departamento.create({
-        nombre: departamento,
-      });
-      const id = newDepartamento.dataValues.departamento_id;
-
-      console.log(`Departamento ${departamento} created with id ${id}`);
-
-      for (const municipio of departamentoData[departamento]) {
-        const municipioId = await Municipio.create({
-          nombre: municipio,
-          departamento_id: id,
-        })
-
-      }
+    for(const pais of Object.keys(paisData)){
+        console.log("Creating pais: ", pais);
+        const newPais = await Pais.create({
+          nombre: pais,
+          divisa: paisData[pais]["divisa"],
+          extension_telefonica: paisData[pais]["extension_telefonica"]
+        });
+        const idPais = newPais.dataValues.id_pais;
+        for (const departamento of Object.keys(departamentoData[pais])) {
+          console.log("----------")
+          console.log("Creating departamento: ", departamento);
+          const newDepartamento = await Departamento.create({
+            nombre: departamento,
+            id_pais: idPais
+          });
+          const id = newDepartamento.dataValues.departamento_id;
+          console.log(`Departamento ${departamento} created with id ${id}`);
+          for (const municipio of departamentoData[pais][departamento]) {
+            const municipioId = await Municipio.create({
+              nombre: municipio,
+              departamento_id: id,
+            });
+          }
+        }
     }
   };
 

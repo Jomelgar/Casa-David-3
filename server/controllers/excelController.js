@@ -1,10 +1,9 @@
 const ExcelJS = require('exceljs');
 const serviceExcel = require("../services/excelService");
-const dayjs = require('dayjs');
-const Municipio = require("../models/municipio");
+const dayjs = require('dayjs'); 
 const Departamento = require("../models/departamento");
 const Paciente = require("../models/paciente");
-const { Persona } = require("../models/persona");
+const { Persona,Municipio } = require("../models/persona");
 
 function _calculateAge(birthday) {
   const ageDifMs = Date.now() - birthday.getTime();

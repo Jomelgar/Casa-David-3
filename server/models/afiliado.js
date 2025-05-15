@@ -1,24 +1,29 @@
-const { DataTypes } = require('sequelize');
+const Sequelize = require('sequelize');
 const sequelize = require('../Db');
 const {Persona} = require('./persona');
+const {Pais} = require('./pais');
 
 const Afiliado = sequelize.define('Afiliado', {
     id_afiliado: {
-      type: DataTypes.INTEGER,
+      type: Sequelize.INTEGER,
       primaryKey: true,
       autoIncrement: true
     },
     dni: {
-      type: DataTypes.STRING(20),
+      type: Sequelize.STRING(20),
       allowNull: true 
     },
     nombre:  {
-      type: DataTypes.STRING(100),
+      type: Sequelize.STRING(100),
       allowNull: true 
     },
-    
     condicion: {
-      type: DataTypes.STRING(60),
+      type: Sequelize.STRING(60),
+    },
+    id_pais:
+    {
+      type: Sequelize.INTEGER,
+      allowNull: false
     }
   }, {
     tableName: 'afiliado',
@@ -27,12 +32,12 @@ const Afiliado = sequelize.define('Afiliado', {
 
   const Patrono = sequelize.define('Patrono', {
     id_patrono: {
-      type: DataTypes.INTEGER,
+      type: Sequelize.INTEGER,
       primaryKey: true,
       autoIncrement: true
     },
     nombre: {
-      type: DataTypes.STRING(100),
+      type: Sequelize.STRING(100),
       allowNull: false
     }
   }, {
@@ -42,16 +47,16 @@ const Afiliado = sequelize.define('Afiliado', {
 
   const PatronoAfiliado = sequelize.define('PatronoAfiliado', {
     id_patrono_afiliado: {
-      type: DataTypes.INTEGER,
+      type: Sequelize.INTEGER,
       primaryKey: true,
       autoIncrement: true
     },
     id_patrono: {
-      type: DataTypes.INTEGER,
+      type: Sequelize.INTEGER,
       allowNull: false
     },
     id_afiliado: {
-      type: DataTypes.INTEGER,
+      type: Sequelize.INTEGER,
       allowNull: false
     }
   }, {
@@ -61,9 +66,11 @@ const Afiliado = sequelize.define('Afiliado', {
 
 
 
-  PatronoAfiliado.belongsTo(Patrono, {foreignKey: 'id_patrono'})
-  
+  PatronoAfiliado.belongsTo(Patrono, {foreignKey: 'id_patrono'});
+  PatronoAfiliado.belongsTo(Afiliado,{foreignKey: 'id_afiliado'});
+  Afiliado.belongsTo(Pais, {foreignKey: 'id_pais'});
+
   Patrono.hasMany(PatronoAfiliado, { foreignKey: 'id_patrono' });
   Afiliado.hasMany(PatronoAfiliado, { foreignKey: 'id_afiliado' });
-
+  Pais.hasMany(Afiliado,{foreignKey: 'id_pais'});
   module.exports = {Afiliado, Patrono, PatronoAfiliado};

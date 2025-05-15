@@ -1,72 +1,71 @@
-const { DataTypes } = require('sequelize');
+const Sequelize  = require('sequelize');
+const {Pais} = require('./pais');
 const sequelize = require('../Db');
+const {Departamento} = require('./departamento'); 
 
 const Persona = sequelize.define('Persona', {
   id_persona: {
-    type: DataTypes.INTEGER,
+    type: Sequelize.INTEGER,
     primaryKey: true,
     autoIncrement: true,
   },
   id_ocupacion: {
-    type: DataTypes.INTEGER,
+    type: Sequelize.INTEGER,
   },
   municipio_id: {
-    type: DataTypes.INTEGER,
+    type: Sequelize.INTEGER,
   },
   id_lugar: {
-    type: DataTypes.INTEGER,
+    type: Sequelize.INTEGER,
     allowNull: false,
   },
   dni: {
-    type: DataTypes.STRING(20),
+    type: Sequelize.STRING(20),
     unique: true,
   },
   primer_nombre: {
-    type: DataTypes.STRING(30),
+    type: Sequelize.STRING(30),
     allowNull: false,
   },
   segundo_nombre: {
-    type: DataTypes.STRING(30),
+    type: Sequelize.STRING(30),
   },
   primer_apellido: {
-    type: DataTypes.STRING(30),
+    type: Sequelize.STRING(30),
     allowNull: false,
   },
   segundo_apellido: {
-    type: DataTypes.STRING(30),
+    type: Sequelize.STRING(30),
   },
   direccion: {
-    type: DataTypes.TEXT,
-  },
-  telefono: {
-    type: DataTypes.STRING(15),
+    type: Sequelize.TEXT,
   },
   genero: {
-    type: DataTypes.ENUM('MASCULINO', 'FEMENINO', 'OTRO'),
+    type: Sequelize.ENUM('MASCULINO', 'FEMENINO', 'OTRO'),
     allowNull: false,
   },
   fecha_nacimiento: {
-    type: DataTypes.DATEONLY,
+    type: Sequelize.DATEONLY,
     allowNull: false,
   },
   compartio_evangelio: {
-    type: DataTypes.BOOLEAN,
+    type: Sequelize.BOOLEAN,
     defaultValue: false,
   },
   acepto_a_cristo: {
-    type: DataTypes.BOOLEAN,
+    type: Sequelize.BOOLEAN,
     defaultValue: false,
   },
   iglesia: {
-    type: DataTypes.TEXT,
+    type: Sequelize.TEXT,
     allowNull: true,
   },
   reconcilio: {
-    type: DataTypes.BOOLEAN,
+    type: Sequelize.BOOLEAN,
     defaultValue: false,
   },
   observacion: {
-    type: DataTypes.TEXT,
+    type: Sequelize.TEXT,
     allowNull: true,
   }
 }, {
@@ -76,12 +75,12 @@ const Persona = sequelize.define('Persona', {
 
 const Ocupacion = sequelize.define('Ocupacion', {
   id_ocupacion: {
-    type: DataTypes.INTEGER,
+    type: Sequelize.INTEGER,
     primaryKey: true,
     autoIncrement: true
   },
   descripcion: {
-    type: DataTypes.TEXT,
+    type: Sequelize.TEXT,
     allowNull: false
   }
 }, {
@@ -91,16 +90,16 @@ const Ocupacion = sequelize.define('Ocupacion', {
 
 const Municipio = sequelize.define('Municipio', {
   municipio_id: {
-    type: DataTypes.INTEGER,
+    type: Sequelize.INTEGER,
     primaryKey: true,
     autoIncrement: true
   },
   nombre: {
-    type: DataTypes.STRING(50),
+    type: Sequelize.STRING(50),
     allowNull: false
   },
   departamento_id: {
-    type: DataTypes.INTEGER,
+    type: Sequelize.INTEGER,
     allowNull: false
   }
 }, {
@@ -110,25 +109,66 @@ const Municipio = sequelize.define('Municipio', {
 
 const Lugar = sequelize.define('Lugar', {
   id_lugar: {
-    type: DataTypes.INTEGER,
+    type: Sequelize.INTEGER,
     primaryKey: true,
     autoIncrement: true
   },
   codigo: {
-    type: DataTypes.STRING(10),
+    type: Sequelize.STRING(10),
     allowNull: false
   },
+  id_pais:
+  {
+    type: Sequelize.INTEGER,
+    allowNull: false
+  }
 }, {
   tableName: 'lugar',
   timestamps: false
 });
 
+const Telefono = sequelize.define('Telefono',
+  {
+    id_telefono:
+    {
+      type: Sequelize.INTEGER,
+      primaryKey: true,
+      autoIncrement: true
+    },
+    id_pais:
+    {
+      type: Sequelize.INTEGER,
+      allowNull: false
+    },
+    id_persona:
+    {
+      type: Sequelize.INTEGER,
+      allowNull: false
+    },
+    telefono:
+    {
+      type: Sequelize.STRING(15),
+      allowNull: false
+    }
+  },{
+    tableName: 'telefono',
+    timestamps: false
+  });
+
 Persona.belongsTo(Ocupacion, { foreignKey: 'id_ocupacion' });
-Persona.belongsTo(Municipio, { foreignKey: 'municipio_id' });
 Persona.belongsTo(Lugar, { foreignKey: 'id_lugar' });
+Telefono.belongsTo(Persona,{foreignKey: 'id_persona'});
+Telefono.belongsTo(Pais,{foreignKey: 'id_pais'});
+Lugar.belongsTo(Pais,{foreignKey: 'id_pais'});
+Municipio.belongsTo(Departamento,{foreignKey: 'departamento_id'});
+Persona.belongsTo(Municipio, { foreignKey: 'municipio_id' });
 
 Ocupacion.hasMany(Persona, { foreignKey: 'id_ocupacion' });
-Municipio.hasMany(Persona, { foreignKey: 'municipio_id' });
 Lugar.hasMany(Persona, { foreignKey: 'id_lugar' });
+Persona.hasMany(Telefono,{foreignKey: 'id_persona'});
+Pais.hasMany(Telefono,{foreignKey: 'id_persona'});
+Pais.hasMany(Lugar, {foreignKey: 'id_pais'});
+Departamento.hasMany(Municipio,{foreignKey: 'departamento_id'});
+Municipio.hasMany(Persona, { foreignKey: 'municipio_id' });
 
-module.exports = { Persona, Ocupacion, Municipio, Lugar };
+module.exports = { Persona, Ocupacion, Municipio, Lugar, Telefono};

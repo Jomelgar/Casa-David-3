@@ -1,0 +1,17 @@
+{
+    "HONDURAS":
+    {
+        "divisa": "HND",
+        "extension_telefonica": "+504"
+    },
+    "GUATEMALA":
+    {
+        "divisa":"GTQ",
+        "extension_telefonica": "+502"
+    },
+    "EL SALVADOR":
+    {
+        "divisa":"USD",
+        "extension_telefonica": "+503"
+    }
+}

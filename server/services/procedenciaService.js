@@ -1,5 +1,4 @@
-const { Procedencia } = require('../models/persona')
-const Municipio = require('../models/municipio')
+const { Procedencia, Municipio} = require('../models/persona')
 
 /**@deprecated */
 exports.crearProcedencia = async (req) => {
