@@ -29,6 +29,9 @@ const Pais = sequelize.define(
         {
             type: Sequelize.STRING(5),
             allowNull: false
+        },activo:{
+            type: Sequelize.BOOLEAN,
+            defaultValue: true
         },
         extension_telefonica:
         {

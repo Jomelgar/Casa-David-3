@@ -97,6 +97,9 @@ const Municipio = sequelize.define('Municipio', {
   nombre: {
     type: Sequelize.STRING(50),
     allowNull: false
+  },activo:{
+    type: Sequelize.BOOLEAN,
+    defaultValue: true
   },
   departamento_id: {
     type: Sequelize.INTEGER,

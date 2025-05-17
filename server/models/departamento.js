@@ -12,6 +12,10 @@ const Departamento = sequelize.define('Departamento', {
         type: Sequelize.STRING,
         unique: false
     },
+    activo: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: true
+    },
     id_pais: {
         type: Sequelize.INTEGER,
         allowNull: false
