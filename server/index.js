@@ -30,7 +30,7 @@ app.use(express.json());
 app.use(authenticateJWT);
 app.use(routes);
 
-//Esto puede ir en una ruta, servicio y controlador
+//Esto puede ir en una ruta, servicio y controlador hola
 const initApp = async () => {
   console.log("Testing the database connection..");
   try {
