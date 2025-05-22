@@ -18,7 +18,6 @@ import Huesped from "./Hospedaje/Huesped";
 import Huespedes from "./Hospedaje/Huespedes"
 import TablaDeSolicitudes from "./matenimientoPages/TablaDeSolicitudes";
 
-
 export default {
     Home,
     ListaDeEspera,
@@ -39,5 +38,4 @@ export default {
     VistaUsuario,
     Huespedes,
     Huesped
-
 }

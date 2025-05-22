@@ -33,9 +33,14 @@ const Pais = sequelize.define(
             type: Sequelize.BOOLEAN,
             defaultValue: true
         },
-        extension_telefonica:
+        referencia_telefonica:
         {
-            type: Sequelize.TEXT,
+            type: Sequelize.STRING(4),
+            allowNull: false
+        },
+        formato_dni:
+        {
+            type: Sequelize.STRING(50),
             allowNull: false
         }
     },

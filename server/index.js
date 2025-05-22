@@ -9,7 +9,7 @@ const port = process.env.PORT || 3001;
 process.env.REACT_APP_BACKEND_PORT = port;
 const authenticateJWT = require("./middleware/authenticateJWT");
 const path = require("path");
-
+const fs = require('fs');
 const { Persona, Municipio } = require("./models/persona");
 const CausaVisita = require("./models/causaVisita");
 const { Usuario } = require("./models/usuario");
@@ -66,6 +66,16 @@ const initApp = async () => {
   }
 };
 
+const runSQLFile = async (filePath) => {
+  const sql = fs.readFileSync(filePath, 'utf8');
+  try {
+    await db.query(sql);
+    console.log('SQL ejecutado correctamente');
+  } catch (error) {
+    console.error('Error ejecutando el archivo SQL:', error);
+  } 
+};
+
 // TODO: Analizar como migrar procedencia_id a municipio_id
 const syncDb = async () => {
 
@@ -80,12 +90,16 @@ const syncDb = async () => {
     await Departamento.sync({ force: true });
     await Municipio.sync({ force: true });
 
+    //Try to add triggers in the database
+    runSQLFile(path.join(__dirname ,'./SQL/functions.sql'));
+
     for(const pais of Object.keys(paisData)){
         console.log("Creating pais: ", pais);
         const newPais = await Pais.create({
           nombre: pais,
           divisa: paisData[pais]["divisa"],
-          extension_telefonica: paisData[pais]["extension_telefonica"]
+          referencia_telefonica: paisData[pais]["referencia_telefonica"],
+          formato_dni: paisData[pais]["formato_dni"]
         });
         const idPais = newPais.dataValues.id_pais;
         for (const departamento of Object.keys(departamentoData[pais])) {

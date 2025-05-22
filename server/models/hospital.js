@@ -2,6 +2,7 @@
 const sequelize = require('../Db');
 const Sequelize = require('sequelize');
 const {Pais} = require('./pais');
+const { act } = require('react');
 
 const Hospital = sequelize.define('Hospital', {
     id_hospital: {
@@ -22,6 +23,10 @@ const Hospital = sequelize.define('Hospital', {
       type: Sequelize.TEXT,
       allowNull: false,
     },
+    activo: {
+      type: Sequelize.BOOLEAN,
+      defaultValue: true,
+    }
   }, {
     tableName: 'hospital',
     timestamps: false,

@@ -2,16 +2,19 @@
     "HONDURAS":
     {
         "divisa": "HND",
-        "extension_telefonica": "+504"
+        "referencia_telefonica": "+504",
+        "formato_dni": "####-####-#####"
     },
     "GUATEMALA":
     {
         "divisa":"GTQ",
-        "extension_telefonica": "+502"
+        "referencia_telefonica": "+502",
+        "formato_dni": "####-#####-####"
     },
     "EL SALVADOR":
     {
         "divisa":"USD",
-        "extension_telefonica": "+503"
+        "referencia_telefonica": "+503",
+        "formato_dni": "########-#"
     }
 }

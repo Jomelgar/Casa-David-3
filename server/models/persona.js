@@ -67,6 +67,10 @@ const Persona = sequelize.define('Persona', {
   observacion: {
     type: Sequelize.TEXT,
     allowNull: true,
+  },
+  extranjero:{
+    type: Sequelize.BOOLEAN,
+    defaultValue: false
   }
 }, {
   tableName: 'persona',
@@ -124,6 +128,14 @@ const Lugar = sequelize.define('Lugar', {
   {
     type: Sequelize.INTEGER,
     allowNull: false
+  },
+  direccion: {
+    type: Sequelize.TEXT,
+    allowNull: true
+  },
+  activo: {
+    type: Sequelize.BOOLEAN,
+    defaultValue: true
   }
 }, {
   tableName: 'lugar',
@@ -152,6 +164,11 @@ const Telefono = sequelize.define('Telefono',
     {
       type: Sequelize.STRING(15),
       allowNull: false
+    },
+    referencia_telefonica:
+    {
+      type: Sequelize.STRING(4),
+      allowNull: false
     }
   },{
     tableName: 'telefono',
@@ -169,7 +186,7 @@ Persona.belongsTo(Municipio, { foreignKey: 'municipio_id' });
 Ocupacion.hasMany(Persona, { foreignKey: 'id_ocupacion' });
 Lugar.hasMany(Persona, { foreignKey: 'id_lugar' });
 Persona.hasMany(Telefono,{foreignKey: 'id_persona'});
-Pais.hasMany(Telefono,{foreignKey: 'id_persona'});
+Pais.hasMany(Departamento,{foreignKey: 'id_pais'});
 Pais.hasMany(Lugar, {foreignKey: 'id_pais'});
 Departamento.hasMany(Municipio,{foreignKey: 'departamento_id'});
 Municipio.hasMany(Persona, { foreignKey: 'municipio_id' });
