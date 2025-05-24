@@ -8,6 +8,7 @@ const iglesiaController = require('../controllers/iglesiaController');
 const iglesiaHuespedController = require('../controllers/iglesiaHuespedController');
 const causaVisitaController = require('../controllers/causaVisitaController')
 const municipioController = require('../controllers/municipioController');
+const paisController = require('../controllers/paisController');
 
 const router = Router();
 
@@ -65,4 +66,7 @@ router.get('/municipio', municipioController.getAllMunicipio);
 router.get('/municipio/:id', municipioController.getMunicipioById);
 router.get('/municipios/departamento/:id', municipioController.getAllMunicipiosByDepartamentoId);
 
+
+//pais
+router.get('/paisForTable', paisController.getAllPaisesForTable);
 module.exports = router;

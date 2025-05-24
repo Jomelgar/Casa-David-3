@@ -1,27 +1,25 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Input, Table, ConfigProvider, Space } from 'antd';
+import { Button, Input, Table, ConfigProvider,Layout,Space } from 'antd';
 import { SearchOutlined, DownloadOutlined, PlusCircleFilled, PlusCircleOutlined, StopOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import * as XLSX from 'xlsx';
+import PaisApi from '../../../api/Pais.api';
+const { Content } = Layout;
 
 function Paises() {
   const [dataSource, setDataSource] = useState([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
 
   useEffect(() => {
-    const cargarDatos = async () => {
-      const res = await fetch('../listado.json');
-      const data = await res.json();
-      const procesado = data.map((p) => ({
-        key: p.id_pais,
-        nombre: p.nombre,
-        divisa: p.divisa,
-        num_hospitales: 0,
-        num_casas: 0
-      }));
-      setDataSource(procesado);
-    };
-    cargarDatos();
-  }, []);
+      const cargarDatos = async () => {
+        const res = await PaisApi.getPaisForTable();
+        if (res && res.data) {
+          setDataSource(res.data);
+        } else {
+          console.error('Error al obtener los datos de países');
+        }
+      };
+      cargarDatos();
+    }, []);
 
   const handleClickPais = (pais) => {
     console.log("Clic en:", pais.nombre);
@@ -97,40 +95,34 @@ function Paises() {
       dataIndex: 'acciones',
       key: 'acciones',
       render: (text, record) => (
-      <>
-      <Button icon={<PlusCircleOutlined />}
-        onClick={() => handleClickPais(record)} 
-        style={{
-          color: '#77DA11',
-          borderRadius: '10%',
-          width: '10px',
-          border: 'none',
-          cursor: 'pointer',
-          padding: 0
-        }}/>
-        <Button type="primary" icon={<DeleteOutlined/>}  
-       style={{ 
-        color: '#DA1133',
-          borderRadius: '10%',
-           background: 'none',
-          boxShadow: 'none',
-          width: '30px',
-          border: 'none',
-          cursor: 'pointer',
-          padding: 0
-       }}/>
-       <Button type="primary" icon={<EditOutlined/>}  
-       style={{ 
-        color: 'black',
-        background: 'none',
-          boxShadow: 'none',
-          borderRadius: '10%',
-          width: '10px',
-          border: 'none',
-          cursor: 'pointer',
-          padding: 0
-       }}/>
-       </>
+      <Space size="short">
+        <Button
+          type="text"
+          icon={<PlusCircleOutlined />}
+          onClick={() => handleClickPais(record)}
+          style={{
+            color: 'green',
+            fontSize: '18px',
+          }}
+        />
+        <Button
+          type="text"
+          icon={<DeleteOutlined />}
+          style={{
+            color: 'red',
+            fontSize: '18px',
+          }}
+        />
+        <Button
+          type="text"
+          icon={<EditOutlined />}
+          style={{
+            color: 'black',
+            fontSize: '18px',
+          }}
+        />
+      </Space>
+
   )
     }
   ];
@@ -161,29 +153,41 @@ function Paises() {
           columns={columnas}
           rowSelection={{ selectedRowKeys, onChange: setSelectedRowKeys }}
           pagination={{ pageSize: 5, position: ['bottomCenter'] }}
+          scroll={{ x: 'max-content' }}
         />
       </ConfigProvider>
     </div>
-    <div>
-       <Space size= "large">
-        <Button type="primary" icon={<PlusCircleOutlined/>}  onClick={handleClickAdd}
-        style={{ 
-          marginBottom: 16, 
-          scale: '2',
-          background: 'none',
-          color: '#77D9A1',
-          boxShadow: 'none'
-        }}/>
-        <Button type="primary" icon={<DeleteOutlined/>}  onClick={handleClickDelete}
-        style={{ 
-          marginBottom: 16,
-          scale: '2', 
-          background: 'none',
-          color: '#DA1133',
-          boxShadow: 'none'
-        }}/>
-       </Space>
-    </div>
+    <Content  style={
+      {
+        display: 'flex',
+        allignItems: 'center',
+        justifyContent: 'space-between',
+        lineHeight: '5px',
+        color: '#b5b5b5',
+        backgroundColor: '#ffffff',
+        padding: '25px 50px',
+        borderRadius: '15px',
+        margin: '50px 10px 0px 10px',
+      }
+    } 
+    className='shadow-xl'>
+        <Button
+        type="text"
+        icon={<DeleteOutlined style={{ fontSize: '32px' }}/>}
+        style={{
+          color: 'red',
+          fontSize: '36px',
+        }}
+      />
+      <Button
+        type="text"
+        icon={<PlusCircleOutlined style={{ fontSize: '32px' }}/>}
+        style={{
+          color: 'green',
+          fontSize: '36px',
+        }}
+      />
+      </Content>
     </>
   );
 }

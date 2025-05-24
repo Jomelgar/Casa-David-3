@@ -397,7 +397,7 @@ function Usuarios() {
         <div>
           <Table
             responsive="true"
-            scroll={{ x: true }}
+            scroll={{ x: 'max-content' }}
             dataSource={dataSource}
             columns={columns}
             rowSelection={{
