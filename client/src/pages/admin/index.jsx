@@ -17,6 +17,7 @@ import VistaUsuario from "./matenimientoPages/VistaUsuario"
 import Huesped from "./Hospedaje/Huesped";
 import Huespedes from "./Hospedaje/Huespedes"
 import TablaDeSolicitudes from "./matenimientoPages/TablaDeSolicitudes";
+import Paises from "./matenimientoPages/Paises";
 
 export default {
     Home,
@@ -37,5 +38,6 @@ export default {
     dormitorio,
     VistaUsuario,
     Huespedes,
-    Huesped
+    Huesped,
+    Paises
 }

@@ -85,7 +85,7 @@ function App() {
                   isAllow={validarPrivilegio(getUserFromToken(), 4)}
                 />
               }
-            >z
+            >
               <Route
                 path="/mantenimiento/usuarios"
                 element={<pagesAdmin.Usuarios />}
@@ -123,8 +123,18 @@ function App() {
                 path="/mantenimiento/camas"
                 element={<pagesAdmin.Camas />}
               />
-            </Route>
 
+              <Route
+                path="/mantenimiento/paises"
+                element={<pagesAdmin.Paises/>}
+              />
+
+              <Route
+                path="/mantenimiento/paises/:id"
+                element={<pagesAdmin.TiposPaises />}
+              />
+
+            </Route>
             <Route
               element={
                 <ProtectedRoute

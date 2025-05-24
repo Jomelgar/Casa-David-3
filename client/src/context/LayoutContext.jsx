@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useMediaQuery } from "react-responsive";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   RiHome2Line,
   RiHomeHeartLine,
@@ -46,6 +46,28 @@ export const LayoutContextProvider = ({ children }) => {
   const [reservacionesTresDias, setReservacionesTresDias] = useState([]);
 
   const [reservacionesAtrasadas, setReservacionesAtrasadas] = useState([]);
+
+  const location = useLocation();
+  useEffect(() => {
+  const pathMap = {
+    "/": "/ Inicio",
+    "/hospedar": "/ Hospedar",
+    "/tabla-de-solicitudes": "/ Lista de Solicitudes",
+    "/huespedes": "/ Huespedes",
+    "/mantenimiento/usuarios": "/ Usuarios",
+    "/mantenimiento/habitaciones": "Mantenimiento / Habitaciones",
+    "/mantenimiento/paises": "Mantenimiento / Países",
+    "/reportes/pagos": "Mantenimiento / Pagos",
+    "/reportes/reporte-de-huespedes": "Reportes / Huéspedes Totales",
+    "/historiales/personas": "Historial / Personas",
+    "/reportes/informes": "Historial / Informes",
+    "/reportes/pacientes": "Reportes / Pacientes",
+    "/historiales/lista-negra": "Lista Negra",
+    "/perfil": "Mi Perfil",
+    "/auth/": "Cerrar Sesión",
+  };
+  setCurrentPath(pathMap[location.pathname] || location.pathname);
+  }, [location.pathname]);
 
   const loadNotificaciones = async () => {
     try {
@@ -181,6 +203,7 @@ export const LayoutContextProvider = ({ children }) => {
       children: [
         { key: "/mantenimiento/usuarios", label: "Usuarios" },
         { key: "/mantenimiento/habitaciones", label: "Habitaciones" },
+        { key: "/mantenimiento/paises", label: "Países" }//Deberia estar en master
       ],
     },
     {
@@ -192,6 +215,7 @@ export const LayoutContextProvider = ({ children }) => {
         { key: "/reportes/reporte-de-huespedes", label: "Huesped Totales" },
         { key: "/historiales/personas", label: "Personas" },
         { key: "/reportes/informes", label: "Informes" },
+        { key: "/reportes/pacientes", label: "Pacientes" }
       ],
     },
     {

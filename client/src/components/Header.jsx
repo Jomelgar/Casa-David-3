@@ -34,10 +34,12 @@ const CustomHeader = () => {
     collapsed,
     setCollapsed,
     isBroken,
+    setIsBroken,
     setVisibleDrawerSideMenu,
     visibleDrawerSideMenu,
     setMarginContent,
     currentPath,
+    setCurrentPath
   } = useLayout();
 
   useEffect(() => {
@@ -191,8 +193,9 @@ const CustomHeader = () => {
               )
             }
             onClick={() => {
+              setIsBroken(!isBroken);
               if (isBroken) {
-                setVisibleDrawerSideMenu(!visibleDrawerSideMenu);
+                setVisibleDrawerSideMenu(visibleDrawerSideMenu);
                 setMarginContent(0);
               } else {
                 setCollapsed(!collapsed);
