@@ -1756,7 +1756,6 @@ function Hospedar() {
     //handleGetProcedencias();
 
     ResetearAtributos();
-    setCurrentPath("/ Hospedar");
     //cargarInformacion();
 
     loadCamasDisponibles();

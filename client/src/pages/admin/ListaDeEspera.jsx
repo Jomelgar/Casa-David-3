@@ -6,7 +6,7 @@ function ListaDeEspera() {
   const { setCurrentPath } = useLayout();
 
   useEffect(() => {
-    setCurrentPath("/ Lista de Espera");
+    setCurrentPath("Lista de Espera");
   }, []);
 
   return (

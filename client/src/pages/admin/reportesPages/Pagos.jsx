@@ -591,8 +591,6 @@ function Pagos() {
   };
   useEffect(() => {
     loadData();
-
-    setCurrentPath("/ Reportes / Pagos");
   }, [fechaInicio, fechaFinal, genero, selectedDepartamento, selectedMunicipio, patrono]);
 
   

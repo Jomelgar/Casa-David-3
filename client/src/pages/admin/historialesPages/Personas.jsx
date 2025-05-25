@@ -138,7 +138,6 @@ function Personas() {
 
   useEffect(() => {
     cargarInformacion();
-    setCurrentPath("/ historialesPages / Personas");
   }, []);
 
   const columns = [

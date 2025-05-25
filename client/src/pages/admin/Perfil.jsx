@@ -160,7 +160,7 @@ function Perfil() {
   useEffect(() => {
     const loadUser = async () => {
       if (params.id) {
-        setCurrentPath("/Mantenimiento/Usuario/" + params.id);
+        setCurrentPath("Mantenimiento/Usuario/" + params.id);
         // Obtiene el usuario por id
         const response = await userApi.getUserByNicknameRequest(params.id);
 
@@ -180,7 +180,6 @@ function Perfil() {
         setPersonaId(userProp.id_persona);
       } else {
         // Obtiene el usuario logeado
-        setCurrentPath("/Mi Perfil");
         const userProp = usuario;
 
         setUserProp(userProp);

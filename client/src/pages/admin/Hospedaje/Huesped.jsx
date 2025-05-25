@@ -186,7 +186,7 @@ function Huesped() {
       };
     }
     setCurrentPath(
-      "/ Huesped / " +
+      "Huesped / " +
       huespedCompleto.primer_nombre +
       " " +
       huespedCompleto.primer_apellido

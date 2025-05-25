@@ -20,6 +20,9 @@ exports.createPais = async (paisData) => {
 
 exports.getAllPaisesForTable = async () => {
   const paises = await Pais.findAll({
+    where: {
+      activo: true
+    },
     attributes: [
       'id_pais',
       'nombre',

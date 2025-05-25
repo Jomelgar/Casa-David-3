@@ -126,7 +126,10 @@ function App() {
 
               <Route
                 path="/mantenimiento/paises"
-                element={<pagesAdmin.Paises/>}
+                element={<ProtectedRoute isAllow={validarPrivilegio(getUserFromToken(), 11)}>
+                  <pagesAdmin.Paises/>
+                </ProtectedRoute>}
+                
               />
 
               <Route

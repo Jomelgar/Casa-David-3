@@ -11,7 +11,8 @@ VALUES
     (8, 'Hospedar'),
     (9, 'Administrar Solicitudes de Hospedaje'),
     (10, 'Administrar Reportes'),
-    (3, 'Administrar Huespedes');
+    (3, 'Administrar Huespedes'),
+    (11, 'Administrar Paises');
 
 -- Reglamento
 INSERT INTO reglamento (id_regla, descripcion_regla)
@@ -86,7 +87,8 @@ VALUES
 (123, 1, 37, '0209-1955-00081', 33, 'ALDEA CUACAZONA', 'CARLOS', 'SEBASTIAN', 'REYES', 'MEJIA', 'MASCULINO', '1995-09-25', true, true, 'Iglesia Central', false, false, NULL),
 (151, 1, 69, '0801-1979-10397', 79, 'COLONIA FESITRANH, SAN PEDRO SULA', 'DEBBIE', 'ELAINY', 'BANEGAS', 'OSORIO', 'FEMENINO', '1979-02-24', true, true, 'Iglesia Central', false, false, NULL),
 (152, 1, 69, '1801-1976-00571', 79, 'COLONIA FESITRANH, SAN PEDRO SULA', 'CARMEN', 'AMERICA', 'SOSA', 'ESCOBAR', 'FEMENINO', '1976-04-27', true, true, 'Iglesia Central', false, false, NULL),
-(69, 1, 1, '0505-2005-00577', 90, 'Pueblo Good Sight, Disco 2, Registro 4', 'Jorge', 'Fernando', 'Hernandez', 'Cruz', 'MASCULINO', '2005-08-28', true, true, 'Iglesia Central', false, false, NULL);
+(69, 1, 1, '0505-2005-00577', 90, 'Pueblo Good Sight, Disco 2, Registro 4', 'Jorge', 'Fernando', 'Hernandez', 'Cruz', 'MASCULINO', '2005-08-28', true, true, 'Iglesia Central', false, false, NULL),
+(15,1,1,'0501-2005-08506',79,'Costa Verde Villas','Johnny','Josue','Melgar','Machorro','MASCULINO','2005-07-23',true,true,'Iglesia Central',false,false,NULL);
 
     -- Teléfonos
 INSERT INTO telefono (id_pais,id_telefono, id_persona, referencia_telefonica, telefono)
@@ -284,7 +286,8 @@ VALUES
 (21, 54, 22, 'dramos01', '$2a$11$4LfLg0YnqZheuJ62izYs3ONGWnimvex4.n7d5GEUIE2WPdAb9X9Pm', 'usuario'),
 (52, 151, 56, 'Banegas01', '$2a$11$4LfLg0YnqZheuJ62izYs3ONGWnimvex4.n7d5GEUIE2WPdAb9X9Pm', 'usuario'),
 (53, 152, 56, 'Sosa01', '$2a$11$4LfLg0YnqZheuJ62izYs3ONGWnimvex4.n7d5GEUIE2WPdAb9X9Pm', 'usuario'),
-(69, 69, 4, 'fer-hnndz', '$2a$11$4LfLg0YnqZheuJ62izYs3ONGWnimvex4.n7d5GEUIE2WPdAb9X9Pm', 'admin');
+(69, 69, 4, 'fer-hnndz', '$2a$11$4LfLg0YnqZheuJ62izYs3ONGWnimvex4.n7d5GEUIE2WPdAb9X9Pm', 'admin'),
+(15, 15, 4, 'jomel', '$2a$11$4LfLg0YnqZheuJ62izYs3ONGWnimvex4.n7d5GEUIE2WPdAb9X9Pm', 'master');
 
 --Usuario_Privilegio
 INSERT INTO usuario_privilegio (id_usuario_privilegio, id_usuario, id_privilegio)

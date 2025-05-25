@@ -86,7 +86,6 @@ const Informes = () => {
 
   useEffect(() => {
     loadData();
-    setCurrentPath("/ Informes");
   }, [
     fechaInicio,
     fechaFinal,

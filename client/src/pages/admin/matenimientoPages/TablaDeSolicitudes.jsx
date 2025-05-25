@@ -232,7 +232,7 @@ function TablaDeSolicitudes() {
 
     loadCamasDisponibles();
 
-    setCurrentPath("/ Lista de Solicitudes");
+    setCurrentPath("Lista de Solicitudes");
   }, []);
 
   const columns = [

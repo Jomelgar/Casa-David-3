@@ -42,7 +42,10 @@ function Login() {
 
       if (response.status === 201) {
         Cookies.set('token', response.data.token);
-        navigate('/');
+        window.location.href = '/'; // O la ruta que quieras
+        setTimeout(() => {
+          window.location.reload(); // Fuerza el refresh una vez llegada la nueva página
+        }, 100);
       } else {
         setError('Credenciales Incorrectas');
       }

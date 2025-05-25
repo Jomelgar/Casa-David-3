@@ -38,8 +38,7 @@ const CustomHeader = () => {
     setVisibleDrawerSideMenu,
     visibleDrawerSideMenu,
     setMarginContent,
-    currentPath,
-    setCurrentPath
+    currentPath
   } = useLayout();
 
   useEffect(() => {

@@ -28,7 +28,6 @@ function App() {
   const [departamentosRegistrados, setDepartamentosRegistrados] = useState([]);
 
   useEffect(() => {
-    setCurrentPath("/ Inicio");
 
     const fetchData = async () => {
       try {

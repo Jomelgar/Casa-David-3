@@ -37,7 +37,7 @@ export const LayoutContextProvider = ({ children }) => {
   const [userLog, setUserLog] = useState(false);
   const navigate = useNavigate();
 
-  const [currentPath, setCurrentPath] = useState("/Inicio");
+  const [currentPath, setCurrentPath] = useState("Inicio");
   const [idLugar, setIdLugar] = useState(null);
 
   const [reservacionesHoy, setReservacionesHoy] = useState([]);
@@ -50,23 +50,23 @@ export const LayoutContextProvider = ({ children }) => {
   const location = useLocation();
   useEffect(() => {
   const pathMap = {
-    "/": "/ Inicio",
-    "/hospedar": "/ Hospedar",
-    "/tabla-de-solicitudes": "/ Lista de Solicitudes",
-    "/huespedes": "/ Huespedes",
-    "/mantenimiento/usuarios": "/ Usuarios",
+    "/": "Inicio",
+    "/hospedar": "Hospedar",
+    "/tabla-de-solicitudes": "Lista de Solicitudes",
+    "/huespedes": "Huespedes",
+    "/mantenimiento/usuarios": "Mantenimiento / Usuarios",
     "/mantenimiento/habitaciones": "Mantenimiento / Habitaciones",
     "/mantenimiento/paises": "Mantenimiento / Países",
-    "/reportes/pagos": "Mantenimiento / Pagos",
+    "/reportes/pagos": "Reportes / Pagos",
     "/reportes/reporte-de-huespedes": "Reportes / Huéspedes Totales",
-    "/historiales/personas": "Historial / Personas",
-    "/reportes/informes": "Historial / Informes",
+    "/historiales/personas": "Reportes / Personas",
+    "/reportes/informes": "Reportes / Informes",
     "/reportes/pacientes": "Reportes / Pacientes",
     "/historiales/lista-negra": "Lista Negra",
     "/perfil": "Mi Perfil",
     "/auth/": "Cerrar Sesión",
   };
-  setCurrentPath(pathMap[location.pathname] || location.pathname);
+  setCurrentPath(pathMap[location.pathname]);
   }, [location.pathname]);
 
   const loadNotificaciones = async () => {
@@ -182,7 +182,7 @@ export const LayoutContextProvider = ({ children }) => {
     }
   }, []);
 
-  const adminItems = [
+  const masterItems = [
     { type: "divider" },
     { key: "/", icon: <RiHome2Line />, label: "Inicio" },
     { key: "/hospedar", icon: <RiHomeHeartLine />, label: "Hospedar" },
@@ -235,10 +235,65 @@ export const LayoutContextProvider = ({ children }) => {
     },
   ];
 
+  const adminItems = [
+    { type: "divider" },
+    { key: "/", icon: <RiHome2Line />, label: "Inicio" },
+    { key: "/hospedar", icon: <RiHomeHeartLine />, label: "Hospedar" },
+    {
+      key: "/tabla-de-solicitudes",
+      icon: <MdTableRows />,
+      label: "Lista de Solicitudes",
+    },
+    {
+      key: "/huespedes",
+      icon: <RiHomeGearLine />,
+      label: "Huespedes",
+    },
+    {
+      key: "6",
+      icon: <RiSettings3Line />,
+      label: "Mantenimiento",
+      children: [
+        { key: "/mantenimiento/usuarios", label: "Usuarios" },
+        { key: "/mantenimiento/habitaciones", label: "Habitaciones" }
+      ],
+    },
+    {
+      key: "/reportes",
+      icon: <RiFileChartLine />,
+      label: "Reportes",
+      children: [
+        { key: "/reportes/pagos", label: "Pagos" },
+        { key: "/reportes/reporte-de-huespedes", label: "Huesped Totales" },
+        { key: "/historiales/personas", label: "Personas" },
+        { key: "/reportes/informes", label: "Informes" },
+        { key: "/reportes/pacientes", label: "Pacientes" }
+      ],
+    },
+    {
+      key: "/historiales/lista-negra",
+      label: "Lista Negra",
+      icon: <RiUserForbidLine />,
+    },
+
+    {
+      key: "group-personal",
+      label: "Personal",
+      type: "group",
+      children: [
+        { key: "/perfil", icon: <RiAccountCircleLine />, label: "Mi Perfil" },
+        { key: "/auth/", icon: <RiLogoutBoxLine />, label: "Cerrar Sesion" },
+      ],
+    },
+  ];
+
   const loadItems = () => {
     const userData = getUserFromToken();
     if (userData) {
-      if (userData.role === "admin") {
+      if (userData.role === "master") {
+        return masterItems; 
+      }
+      else if (userData.role === "admin") {
         return adminItems;
       } else {
         let items = [adminItems[0], adminItems[1], adminItems[2]];

@@ -74,8 +74,6 @@ function Huespedes() {
 
   useEffect(() => {
     cargarInformacion();
-
-    setCurrentPath("/ Huespedes");
   }, []);
 
   const handleSelectChange = (selectedRowKeys) => {

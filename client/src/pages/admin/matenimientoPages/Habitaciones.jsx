@@ -442,7 +442,6 @@ function Habitaciones() {
   // Effect to fetch room data on component mount
   useEffect(() => {
     fetchRoomData();
-    setCurrentPath("/ Mantenimiento / Habitaciones");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Empty dependency array to run effect only on mount
 

@@ -120,7 +120,7 @@ function VistaUsuario() {
   useEffect(() => {
     const loadUser = async () => {
       if (params.id) {
-        setCurrentPath("/Mantenimiento/Usuario/" + params.id);
+        setCurrentPath("Mantenimiento / Usuario / " + params.id);
         // Obtiene el usuario por id
         const response = await userApi.getUserByNicknameRequest(params.id);
 

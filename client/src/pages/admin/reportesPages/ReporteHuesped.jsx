@@ -104,7 +104,6 @@ function ReporteHuesped() {
 
   useEffect(() => {
     loadData();
-    setCurrentPath("/ Reportes / Reporte de Huespedes");
   }, [fechaInicio, fechaFinal, selectedDepartamento, selectedMunicipio, patrono, genero]);
 
   useEffect(() => {

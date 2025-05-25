@@ -54,7 +54,6 @@ function Usuarios() {
 
   useEffect(() => {
     cargarInformacion();
-    setCurrentPath('/ Mantenimiento / Usuarios');
   }, []);
 
   const handleSelectChange = (selectedRowKeys) => {

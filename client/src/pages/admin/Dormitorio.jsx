@@ -14,6 +14,7 @@ import { useParams } from "react-router-dom";
 import { useLocation, useNavigate } from "react-router-dom";
 import ReservacionesApi from "../../api/Reservaciones.api";
 import { ConsoleSqlOutlined } from "@ant-design/icons";
+import HabitacionesApi from "../../api/Habitacion.api";
 
 const { Column } = Table;
 const { Option } = Select;
@@ -30,6 +31,7 @@ const Dormitorio = ({ habitacion }) => {
     const searchParams = new URLSearchParams(window.location.search);
     const idHabitacionParam = searchParams.get("id_habitacion");
     const data = { id_habitacion: idHabitacionParam };
+    setCurrentPath("Mantenimiento / Habitaciones / "+ data.id_habitacion);
 
     try {
       const response = await camasByRoom.getCamaHuespedByRoom(
@@ -247,7 +249,6 @@ const Dormitorio = ({ habitacion }) => {
 
   useEffect(() => {
     loadData();
-    setCurrentPath("/ Mantenimiento / Habitaciones / ");
   }, []);
 
   return (
