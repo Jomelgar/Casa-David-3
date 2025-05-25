@@ -3,11 +3,14 @@ import { Button, Input, Table, ConfigProvider,Layout,Space } from 'antd';
 import { SearchOutlined, DownloadOutlined, PlusCircleFilled, PlusCircleOutlined, StopOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import * as XLSX from 'xlsx';
 import PaisApi from '../../../api/Pais.api';
+import {PopUpFormulario} from './PopUpPaises/PopUpAgregarPais';
 const { Content } = Layout;
 
 function Paises() {
   const [dataSource, setDataSource] = useState([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+  const [selectedPais, setSelectedPais] = useState();
+  const [addView, setAddView] = useState(false);
 
   useEffect(() => {
       const cargarDatos = async () => {
@@ -20,6 +23,10 @@ function Paises() {
       };
       cargarDatos();
     }, []);
+
+  const handleAddTable = (data) => {
+    setSelectedPais(data);
+  }
 
   const handleClickPais = (pais) => {
     console.log("Clic en:", pais.nombre);
@@ -99,7 +106,7 @@ function Paises() {
         <Button
           type="text"
           icon={<PlusCircleOutlined />}
-          onClick={() => handleClickPais(record)}
+          onClick={() => handleClickPais}
           style={{
             color: 'green',
             fontSize: '18px',
@@ -186,8 +193,12 @@ function Paises() {
           color: 'green',
           fontSize: '36px',
         }}
+        onClick={() => {setAddView(true);}}
       />
       </Content>
+      {addView && (
+        <PopUpFormulario visible={addView} onClose={() => {setAddView(false);}}/>
+      )}
     </>
   );
 }

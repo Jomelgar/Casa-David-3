@@ -133,7 +133,7 @@ function AccionesPerfil({
 
       const userFormated = {
         ...changeUser,
-        rol: changeUser.rol === "admin" || changeUser.rol === "usuario" ? changeUser.rol : "usuario",
+        rol: changeUser.rol,
       };
       console.log("User Formated", userFormated);
 

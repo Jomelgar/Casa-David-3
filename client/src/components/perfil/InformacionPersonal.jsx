@@ -221,7 +221,7 @@ const InformacionPersonal = ({
                 setSearchOcupacion(e.toUpperCase());
               }}
               notFoundContent={
-                rolLog === "admin" ? (
+                rolLog === "admin" || rolLog === "master" ? (
                   <Button loading={loading} onClick={handleCrearOcupacion}>
                     Crear Ocupacion
                   </Button>

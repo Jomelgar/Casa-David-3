@@ -14,7 +14,7 @@ function PrivilegiosPersonal({ user }) {
 
   const rolLog = usuario.role;
 
-  const isDisable = rolLog === "admin" ? false : true;
+  const isDisable = rolLog === "admin" || rolLog === "master" ? false : true;
 
   const [isCheckAll, setIsCheckAll] = useState(false);
 

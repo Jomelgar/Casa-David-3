@@ -104,7 +104,7 @@ function Perfil() {
           segundo_nombre,
           id_usuario: id_usuario,
           telefono,
-          rol: role === "admin" ? "admin" : "usuario",
+          rol: role,
           nickname: username,
           id_lugar: id_lugar,
           iglesia: iglesia,

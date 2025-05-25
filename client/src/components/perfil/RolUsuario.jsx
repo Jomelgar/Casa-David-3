@@ -7,7 +7,13 @@ import { getUserFromToken } from '../../utilities/auth.utils';
 
 const { Meta } = Card;
 
-const roles = [
+const master_roles = [
+  {value: "master", label: "MASTER"},
+  { value: "admin", label: "ADMINISTRADOR" },
+  { value: "usuario", label: "USUARIO" },
+];
+
+const admin_roles = [
   { value: "admin", label: "ADMINISTRADOR" },
   { value: "usuario", label: "USUARIO" },
 ];
@@ -177,11 +183,11 @@ function InformacionPersonalForm({
             <Select
               placeholder="Rol"
               size="large"
-              options={roles}
+              options={rolLog === "master" ? master_roles : admin_roles}
               style={{ width: "100%", height: "100%" }}
               defaultValue={user.rol}
               value={isEditable ? changeUser.rol : user.rol}
-              disabled={isEditable ? (rolLog === "admin" ? false : true) : true}
+              disabled={isEditable ? (rolLog === "admin" || rolLog === "master" ? false : true) : true}
               onChange={(value) => {
                 handleSetChangeUser("rol", value);
               }}
@@ -212,7 +218,7 @@ function InformacionPersonalForm({
                   .localeCompare((optionB?.label ?? "").toLowerCase())
               }
               notFoundContent={
-                rolLog === "admin" ? (
+                rolLog === "admin" || rolLog === "master" ? (
                   <Button loading={loading} onClick={handleCrearHospital}>
                     Crear Hospital
                   </Button>

@@ -36,7 +36,8 @@ function Usuarios() {
       }
       if (response.status === 201) {
 
-        const data = response.data.filter((item) => item.id_usuario !== userLog.userId);
+        let data = response.data.filter((item) => item.id_usuario !== userLog.userId);
+        data = userLog.role === "master"? data : data.filter((item) => item.rol !== "master"); 
 
         const Usuarios = data.map((item) => ({
           key: item.id_usuario,

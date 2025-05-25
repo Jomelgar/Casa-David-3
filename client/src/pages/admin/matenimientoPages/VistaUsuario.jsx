@@ -92,14 +92,14 @@ function VistaUsuario() {
           id_hospital,
           direccion,
           fecha_nacimiento,
-          genero: genero === "FEMENINO" ? "FEMENINO" : "MASCULINO",
+          genero: genero.toUpperCase(),
           primer_apellido,
           segundo_apellido,
           primer_nombre,
           segundo_nombre,
           id_usuario,
           telefono,
-          rol: rol === "admin" ? "admin" : "usuario",
+          rol: rol.toUpperCase(),
           nickname,
           iglesia
         };
