@@ -59,10 +59,10 @@ export const LayoutContextProvider = ({ children }) => {
     "/mantenimiento/paises": "Mantenimiento / Países",
     "/reportes/pagos": "Reportes / Pagos",
     "/reportes/reporte-de-huespedes": "Reportes / Huéspedes Totales",
-    "/reportes/personas": "Reportes / Personas",
+    "/historiales/personas": "Reportes / Personas",
     "/reportes/informes": "Reportes / Informes",
     "/reportes/pacientes": "Reportes / Pacientes",
-    "/lista-negra": "Lista Negra",
+    "/historiales/lista-negra": "Lista Negra",
     "/perfil": "Mi Perfil",
     "/auth/": "Cerrar Sesión",
   };
@@ -213,13 +213,13 @@ export const LayoutContextProvider = ({ children }) => {
       children: [
         { key: "/reportes/pagos", label: "Pagos" },
         { key: "/reportes/reporte-de-huespedes", label: "Huesped Totales" },
-        { key: "/reportes/personas", label: "Personas" },
+        { key: "/historiales/personas", label: "Personas" },
         { key: "/reportes/informes", label: "Informes" },
         { key: "/reportes/pacientes", label: "Pacientes" }
       ],
     },
     {
-      key: "/lista-negra",
+      key: "/historiales/lista-negra",
       label: "Lista Negra",
       icon: <RiUserForbidLine />,
     },
@@ -265,13 +265,13 @@ export const LayoutContextProvider = ({ children }) => {
       children: [
         { key: "/reportes/pagos", label: "Pagos" },
         { key: "/reportes/reporte-de-huespedes", label: "Huesped Totales" },
-        { key: "/reportes/personas", label: "Personas" },
+        { key: "/historiales/personas", label: "Personas" },
         { key: "/reportes/informes", label: "Informes" },
         { key: "/reportes/pacientes", label: "Pacientes" }
       ],
     },
     {
-      key: "/ista-negra",
+      key: "/historiales/lista-negra",
       label: "Lista Negra",
       icon: <RiUserForbidLine />,
     },
@@ -334,7 +334,7 @@ export const LayoutContextProvider = ({ children }) => {
             icon: <RiFileChartLine />,
             label: "Reportes",
             children: userData.privilegios.includes(5)
-              ? [{ key: "/reportes/personas", label: "Personas" }]
+              ? [{ key: "/historiales/personas", label: "Personas" }]
               : [
                 { key: "/reportes/pagos", label: "Pagos" },
                 {
