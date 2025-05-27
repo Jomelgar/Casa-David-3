@@ -59,7 +59,7 @@ function App() {
             </Route>
 
             <Route
-              path="/historiales/personas"
+              path="/reportes/personas"
               element={
                 <ProtectedRoute
                   isAllow={validarPrivilegio(getUserFromToken(), 5)}
@@ -69,7 +69,7 @@ function App() {
               }
             />
             <Route
-              path="/historiales/lista-negra"
+              path="/lista-negra"
               element={
                 <ProtectedRoute
                   isAllow={validarPrivilegio(getUserFromToken(), 6)}

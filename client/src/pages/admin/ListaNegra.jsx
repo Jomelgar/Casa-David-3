@@ -18,13 +18,13 @@ import React from "react";
 
 import * as XLSX from "xlsx";
 
-import "../Usuarios.css";
+import "./Usuarios.css";
 import { useEffect, useState } from "react";
-import Lista_Negra from "../../../api/ListaNegra.api";
-import Reglamento from "../../../api/Reglas.api";
-import { useLayout } from "../../../context/LayoutContext";
-import personaApi from "../../../api/Persona.api";
-import PersonaApi from "../../../api/Persona.api";
+import Lista_Negra from "../../api/ListaNegra.api";
+import Reglamento from "../../api/Reglas.api";
+import { useLayout } from "../../context/LayoutContext";
+import personaApi from "../../api/Persona.api";
+import PersonaApi from "../../api/Persona.api";
 
 const { Content } = Layout;
 
