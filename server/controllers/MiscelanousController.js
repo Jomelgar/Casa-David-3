@@ -32,10 +32,10 @@ const getReservaciones = async (req, res) => {
     res.status(500).json({ error: 'Error al obtener salidas de huespedes.' });
   }
 };
-
 const getActiveHuespedes = async (req, res) => {
   try {
-    const activeHuespedesCount = await MiscelanousService.countActiveHuespedes();
+    const { id_lugar } = req.query;
+    const activeHuespedesCount = await MiscelanousService.countActiveHuespedes(id_lugar);
     res.json({ activeHuespedesCount });
   } catch (error) {
     console.error(error);
@@ -43,9 +43,11 @@ const getActiveHuespedes = async (req, res) => {
   }
 };
 
+
 const getPersonasBeneficiadas = async (req, res) => {
   try {
-    const personasBeneficiadasCount = await MiscelanousService.countPersonasBeneficiadas();
+    const { id_lugar } = req.query;
+    const personasBeneficiadasCount = await MiscelanousService.countPersonasBeneficiadas(id_lugar);
     res.json({ personasBeneficiadasCount });
   } catch (error) {
     console.error(error);
@@ -55,7 +57,8 @@ const getPersonasBeneficiadas = async (req, res) => {
 
 const getCamasDisponibles = async (req, res) => {
   try {
-    const camasDisponiblesCount = await MiscelanousService.countCamasDisponibles();
+   const { id_lugar } = req.query;
+    const camasDisponiblesCount = await MiscelanousService.countCamasDisponibles(id_lugar);
     res.json({ camasDisponiblesCount });
   } catch (error) {
     console.error(error);
@@ -65,14 +68,14 @@ const getCamasDisponibles = async (req, res) => {
 
 const getNumeroCamas = async (req, res) => {
   try {
-    const numeroCamasCount = await MiscelanousService.countNumeroCamas();
+    const { id_lugar } = req.query;
+    const numeroCamasCount = await MiscelanousService.countNumeroCamas(id_lugar);
     res.json({ numeroCamasCount });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Error al contar camas' });
   }
 };
-
 const getTop3Closest = async (req, res) => {
   try {
     const top3ClosestFechaSalida = await MiscelanousService.getTop3ClosestFechaSalida();

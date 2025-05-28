@@ -10,6 +10,11 @@ import SalidasModal from "../../components/Tablas/salidasProximasModal"; // Impo
 import * as XLSX from "xlsx";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
+
+import PersonApi from "../../api/Persona.api";
+import UserApi from "../../api/User.api";
+import { getUserFromToken } from "../../utilities/auth.utils";
+
 dayjs.extend(customParseFormat);
 
 const displayDateFormat = "DD-MM-YYYY";
@@ -18,6 +23,10 @@ const formatDate = (date) => {
 };
 
 function App() {
+
+  
+  //const { pais, lugar } = useLayout();
+  //const [lugar, setLugar] = useState({ id_lugar: 1 });
   const { setCurrentPath } = useLayout();
   const [activeHuespedes, setActiveHuespedes] = useState(0);
   const [personasBeneficiadas, setPersonasBeneficiadas] = useState(0);
@@ -28,19 +37,26 @@ function App() {
   const [departamentosRegistrados, setDepartamentosRegistrados] = useState([]);
 
   useEffect(() => {
+    setCurrentPath("/ Inicio");
 
     const fetchData = async () => {
       try {
-        const activeHuespedesResponse = await axiosInstance.get('active-huespedes');
+
+        const userToken = getUserFromToken();
+        const userProp = await UserApi.getUserRequest(userToken.userId);
+        const resUser = await PersonApi.getPersonaRequest(userProp.data.id_persona);
+        const lugar = resUser.data.id_lugar;
+        
+        const activeHuespedesResponse = await axiosInstance.get('active-huespedes', {params: { id_lugar: lugar }});
         setActiveHuespedes(activeHuespedesResponse.data.activeHuespedesCount);
 
-        const personasBeneficiadasResponse = await axiosInstance.get('personas-beneficiadas');
+        const personasBeneficiadasResponse = await axiosInstance.get('personas-beneficiadas', {params: { id_lugar: lugar }});
         setPersonasBeneficiadas(personasBeneficiadasResponse.data.personasBeneficiadasCount);
 
-        const camasDisponiblesResponse = await axiosInstance.get('camas-disponibles');
+        const camasDisponiblesResponse = await axiosInstance.get('camas-disponibles', {params: { id_lugar: lugar }});
         setCamasDisponibles(camasDisponiblesResponse.data.camasDisponiblesCount);
 
-        const numeroCamasResponse = await axiosInstance.get('numero-camas');
+        const numeroCamasResponse = await axiosInstance.get('numero-camas', {params: { id_lugar: lugar }});
         setNumeroCamas(numeroCamasResponse.data.numeroCamasCount);
 
         const proximosASalirResponse = await axiosInstance.get('top3-salidas');

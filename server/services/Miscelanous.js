@@ -49,42 +49,56 @@ const getReservaciones = async (startDate, endDate) => {
   const [results] = await sequelize.query(query, { replacements });
   return results;
 };
-
-const countActiveHuespedes = async () => {
+const countActiveHuespedes = async (id_lugar) => {
   const query = `
     SELECT COUNT(*) AS activeHuespedesCount
-    FROM reservacion
-    WHERE activa = true;
+    FROM reservacion r
+    JOIN cama c ON r.id_cama = c.id_cama
+    JOIN habitacion h ON c.id_habitacion = h.id_habitacion
+    WHERE r.activa = true AND h.id_lugar = :id_lugar;
   `;
-  const [results] = await sequelize.query(query);
+  const [results] = await sequelize.query(query, {
+    replacements: { id_lugar }
+  });
   return results[0].activehuespedescount;
 };
 
-const countPersonasBeneficiadas = async () => {
+const countPersonasBeneficiadas = async (id_lugar) => {
   const query = `
     SELECT COUNT(*) AS personasBeneficiadasCount
-    FROM reservacion;
+    FROM reservacion r
+    INNER JOIN cama c ON r.id_cama = c.id_cama
+    INNER JOIN habitacion h ON c.id_habitacion = h.id_habitacion
+    WHERE h.id_lugar = :id_lugar;
   `;
-  const [results] = await sequelize.query(query);
+  const [results] = await sequelize.query(query, {
+    replacements: { id_lugar }
+  });
   return results[0].personasbeneficiadascount;
 };
-
-const countCamasDisponibles = async () => {
+const countCamasDisponibles = async (id_lugar) => {
   const query = `
     SELECT COUNT(*) AS camasDisponiblesCount
-    FROM cama
-    WHERE disponible = true;
+    FROM cama c
+    INNER JOIN habitacion h ON c.id_habitacion = h.id_habitacion
+    WHERE c.disponible = true AND h.id_lugar = :id_lugar;
   `;
-  const [results] = await sequelize.query(query);
+  const [results] = await sequelize.query(query, {
+    replacements: { id_lugar }
+  });
   return results[0].camasdisponiblescount;
 };
 
-const countNumeroCamas = async () => {
+const countNumeroCamas = async (id_lugar) => {
   const query = `
     SELECT COUNT(*) AS numeroCamasCount
-    FROM cama;
+    FROM cama c
+    INNER JOIN habitacion h ON c.id_habitacion = h.id_habitacion
+    WHERE h.id_lugar = :id_lugar;
   `;
-  const [results] = await sequelize.query(query);
+  const [results] = await sequelize.query(query, {
+    replacements: { id_lugar }
+  });
   return results[0].numerocamascount;
 };
 
