@@ -18,17 +18,18 @@ as $$
 begin
     update pais
     set activo = false
-    where pais_id = pais_id_in;
+    where id_pais = pais_id_in;
 
     update departamento
     set activo = false
-    where pais_id = pais_id_in;
+    where id_pais = pais_id_in;
 
-    update municipio m
-    set m.activo = false
-    from departamento d
-    where m.departamento_id = d.departamento_id
-      and d.id_pais = pais_id_in;
+update municipio m
+set activo = false
+from departamento d
+where m.departamento_id = d.departamento_id
+  and d.id_pais = pais_id_in;
+
 end;
 $$;
 

@@ -18,7 +18,17 @@ const setPais = async (paisData) => {
     }
 };
 
+const deletePais = async (id) => {
+    try {
+        const response = await axiosInstance.delete(`/pais/${id}`);
+        return response;
+    } catch (error) {
+        return null;
+    }
+};
+
 export default {
     getPaisForTable,
-    setPais
+    setPais,
+    deletePais
 };

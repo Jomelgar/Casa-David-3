@@ -37,17 +37,19 @@ exports.createPais = async (req, res) => {
 }
 
 exports.deletePais = async (req, res) => {
-    const { id } = req.params;
-    try {
-        const pais = await pService.deletePais(id);
-        if (!pais) {
-            return res.status(404).json({ message: 'Country not found' });
-        }
-        res.status(200).json({ message: 'Country deleted successfully', pais });
-    } catch (error) {
-        res.status(500).json({ message: 'Error deleting country', error });
-    }
-}
+  const { id } = req.params;
+
+  try {
+    await pService.deletePais(id);
+    return res.status(200).json({ message: 'País eliminado correctamente.' });
+  } catch (error) {
+    return res.status(500).json({
+      message: 'Error eliminando el país.',
+      error: error.message || error,
+    });
+  }
+};
+
 
 exports.getAllPaisesForTable = async (req, res) => {
     try {

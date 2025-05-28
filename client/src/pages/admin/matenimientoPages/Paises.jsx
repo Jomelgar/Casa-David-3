@@ -3,7 +3,8 @@ import { Button, Input, Table, ConfigProvider,Layout,Space } from 'antd';
 import { SearchOutlined, DownloadOutlined, PlusCircleFilled, PlusCircleOutlined, StopOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import * as XLSX from 'xlsx';
 import PaisApi from '../../../api/Pais.api';
-import {PopUpFormulario} from './PopUpPaises/PopUpAgregarPais';
+import {PopUpFormulario} from './PopUpPaises/PopUpAgregarPais'
+import {PopUpEliminarPais} from './PopUpPaises/PopUpEliminarPais';
 const { Content } = Layout;
 
 function Paises() {
@@ -11,6 +12,7 @@ function Paises() {
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [selectedPais, setSelectedPais] = useState();
   const [addView, setAddView] = useState(false);
+  const [deleteView, setDeleteView] = useState(false);
 
   const cargarDatos = async () => {
     const res = await PaisApi.getPaisForTable();
@@ -186,6 +188,7 @@ function Paises() {
           color: 'red',
           fontSize: '36px',
         }}
+        onClick={() => {setDeleteView(true);}}
       />
       <Button
         type="text"
@@ -200,6 +203,8 @@ function Paises() {
       {addView && (
         <PopUpFormulario visible={addView} onLoad={cargarDatos} onClose={() => {setAddView(false);}}/>
       )}
+      {deleteView && (
+        <PopUpEliminarPais visible={deleteView} paises={dataSource} onLoad={cargarDatos} onClose={() => {setDeleteView(false);}}/>)}
     </>
   );
 }

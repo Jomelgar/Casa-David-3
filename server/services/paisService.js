@@ -2,7 +2,8 @@ const {Pais} = require('../models/pais');
 const {Hospital} = require('../models/hospital');
 const {Lugar,Municipio} = require('../models/persona');
 const {Departamento} = require('../models/departamento');
-const Sequelize = require('sequelize');
+const sequelize = require('../Db');
+
 
 exports.getDepartamentosConMunicipiosPorPais = async (id_pais) => {
   
@@ -15,12 +16,12 @@ exports.getDepartamentosConMunicipiosPorPais = async (id_pais) => {
       id_pais: id_pais,
       activo: true
     },
-    attributes: ['id_departamento', 'nombre', 'activo'],
+    attributes: ['departamento_id', 'nombre', 'activo'],
     include: [
       {
         model: Municipio,
         where: { activo: true },
-        attributes: ['id_municipio', 'nombre', 'activo']
+        attributes: ['municipio_id', 'nombre', 'activo']
       }
     ]
   });
@@ -40,13 +41,17 @@ exports.createPais = async (paisData) => {
 };
 
 exports.deletePais = async (id) => {
-    const pais = await Pais.findByPk(id);
-    if (!pais) {
-        throw new Error('Pais not found');
-    }
-    await pais.destroy();
-    return pais;
-}
+  try {
+    await sequelize.query('CALL public.eliminarpais(:ID)', {
+      replacements: { ID: id },
+    });
+    return true;
+  } catch (error) {
+    console.error('Error al eliminar país:', error);
+    throw error;
+  }
+};
+
 
 exports.getAllPaisesForTable = async () => {
   const paises = await Pais.findAll({
@@ -60,8 +65,8 @@ exports.getAllPaisesForTable = async () => {
       'codigo_iso',
       'referencia_telefonica',
       'formato_dni',
-      [Sequelize.fn('COUNT', Sequelize.literal('DISTINCT "Hospitals"."id_hospital"')), 'num_hospitales'],
-      [Sequelize.fn('COUNT', Sequelize.literal('DISTINCT "Lugars"."id_lugar"')), 'num_casas'],
+      [sequelize.fn('COUNT', sequelize.literal('DISTINCT "Hospitals"."id_hospital"')), 'num_hospitales'],
+      [sequelize.fn('COUNT', sequelize.literal('DISTINCT "Lugars"."id_lugar"')), 'num_casas'],
     ],
     include: [
       {
