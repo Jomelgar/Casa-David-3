@@ -20,6 +20,16 @@ exports.getDepartamentoById = async (req, res) => {
     }
 }
 
+exports.setDepartamentoMunicipio = async (req, res) => {
+    try {
+        const data = req.body;
+        const result = await departamentoService.setDepartamentoMunicipio(data);
+        res.status(201).json(result);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+}
+
 exports.getDepartamentoByMunicipioId = async (req, res) => {
     try {
         const municipio_id = req.params.id;

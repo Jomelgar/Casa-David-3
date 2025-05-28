@@ -1,20 +1,23 @@
 {
     "HONDURAS":
     {
-        "divisa": "HND",
+        "codigo_iso": "HND",
         "referencia_telefonica": "+504",
-        "formato_dni": "####-####-#####"
+        "formato_dni": "####-####-#####",
+        "divisa": "Lps."
     },
     "GUATEMALA":
     {
-        "divisa":"GTQ",
+        "codigo_iso":"GTQ",
         "referencia_telefonica": "+502",
-        "formato_dni": "####-#####-####"
+        "formato_dni": "####-#####-####",
+        "divisa": "Q."
     },
     "EL SALVADOR":
     {
-        "divisa":"USD",
+        "codigo_iso":"USD",
         "referencia_telefonica": "+503",
-        "formato_dni": "########-#"
+        "formato_dni": "########-#",
+        "divisa": "$."
     }
 }

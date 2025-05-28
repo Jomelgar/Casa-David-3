@@ -97,6 +97,7 @@ const syncDb = async () => {
         console.log("Creating pais: ", pais);
         const newPais = await Pais.create({
           nombre: pais,
+          codigo_iso: paisData[pais]["codigo_iso"],
           divisa: paisData[pais]["divisa"],
           referencia_telefonica: paisData[pais]["referencia_telefonica"],
           formato_dni: paisData[pais]["formato_dni"]

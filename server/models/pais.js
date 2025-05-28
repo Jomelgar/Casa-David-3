@@ -25,11 +25,17 @@ const Pais = sequelize.define(
             type:Sequelize.INTEGER,
             defaultValue: 0
         },
-        divisa:
+        codigo_iso:
         {
             type: Sequelize.STRING(5),
             allowNull: false
-        },activo:{
+        },
+        divisa:
+        {
+            type: Sequelize.STRING(10),
+            allowNull: false
+        }
+        ,activo:{
             type: Sequelize.BOOLEAN,
             defaultValue: true
         },

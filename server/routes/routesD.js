@@ -60,6 +60,7 @@ router.get('/causaVisita/:id',causaVisitaController.getCausaById);
 router.get('/departamento', departamentoController.getAllDepartamento);
 router.get('/departamento/:id', departamentoController.getDepartamentoById);
 router.get('/departamento/municipio/:id', departamentoController.getDepartamentoByMunicipioId);
+router.post('/departamento-municipio', departamentoController.setDepartamentoMunicipio);
 
 //municipio
 router.get('/municipio', municipioController.getAllMunicipio);
@@ -69,4 +70,7 @@ router.get('/municipios/departamento/:id', municipioController.getAllMunicipiosB
 
 //pais
 router.get('/paisForTable', paisController.getAllPaisesForTable);
+router.get('/pais-todo/:id', paisController.getAllPais);
+router.post('/pais', paisController.createPais);
+router.delete('/pais/:id', paisController.deletePais);
 module.exports = router;
