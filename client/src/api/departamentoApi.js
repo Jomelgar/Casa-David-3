@@ -9,6 +9,15 @@ const getDepartamentos = async () => {
   }
 };
 
+const setDepartamentoMunicipio = async (data) => {
+  try {
+    const response = await axiosInstance.post('/departamento-municipio', data);
+    return response.data;
+  } catch (error) {
+    throw new Error('Error creating departamento');
+  }
+};
+
 const getDepartamentoById = async (departamentoId) => {
   try {
     const response = await axiosInstance.get(`/departamento/${departamentoId}`);
@@ -27,4 +36,4 @@ const getDepartamentoByMunicipioId = async (municipio_id) => {
   }
 };
 
-export { getDepartamentos, getDepartamentoById, getDepartamentoByMunicipioId };
+export { getDepartamentos, getDepartamentoById, getDepartamentoByMunicipioId, setDepartamentoMunicipio };

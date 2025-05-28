@@ -12,15 +12,16 @@ function Paises() {
   const [selectedPais, setSelectedPais] = useState();
   const [addView, setAddView] = useState(false);
 
+  const cargarDatos = async () => {
+    const res = await PaisApi.getPaisForTable();
+    if (res && res.data) {
+       setDataSource(res.data);
+    } else {
+      console.error('Error al obtener los datos de países');
+    }
+  };
+
   useEffect(() => {
-      const cargarDatos = async () => {
-        const res = await PaisApi.getPaisForTable();
-        if (res && res.data) {
-          setDataSource(res.data);
-        } else {
-          console.error('Error al obtener los datos de países');
-        }
-      };
       cargarDatos();
     }, []);
 
@@ -67,8 +68,8 @@ function Paises() {
       onFilter: (value, record) => record.nombre.toLowerCase().includes(value.toLowerCase())
     },{
       title: 'Codigo ISO',
-      dataIndex: 'divisa',
-      key: 'divisa',
+      dataIndex: 'codigo_iso',
+      key: 'codigo_iso',
       filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
         <div style={{ padding: 8 }}>
           <Input
@@ -197,7 +198,7 @@ function Paises() {
       />
       </Content>
       {addView && (
-        <PopUpFormulario visible={addView} onClose={() => {setAddView(false);}}/>
+        <PopUpFormulario visible={addView} onLoad={cargarDatos} onClose={() => {setAddView(false);}}/>
       )}
     </>
   );
