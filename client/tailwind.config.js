@@ -33,6 +33,7 @@ module.exports = {
           900: '#011f26',
         },
         white: {
+          DEFAULT: '#fff', 
           100: '#fdfdfd',
           200: '#fbfbfb',
           300: '#f9f9f9',
