@@ -6,7 +6,9 @@ import PaisApi from '../../../api/Pais.api';
 import { PopUpFormulario } from './PopUpPaises/PopUpAgregarPais';
 import { PopUpEliminarPais } from './PopUpPaises/PopUpEliminarPais';
 import { PopUpAddLocal } from './PopUpPaises/PopUpAgregarLocal';
+import { PopUpDeleteLocal } from './PopUpPaises/PopUpEliminarLocal';
 const { Content } = Layout;
+
 
 function Paises() {
   const [dataSource, setDataSource] = useState([]);
@@ -15,6 +17,7 @@ function Paises() {
   const [deleteView, setDeleteView] = useState(false);
 
   const [addLocalView, setAddLocalView] = useState(false);
+  const [deleteLocalView, setDeleteLocalView] = useState(false);
   const [paisSeleccionado, setPaisSeleccionado] = useState(null);
 
   const cargarDatos = async () => {
@@ -108,6 +111,10 @@ function Paises() {
           <Button
             type="text"
             icon={<DeleteOutlined style={{ fontSize: '30px' }} />}
+            onClick={() => {
+              setPaisSeleccionado(record);
+              setDeleteLocalView(true);
+            }}
             style={{ color: 'red', fontSize: '18px' }}
           />
           <Button
@@ -201,6 +208,18 @@ function Paises() {
           pais={paisSeleccionado}
           onClose={() => {
             setAddLocalView(false);
+            setPaisSeleccionado(null);
+          }}
+          onLoad={cargarDatos}
+        />
+      )}
+
+      {deleteLocalView && (
+        <PopUpDeleteLocal
+          visible={deleteLocalView}
+          pais={paisSeleccionado}
+          onClose={() => {
+            setDeleteLocalView(false);
             setPaisSeleccionado(null);
           }}
           onLoad={cargarDatos}

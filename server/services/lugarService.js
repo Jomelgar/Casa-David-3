@@ -10,6 +10,19 @@ exports.crearLugar = async (data) => {
   }
 };
 
+exports.getlugaresByPais = async (id_pais) => {
+   try {
+      const lugares = await Lugar.findAll({
+         where: {
+         id_pais: id_pais
+         }
+      });
+      return lugares;
+   } catch (error) {
+      console.error('Error al obtener lugares por país:', error);
+      throw new Error('No se pudieron obtener los lugares');
+   }
+};
  
  exports.getAllLugar = async()=>{
     const lugar = await Lugar.findAll();
@@ -35,11 +48,11 @@ exports.crearLugar = async (data) => {
     return unaLugar  
   }
  
-  exports.eliminarLugar = async(req,res)=>{
+  exports.eliminarlugar = async(req,res)=>{
     const {id} = req.params;
      await Lugar.destroy({
        where:{
-          id_Lugar:id,
+          id_lugar:id,
        }
     })
  

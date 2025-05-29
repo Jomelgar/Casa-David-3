@@ -19,6 +19,7 @@ ProductRouter.post("/hospitales", Product.createHospital); //funciona
 ProductRouter.get("/hospitales/:id", Product.getHospitalById); //funciona
 ProductRouter.get("/hospitales", Product.getHospitales); //funciona
 ProductRouter.delete("/hospitales/:id", Product.deleteHospitalById); //funciona
+ProductRouter.get("/hospitales/pais/:id", Product.getHospitalByPais); //funciona
 
 //pisos
 ProductRouter.post("/pisos", Product.createPiso); //funciona

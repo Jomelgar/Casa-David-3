@@ -71,6 +71,8 @@ router.get('/municipios/departamento/:id', municipioController.getAllMunicipiosB
 
 //lugar
 router.post('/lugares', lugarController.crearlugar);
+router.get('/lugares/pais/:id_pais', lugarController.getlugarByPais);
+router.delete('/lugares/:id', lugarController.eliminarlugar);
 
 //pais
 router.get('/paisForTable', paisController.getAllPaisesForTable);

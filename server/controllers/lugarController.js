@@ -20,6 +20,17 @@ exports.crearlugar = async (req,res) =>{
     }    
 }
 
+exports.getlugarByPais = async (req,res) =>{
+  try {
+    const { id_pais } = req.params;
+    const lugares = await lugarService.getlugaresByPais(id_pais);
+    if(!lugares) return res.status(404).json({message: 'No existen lugares para este pais'})
+    res.status(201).json(lugares)
+  } catch (error) {
+    res.status(500).json({error:error.message});
+  } 
+};
+
 exports.getlugar = async (req,res) =>{
   try {
     const lugar = await lugarService.getlugar(req)

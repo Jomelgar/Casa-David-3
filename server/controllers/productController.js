@@ -110,6 +110,23 @@ exports.getHospitalById = async (req, res) => {
   }
 };
 
+exports.getHospitalByPais = async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const hospitales = await productService.getHospitalByPais(id);
+
+    if (hospitales && hospitales.length > 0) {
+      res.status(200).json(hospitales);
+    } else {
+      res.status(404).json({ message: "Hospitales no encontrados en registro" });
+    }
+  } catch (error) {
+    console.error('Error en getHospitalByPais:', error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
 exports.getHospitales = async (req, res) => {
   try {
     const hospitales = await productService.getHospitales();

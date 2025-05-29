@@ -45,6 +45,14 @@ exports.createHospital = async (HospitalData) => {
   return hospital;
 };
 
+exports.getHospitalByPais = async (id) => {
+  const hospitales = await Hospital.findAll({
+    where: { id_pais: id },
+  });
+  return hospitales;
+};
+
+
 exports.getHospitalById = async (id) => {
   const hospital = await Hospital.findByPk(id);
   return hospital;

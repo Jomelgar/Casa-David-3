@@ -43,9 +43,20 @@ const deleteHospitalesRequest = async (id) => {
     }
   };
 
+const getHospitalByPais = async (id_pais) => {
+    try {
+        console.log("ID PAIS: ", id_pais);
+        const response = await axiosInstance.get(`hospitales/pais/${id_pais}`);
+        return response;
+    } catch (error) {
+        return error.response;
+    }
+};
+
 export default {
     getHospitalRequest,
     getHospitalesRequest,
     postHospitalesRequest,
     deleteHospitalesRequest,
+    getHospitalByPais
 };
