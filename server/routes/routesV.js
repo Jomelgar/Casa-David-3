@@ -31,8 +31,9 @@ router.delete("/persona/:id", personaController.deletePersonaById); //funciona
 router.get("/personas", personaController.getAllPersonas); //funciona
 router.put("/persona/:id", personaController.editarPersona);
 router.get("/persona/dni/:dni", personaController.getPersonaByDni); //funciona
-router.get("/persona/observacion/:id", personaController.getObservacion)
-router.put("/persona/observacion/:id", personaController.setObservacion)
+router.get("/persona/observacion/:id", personaController.getObservacion);
+router.put("/persona/observacion/:id", personaController.setObservacion);
+router.get("/personas/:id/pais", personaController.getIdPais);
 
  // Rutas para evangelización
  router.get('/persona/:id/evangelizacion', personaController.getEvangelizacion); // GET

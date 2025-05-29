@@ -5,7 +5,10 @@ import { Card, Col, Row, Modal } from 'antd';
 import { useLayout } from '../../context/LayoutContext';
 import { UserOutlined, HomeOutlined, DiffOutlined } from '@ant-design/icons'; // Import icons from Ant Design
 import axiosInstance from '../../api/axiosInstance';
-import HondurasIcon from "../../../src/assets/honduras.png";
+//import HondurasIcon from "../../../src/assets/honduras.png";
+import hnMap from '../../assets/hn.svg';
+import gtMap from '../../assets/gt.svg';
+import svMap from '../../assets/sv.svg';
 import SalidasModal from "../../components/Tablas/salidasProximasModal"; // Import the SalidasModal component
 import * as XLSX from "xlsx";
 import dayjs from "dayjs";
@@ -22,6 +25,20 @@ const formatDate = (date) => {
   return dayjs(date).format(displayDateFormat);
 };
 
+//estos son los mapas
+function obtenerMapaPorIdPais(idPais) {
+  switch (idPais) {
+    case 1:
+      return hnMap;
+    case 2:
+      return gtMap;
+    case 3:
+      return svMap;
+    default:
+      return hnMap;
+  }
+}
+
 function App() {
 
   
@@ -35,6 +52,8 @@ function App() {
   const [proximosASalir, setProximosASalir] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [departamentosRegistrados, setDepartamentosRegistrados] = useState([]);
+  const [idPais, setIdPais] = useState(null);
+
 
   useEffect(() => {
     setCurrentPath("/ Inicio");
@@ -44,8 +63,14 @@ function App() {
 
         const userToken = getUserFromToken();
         const userProp = await UserApi.getUserRequest(userToken.userId);
-        const resUser = await PersonApi.getPersonaRequest(userProp.data.id_persona);
+        const personaId = userProp.data.id_persona;
+
+        const resUser = await PersonApi.getPersonaRequest(personaId);
         const lugar = resUser.data.id_lugar;
+
+        const paisResponse = await axiosInstance.get(`/personas/${personaId}/pais`);
+        const idPais = paisResponse.data.idPais;
+        setIdPais(idPais);
         
         const activeHuespedesResponse = await axiosInstance.get('active-huespedes', {params: { id_lugar: lugar }});
         setActiveHuespedes(activeHuespedesResponse.data.activeHuespedesCount);
@@ -201,8 +226,8 @@ function App() {
               {departamentosRegistrados + "/18"}
 
               <img
-                src={HondurasIcon}
-                alt="Honduras Icon"
+                src={obtenerMapaPorIdPais(idPais)}
+                alt="Mapa del país"
                 style={{
                   width: "230px",
                   height: "130px",

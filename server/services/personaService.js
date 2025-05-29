@@ -1,5 +1,5 @@
 const sequelize = require('../Db');
-const { Persona } = require('../models/persona');
+const { Persona, Lugar } = require('../models/persona');
 
 exports.getAllPersonas = async () => {
     const people = await Persona.findAll();
@@ -87,3 +87,24 @@ exports.setObservacion = async (id, observacion) => {
 
     return true;
 }
+
+exports.getIdPais = async (id) => {
+  const persona = await Persona.findByPk(id, {
+    include: {
+      model: Lugar,
+      attributes: ['id_pais'], 
+    },
+  });
+
+  if (!persona) throw new Error("Persona no encontrada");
+
+  console.log('Lugar:', persona.Lugar?.id_pais);
+
+  const idPais = persona.Lugar?.id_pais;
+  if (!idPais) throw new Error("País no encontrado");
+
+  return idPais; 
+};
+
+
+

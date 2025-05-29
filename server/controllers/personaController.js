@@ -138,3 +138,13 @@ exports.setObservacion = async (req, res) => {
     return res.status(404).json({ error: "Persona no encontrada" })
   }
 }
+
+exports.getIdPais = async (req, res) => {
+  try {
+    const idPersona = req.params.id;
+    const idPais = await perService.getIdPais(idPersona);
+    res.json({ idPais }); 
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
