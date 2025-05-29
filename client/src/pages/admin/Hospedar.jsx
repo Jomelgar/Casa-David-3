@@ -235,6 +235,222 @@ function Hospedar() {
     }
   };
 
+  const TipoDocumentoSelector = () => {
+  const [selected, setSelected] = useState("dni");
+
+  return (
+    <Row gutter={16} style={{ marginTop: 20 }}>
+      <Col>
+        <CustomCheckboxButton
+          label="Dni"
+          selected={selected === "dni"}
+          onClick={() => setSelected("dni")}
+        />
+      </Col>
+      <Col>
+        <CustomCheckboxButton
+          label="Dni Extranjero"
+          selected={selected === "dniExtranjero"}
+          onClick={() => setSelected("dniExtranjero")}
+        />
+      </Col>
+      <Col>
+        <CustomCheckboxButton
+          label="Pasaporte"
+          selected={selected === "pasaporte"}
+          onClick={() => setSelected("pasaporte")}
+        />
+      </Col>
+    </Row>
+  );
+};
+
+const CustomCheckboxButton = ({ label, selected, onClick }) => {
+  return (
+    <label
+      onClick={onClick}
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        backgroundColor: "#71d9af",
+        borderRadius: "20px",
+        padding: "8px 16px",
+        color: "white",
+        width: "220px",
+        fontWeight: "bold",
+        cursor: "pointer",
+        userSelect: "none",
+        opacity: selected ? 1 : 0.6,
+        border: selected ? "2px solid #4ac2cd" : "2px solid transparent",
+      }}
+    >
+      <span
+        style={{
+          width: "24px",
+          height: "24px",
+          backgroundColor: selected ? "#4ac2cd" : "#ccc",
+          borderRadius: "6px",
+          marginRight: "10px",
+          position: "relative",
+        }}
+      >
+        {selected && (
+          <span
+            style={{
+              color: "white",
+              fontSize: "14px",
+              position: "absolute",
+              top: "3px",
+              left: "6px",
+            }}
+          >
+            ✔
+          </span>
+        )}
+      </span>
+      <span style={{ fontSize: "20px" }}>{label}</span>
+    </label>
+  );
+};
+
+
+
+  const CustomCheckboxButtonDni = () => {
+  return (
+    <label
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        backgroundColor: "#71d9af",
+        borderRadius: "20px",
+        padding: "8px 16px",
+        color: "white",
+        width : "220px",
+        fontWeight: "bold",
+        cursor: "pointer",
+        userSelect: "none",
+      }}
+    >
+      <input type="checkbox" defaultChecked style={{ display: "none" }} />
+      <span
+        style={{
+          width: "24px",
+          height: "24px",
+          backgroundColor: "#4ac2cd",
+          borderRadius: "6px",
+          marginRight: "10px",
+          position: "relative",
+        }}
+      >
+        <span
+          style={{
+            content: '"✔"',
+            color: "white",
+            fontSize: "14px",
+            position: "absolute",
+            top: "3px",
+            left: "6px",
+          }}
+        >
+          ✔
+        </span>
+      </span>
+      <span style={{ fontSize: "20px" }}>Dni</span>
+    </label>
+  );
+};
+
+const CustomCheckboxButtonDniExtranjero = () => {
+  return (
+    <label
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        backgroundColor: "#71d9af",
+        borderRadius: "20px",
+        padding: "8px 16px",
+        color: "white",
+        width : "220px",
+        fontWeight: "bold",
+        cursor: "pointer",
+        userSelect: "none",
+      }}
+    >
+      <input type="checkbox" defaultChecked style={{ display: "none" }} />
+      <span
+        style={{
+          width: "24px",
+          height: "24px",
+          backgroundColor: "#4ac2cd",
+          borderRadius: "6px",
+          marginRight: "10px",
+          position: "relative",
+        }}
+      >
+        <span
+          style={{
+            content: '"✔"',
+            color: "white",
+            fontSize: "14px",
+            position: "absolute",
+            top: "3px",
+            left: "6px",
+          }}
+        >
+          ✔
+        </span>
+      </span>
+      <span style={{ fontSize: "20px" }}>Dni Extrajero</span>
+    </label>
+  );
+};
+
+const CustomCheckboxButtonPasaporte = () => {
+  return (
+    <label
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        backgroundColor: "#71d9af",
+        borderRadius: "20px",
+        padding: "8px 16px",
+        color: "white",
+        width : "220px",
+        fontWeight: "bold",
+        cursor: "pointer",
+        userSelect: "none",
+      }}
+    >
+      <input type="checkbox" defaultChecked style={{ display: "none" }} />
+      <span
+        style={{
+          width: "24px",
+          height: "24px",
+          backgroundColor: "#4ac2cd",
+          borderRadius: "6px",
+          marginRight: "10px",
+          position: "relative",
+        }}
+      >
+        <span
+          style={{
+            content: '"✔"',
+            color: "white",
+            fontSize: "14px",
+            position: "absolute",
+            top: "3px",
+            left: "6px",
+          }}
+        >
+          ✔
+        </span>
+      </span>
+      <span style={{ fontSize: "20px" }}>Pasaporte</span>
+    </label>
+  );
+};
+
+
   const usuario = getUserFromToken();
 
   const [hospitales, setHospitales] = useState([]);
@@ -1978,6 +2194,15 @@ function Hospedar() {
 
         <Card style={{ marginTop: 16 }} className="shadow-#1">
           <Meta title="Informacion Personal Huesped" />
+
+          <Row gutter={25} style={{ marginTop: 20 }}>
+  
+         <TipoDocumentoSelector />
+        </Row>
+
+          
+
+
 
           <Row gutter={25} style={{ marginTop: 20 }}>
             <Col
