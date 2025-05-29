@@ -12,14 +12,14 @@ const lugarService = require('../services/lugarService');
 
 exports.crearlugar = async (req,res) =>{
   try{
-    const lugar= await lugarService.crearlugar(req)
-    console.log ("creando lugar")
+    const data = req.body;
+    const lugar= await lugarService.crearLugar(data);
      res.status(201).json(lugar);
     } catch (error){
       res.status(500).json({ error: error.message });
-    }
-    
+    }    
 }
+
 exports.getlugar = async (req,res) =>{
   try {
     const lugar = await lugarService.getlugar(req)

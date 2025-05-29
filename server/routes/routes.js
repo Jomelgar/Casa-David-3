@@ -10,7 +10,7 @@ const rutasM = require('./MiscelanousRoutes');
 
 const router = Router();
 
-//rutas D = Ocupacion, Procedencia, Iglesia, Iglesia Huesped, Lista de Espera
+//rutas D = Ocupacion, Procedencia, Iglesia, Iglesia Huesped, Lista de Espera, Pais, Lugar,Deparamento-Municipio
 router.use("/api/",rutasD);
 
 //rutasV = Users, Auth, Persona, Paciente, Paciente Huesped, Huesped, Lista Negra

@@ -42,6 +42,8 @@ function PopUpFormulario({ visible, onClose, onLoad}) {
     await setDepartamentoMunicipio(newJson);
 
     await onLoad();
+    setFile(null);
+    setJsonData(null);
     onClose();
     openNotification(0, "Éxito", "País agregado correctamente.");
   };

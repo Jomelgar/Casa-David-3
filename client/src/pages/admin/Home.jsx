@@ -25,7 +25,6 @@ const formatDate = (date) => {
   return dayjs(date).format(displayDateFormat);
 };
 
-//estos son los mapas
 function obtenerMapaPorIdPais(idPais) {
   switch (idPais) {
     case 1:

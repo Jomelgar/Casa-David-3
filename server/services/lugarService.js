@@ -1,14 +1,15 @@
 const {Lugar}= require('../models/persona');
 
-exports.crearLugar = async (req) =>{
-    const { id_Lugar, codigo} = req.body;
-    const nuevaLugar = await Lugar.create({
-        id_Lugar,
-        codigo,
-    })
- 
-    return nuevaLugar
- }
+exports.crearLugar = async (data) => {
+  try {
+    const nuevoLugar = await Lugar.create(data);
+    return nuevoLugar;
+  } catch (error) {
+    console.error('Error al crear lugar:', error);
+    throw new Error('No se pudo crear el lugar');
+  }
+};
+
  
  exports.getAllLugar = async()=>{
     const lugar = await Lugar.findAll();
