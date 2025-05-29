@@ -18,6 +18,7 @@ import Huesped from "./Hospedaje/Huesped";
 import Huespedes from "./Hospedaje/Huespedes"
 import TablaDeSolicitudes from "./matenimientoPages/TablaDeSolicitudes";
 import Paises from "./matenimientoPages/Paises";
+import Pacientes from "./reportesPages/Pacientes";
 
 export default {
     Home,
@@ -39,5 +40,6 @@ export default {
     VistaUsuario,
     Huespedes,
     Huesped,
+    Pacientes,
     Paises
 }

@@ -158,6 +158,11 @@ function App() {
                 path="reportes/informes"
                 element={<pagesAdmin.Informes />}
               />
+
+              <Route
+                path= "reportes/pacientes"
+                element={<pagesAdmin.Pacientes />}
+              />
             </Route>
 
             <Route path="perfil" element={<pagesAdmin.Perfil />} />
