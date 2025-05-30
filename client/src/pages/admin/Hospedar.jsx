@@ -234,31 +234,31 @@ function Hospedar() {
       return Object.keys(newEmptyFields).length === 0;
     }
   };
-
+ const [selected, setSelected] = useState("DNI");
   const TipoDocumentoSelector = () => {
-  const [selected, setSelected] = useState("dni");
+  
 
   return (
     <Row gutter={16} style={{ marginTop: 20 }}>
       <Col>
         <CustomCheckboxButton
           label="Dni"
-          selected={selected === "dni"}
-          onClick={() => setSelected("dni")}
+          selected={selected === "DNI"}
+          onClick={() => setSelected("DNI")}
         />
       </Col>
       <Col>
         <CustomCheckboxButton
           label="Dni Extranjero"
-          selected={selected === "dniExtranjero"}
-          onClick={() => setSelected("dniExtranjero")}
+          selected={selected === "DNI Extranjero"}
+          onClick={() => setSelected("DNI Extranjero")}
         />
       </Col>
       <Col>
         <CustomCheckboxButton
           label="Pasaporte"
-          selected={selected === "pasaporte"}
-          onClick={() => setSelected("pasaporte")}
+          selected={selected === "Pasaporte"}
+          onClick={() => setSelected("Pasaporte")}
         />
       </Col>
     </Row>
@@ -355,7 +355,7 @@ const CustomCheckboxButton = ({ label, selected, onClick }) => {
           ✔
         </span>
       </span>
-      <span style={{ fontSize: "20px" }}>Dni</span>
+      <span style={{ fontSize: "20px" }}>DNI</span>
     </label>
   );
 };
@@ -400,7 +400,7 @@ const CustomCheckboxButtonDniExtranjero = () => {
           ✔
         </span>
       </span>
-      <span style={{ fontSize: "20px" }}>Dni Extrajero</span>
+      <span style={{ fontSize: "20px" }}>DNI Extrajero</span>
     </label>
   );
 };
@@ -2192,6 +2192,7 @@ const CustomCheckboxButtonPasaporte = () => {
           noSolicitudesMujeres={noSolicitudesMujeres}
         />
 
+
         <Card style={{ marginTop: 16 }} className="shadow-#1">
           <Meta title="Informacion Personal Huesped" />
 
@@ -2213,7 +2214,7 @@ const CustomCheckboxButtonPasaporte = () => {
               <Input
                 prefix={<IdcardOutlined style={styleIconInput} />}
                 size="large"
-                placeholder="No. de Identidad"
+                placeholder={selected}
                 maxLength={15}
                 type="text"
                 style={{
@@ -2221,6 +2222,7 @@ const CustomCheckboxButtonPasaporte = () => {
                   borderColor: emptyFieldsHuesped.dni ? "#FF0A0A" : undefined,
                 }}
                 value={hospedado.dni}
+                
                 onChange={(e) => {
                   handleSetChangeHuesped("dni", e.target.value, hospedado.dni);
                 }}
