@@ -13,6 +13,8 @@ import pisosApi from "../../api/Piso.api";
 import SalasApi from "../../api/Salas.api";
 import CausaVisitaApi from "../../api/CausaVisita.api";
 
+import axios from "axios";
+
 import camaApi from "../../api/Cama.api";
 import personaApi from "../../api/Persona.api";
 import solicitudApi from "../../api/Solicitud.api";
@@ -53,6 +55,9 @@ import {
   UserOutlined,
   SearchOutlined,
 } from "@ant-design/icons";
+
+
+
 import Disponibilidad from "../../components/Disponiblidad/Disponibilidad";
 import InformacionPaciente from "../../components/Hospedaje/InformacionPaciente";
 import PatronoHuesped from "../../components/Hospedaje/PatronoHuesped";
@@ -62,6 +67,8 @@ import ListaSolicitudApi from "../../api/ListaSolicitud.api";
 import PatronoApi from "../../api/Patrono.api";
 import ListaNegraApi from "../../api/ListaNegra.api";
 import Cookie from "js-cookie";
+
+import { COUNTRIES_API } from "../../api/Huesped.api";
 
 const { Meta } = Card;
 const { TextArea } = Input;
@@ -188,6 +195,7 @@ function Hospedar() {
     return Object.keys(newEmptyFields).length === 0;
   };
 
+  
   const validateFieldsPaciente = () => {
     const newEmptyFields = {};
     // Checks de paciente (13)
@@ -235,6 +243,7 @@ function Hospedar() {
     }
   };
  const [selected, setSelected] = useState("DNI");
+ 
   const TipoDocumentoSelector = () => {
   
 
@@ -450,7 +459,66 @@ const CustomCheckboxButtonPasaporte = () => {
   );
 };
 
+const [countries, setCountries] = useState([]);
+const [selectedCountry, setSelectedCountry] = useState(null);
 
+useEffect(() => {
+  axios.get(COUNTRIES_API).then((res) => {
+    const filtered = res.data
+      .filter(c => c.idd?.root && c.idd?.suffixes && c.flags?.png)
+      .map(c => ({
+        name: c.name.common,
+        code: c.idd.root + (c.idd.suffixes[0] || ''),
+        flag: c.flags.png
+      }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+
+    setCountries(filtered);
+    
+    setSelectedCountry(filtered.find(c => c.code === "+504")); // Honduras por defecto (si quieres)
+  });
+}, []);
+
+
+
+const countrySelector = (
+  <Select
+  suffixIcon={<PhoneOutlined style={{ color: "#8c8c8c", width:230}} />}
+    disabled={selected === "DNI"}
+    showSearch
+    style={{
+      width: 250,
+      height: 48,
+      //borderRadius: 8,
+      //backgroundColor: "#fafafa",
+      //borderColor: "#d9d9d9",
+    }}
+    value={selectedCountry?.code}
+    onChange={(value) => {
+      const found = countries.find((c) => c.code === value);
+      setSelectedCountry(found);
+    }}
+    optionLabelProp="label"
+    
+  >
+    {countries.map((country) => (
+      <Select.Option
+        key={country.code}
+        value={country.code}
+        label={`${country.name} (${country.code})`}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <img
+            src={country.flag}
+            alt={country.name}
+            style={{ width: 20, height: 15 }}
+          />
+          {country.name} ({country.code})
+        </div>
+      </Select.Option>
+    ))}
+  </Select>
+);
   const usuario = getUserFromToken();
 
   const [hospitales, setHospitales] = useState([]);
@@ -2555,6 +2623,7 @@ const CustomCheckboxButtonPasaporte = () => {
               />
             </Col>
           </Row>
+
           <Row gutter={25}>
             <Col
               xs={{ flex: "100%" }}
@@ -2563,7 +2632,7 @@ const CustomCheckboxButtonPasaporte = () => {
             >
               <DatePicker
                 style={{
-                  height: "100%",
+                  height: 40,
                   width: "100%",
                   borderColor: emptyFieldsHuesped.fecha_nacimiento
                     ? "#FF0A0A"
@@ -2577,33 +2646,37 @@ const CustomCheckboxButtonPasaporte = () => {
                   handleSetChangeHuesped("fecha_nacimiento", d);
                 }}
               />
+              
             </Col>
             <Col
               xs={{ flex: "100%" }}
               lg={{ flex: "50%" }}
               style={{ marginBottom: 25, height: 50 }}
             >
-              <Input
-                prefix={<PhoneOutlined style={styleIconInput} />}
-                size="large"
-                placeholder="Telefono"
-                maxLength={9}
-                type="text"
-                style={{
-                  height: "100%",
-                  borderColor: emptyFieldsHuesped.telefono
-                    ? "#FF0A0A"
-                    : undefined,
-                }}
-                value={hospedado.telefono}
-                onChange={(e) => {
-                  handleSetChangeHuesped(
-                    "telefono",
-                    e.target.value,
-                    hospedado.telefono
-                  );
-                }}
-              />
+              
+<Input
+  addonBefore={countrySelector}
+  
+  //prefix={<PhoneOutlined style={styleIconInput} />}
+  size="large"
+  placeholder="Telefono"
+  maxLength={9}
+  type="text"
+  style={{
+    height: "100%",
+    borderColor: emptyFieldsHuesped.telefono ? "#FF0A0A" : undefined,
+  }}
+  value={hospedado.telefono}
+  onChange={(e) => {
+    handleSetChangeHuesped(
+      "telefono",
+      e.target.value,
+      hospedado.telefono
+    );
+  }}
+/>
+
+
             </Col>
           </Row>
 
