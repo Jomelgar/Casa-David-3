@@ -137,6 +137,7 @@ function Hospedar() {
   const [searchOcupacion, setSearchOcupacion] = useState("");
   const [searchProcedencia, setSearchProcedencia] = useState("");
 
+  
   const [camasDisponiblesHombres, setCamasDisponiblesHombres] = useState(0);
   const [camasDisponiblesMujeres, setCamasDisponiblesMujeres] = useState(0);
 
@@ -248,7 +249,7 @@ function Hospedar() {
   
 
   return (
-    <Row gutter={16} style={{ marginTop: 20 }}>
+    <Row gutter={16} style={{ marginTop: 20,} }>
       <Col>
         <CustomCheckboxButton
           label="Dni"
@@ -273,7 +274,69 @@ function Hospedar() {
     </Row>
   );
 };
+const [selected2, setSelected2] = useState("DNI");
+ 
+  const TipoDocumentoSelectorSegundaPersona = () => {
+  
 
+  return (
+    <Row gutter={16} style={{ marginTop: 20,justify:"start"} }>
+      <Col>
+        <CustomCheckboxButton
+          label="Dni"
+          selected={selected2 === "DNI"}
+          onClick={() => setSelected2("DNI")}
+        />
+      </Col>
+      <Col>
+        <CustomCheckboxButton
+          label="Dni Extranjero"
+          selected={selected2 === "DNI Extranjero"}
+          onClick={() => setSelected2("DNI Extranjero")}
+        />
+      </Col>
+      <Col>
+        <CustomCheckboxButton
+          label="Pasaporte"
+          selected={selected2 === "Pasaporte"}
+          onClick={() => setSelected2("Pasaporte")}
+        />
+      </Col>
+    </Row>
+  );
+};
+
+const [selected3, setSelected3] = useState("DNI");
+ 
+  const TipoDocumentoSelectorTerceraPersona = () => {
+  
+
+  return (
+    <Row gutter={16} style={{ marginTop: 20,justify:"start"} }>
+      <Col>
+        <CustomCheckboxButton
+          label="Dni"
+          selected={selected3 === "DNI"}
+          onClick={() => setSelected3("DNI")}
+        />
+      </Col>
+      <Col>
+        <CustomCheckboxButton
+          label="Dni Extranjero"
+          selected={selected3 === "DNI Extranjero"}
+          onClick={() => setSelected3("DNI Extranjero")}
+        />
+      </Col>
+      <Col>
+        <CustomCheckboxButton
+          label="Pasaporte"
+          selected={selected3 === "Pasaporte"}
+          onClick={() => setSelected3("Pasaporte")}
+        />
+      </Col>
+    </Row>
+  );
+};
 const CustomCheckboxButton = ({ label, selected, onClick }) => {
   return (
     <label
@@ -437,7 +500,7 @@ const CustomCheckboxButtonPasaporte = () => {
           height: "24px",
           backgroundColor: "#4ac2cd",
           borderRadius: "6px",
-          marginRight: "10px",
+          marginRight: "100px",
           position: "relative",
         }}
       >
@@ -461,6 +524,7 @@ const CustomCheckboxButtonPasaporte = () => {
 
 const [countries, setCountries] = useState([]);
 const [selectedCountry, setSelectedCountry] = useState(null);
+const [PacienteMarcado,setPacienteMarcado]= useState(0);
 
 useEffect(() => {
   axios.get(COUNTRIES_API).then((res) => {
@@ -519,6 +583,89 @@ const countrySelector = (
     ))}
   </Select>
 );
+const [selectedCountry2, setSelectedCountry2] = useState(null);
+
+const countrySelector2 = (
+  <Select
+  suffixIcon={<PhoneOutlined style={{ color: "#8c8c8c", width:230}} />}
+    disabled={selected2 === "DNI"}
+    showSearch
+    style={{
+      width: 250,
+      height: 48,
+      //borderRadius: 8,
+      //backgroundColor: "#fafafa",
+      //borderColor: "#d9d9d9",
+    }}
+    value={selectedCountry2?.code}
+    onChange={(value) => {
+      const found = countries.find((c) => c.code === value);
+      setSelectedCountry2(found);
+    }}
+    optionLabelProp="label"
+    
+  >
+    {countries.map((country) => (
+      <Select.Option
+        key={country.code}
+        value={country.code}
+        label={`${country.name} (${country.code})`}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <img
+            src={country.flag}
+            alt={country.name}
+            style={{ width: 20, height: 15 }}
+          />
+          {country.name} ({country.code})
+        </div>
+      </Select.Option>
+    ))}
+  </Select>
+);
+
+const [selectedCountry3, setSelectedCountry3] = useState(null);
+
+const countrySelector3 = (
+  <Select
+  suffixIcon={<PhoneOutlined style={{ color: "#8c8c8c", width:230}} />}
+    disabled={selected3 === "DNI"}
+    showSearch
+    style={{
+      width: 250,
+      height: 48,
+      //borderRadius: 8,
+      //backgroundColor: "#fafafa",
+      //borderColor: "#d9d9d9",
+    }}
+    value={selectedCountry3?.code}
+    onChange={(value) => {
+      const found = countries.find((c) => c.code === value);
+      setSelectedCountry3(found);
+    }}
+    optionLabelProp="label"
+    
+  >
+    {countries.map((country) => (
+      <Select.Option
+        key={country.code}
+        value={country.code}
+        label={`${country.name} (${country.code})`}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <img
+            src={country.flag}
+            alt={country.name}
+            style={{ width: 20, height: 15 }}
+          />
+          {country.name} ({country.code})
+        </div>
+      </Select.Option>
+    ))}
+  </Select>
+);
+
+
   const usuario = getUserFromToken();
 
   const [hospitales, setHospitales] = useState([]);
@@ -2260,17 +2407,59 @@ const countrySelector = (
           noSolicitudesMujeres={noSolicitudesMujeres}
         />
 
+<Card style={{ marginTop: 16 }} className="shadow-#1">
+  <Meta title="Informacion Personal Huesped" />
+        <TipoDocumentoSelector />
+  <Row gutter={16} style={{ marginTop: 5 } }justify="end">
+    {/* Selector de tipo de documento */}
+    {PacienteMarcado !== 2 && (
+    
+    <Checkbox
+      style={{ width: 270, height: 45, marginRight:20, marginLeft:370}}
+      checked={acompanante.es_paciente}
+      onChange={async (e) => {
+        const isChecked = e.target.checked;
+        setAcompanante({ ...acompanante, es_paciente: isChecked });
+        
 
-        <Card style={{ marginTop: 16 }} className="shadow-#1">
-          <Meta title="Informacion Personal Huesped" />
+        if (isChecked) {
+          setPacienteMarcado(1);
+          setPaciente({
+            ...paciente,
+            dni: hospedado.dni,
+            id_ocupacion: hospedado.id_ocupacion,
+            primer_nombre: hospedado.primer_nombre,
+            segundo_nombre: hospedado.segundo_nombre,
+            primer_apellido: hospedado.primer_apellido,
+            segundo_apellido: hospedado.segundo_apellido,
+            genero: hospedado.genero,
+            iglesia: hospedado.iglesia,
+            municipio_id: hospedado.municipio_id,
+            direccion: hospedado.direccion,
+            fecha_nacimiento: hospedado.fecha_nacimiento,
+            telefono: hospedado.telefono,
+          });
 
-          <Row gutter={25} style={{ marginTop: 20 }}>
-  
-         <TipoDocumentoSelector />
-        </Row>
+          const municipioPaciente = await fetchMunicipioById(
+            hospedado.municipio_id
+          );
+          if (municipioPaciente) {
+            setSelectedDepartamentoPaciente(municipioPaciente.departamento_id);
+            setSelectedMunicipioPaciente(hospedado.municipio_id);
+          }
 
-          
-
+          setIsInfoPacienteEditable(false);
+        } else {
+          setPacienteMarcado(0);
+          setIsInfoPacienteEditable(true);
+        }
+      }}
+      className="text-lg px-3 py-2 rounded-md shadow-sm hover:shadow-md transition-shadow border-2 border-gray-200 text-gray-800 font-semibold"
+    >
+      Marcar como paciente
+    </Checkbox>
+    )}
+</Row>
 
 
           <Row gutter={25} style={{ marginTop: 20 }}>
@@ -2714,10 +2903,13 @@ const countrySelector = (
           {!acompanante ? (
             <div></div>
           ) : (
-            <Card style={{ marginTop: 16 }} className="shadow-#1">
+
+            <Card style={{ marginTop: 20 }} className="shadow-#1">
               <div className="flex items-center justify-between mb-6">
                 <Meta title="Informacion del Acompañante" />
+                <TipoDocumentoSelectorSegundaPersona />
 
+                {PacienteMarcado !== 1 && (
                 <Checkbox
                   checked={acompanante.es_paciente}
                   onChange={async (e) => {
@@ -2727,8 +2919,10 @@ const countrySelector = (
                       "Info del acompanante pasandose: ",
                       acompanante
                     );
+
                     //const formattedDate = dayjs(acompanante.fecha_nacimiento).format("DD-MM-YYYY");
                     if (isChecked) {
+                      setPacienteMarcado(0);
                       setPaciente({
                         ...paciente,
                         dni: acompanante.dni,
@@ -2755,6 +2949,7 @@ const countrySelector = (
                       }
                       setIsInfoPacienteEditable(false);
                     } else {
+                      setPacienteMarcado(2);
                       setIsInfoPacienteEditable(true);
                     }
                   }}
@@ -2762,6 +2957,7 @@ const countrySelector = (
                 >
                   Marcar como paciente
                 </Checkbox>
+                )}
               </div>
 
               <Row gutter={25} style={{ marginTop: 20 }}>
@@ -2773,7 +2969,7 @@ const countrySelector = (
                   <Input
                     prefix={<IdcardOutlined style={styleIconInput} />}
                     size="large"
-                    placeholder="No. de Identidad"
+                    placeholder={selected2}
                     maxLength={15}
                     type="text"
                     style={{
@@ -3129,7 +3325,7 @@ const countrySelector = (
                 >
                   <DatePicker
                     style={{
-                      height: "100%",
+                      height: 40,
                       width: "100%",
                       borderColor: emptyFieldsAcompanante.fecha_nacimiento
                         ? "#FF0A0A"
@@ -3150,26 +3346,26 @@ const countrySelector = (
                   style={{ marginBottom: 25, height: 50 }}
                 >
                   <Input
-                    prefix={<PhoneOutlined style={styleIconInput} />}
-                    size="large"
-                    placeholder="Telefono"
-                    maxLength={9}
-                    type="text"
-                    style={{
-                      height: "100%",
-                      borderColor: emptyFieldsAcompanante.telefono
-                        ? "#FF0A0A"
-                        : undefined,
-                    }}
-                    value={acompanante.telefono}
-                    onChange={(e) => {
-                      handleSetChangeAcompanante(
-                        "telefono",
+  addonBefore={countrySelector2}
+  
+  //prefix={<PhoneOutlined style={styleIconInput} />}
+  size="large"
+  placeholder="Telefono"
+  maxLength={9}
+  type="text"
+  style={{
+    height: "100%",
+    borderColor: emptyFieldsHuesped.telefono ? "#FF0A0A" : undefined,
+  }}
+  value={hospedado.telefono}
+  onChange={(e) => {
+    handleSetChangeHuesped(
+      "telefono",
                         e.target.value,
                         acompanante.telefono
-                      );
-                    }}
-                  />
+    );
+  }}
+/>
                 </Col>
               </Row>
             </Card>
@@ -3178,8 +3374,9 @@ const countrySelector = (
 
         <Card style={{ marginTop: 16 }} className="shadow-#1">
           <Meta title="Informacion Personal del Paciente" />
-
-          <Row gutter={25} style={{ marginTop: 20 }}>
+          <TipoDocumentoSelectorTerceraPersona/>
+          <Row gutter={25} style={{ marginTop: 30 }}>
+            
             <Col
               xs={{ flex: "100%" }}
               lg={{ flex: "50%" }}
@@ -3188,7 +3385,7 @@ const countrySelector = (
               <Input
                 prefix={<IdcardOutlined style={styleIconInput} />}
                 size="large"
-                placeholder="No. de Identidad"
+                placeholder={selected3}
                 maxLength={15}
                 disabled={
                   acompanante.es_paciente
@@ -3550,7 +3747,7 @@ const countrySelector = (
             >
               <DatePicker
                 style={{
-                  height: "100%",
+                  height: 40,
                   width: "100%",
                   borderColor: emptyFieldsPaciente.fecha_nacimiento
                     ? "#FF0A0A"
@@ -3572,27 +3769,26 @@ const countrySelector = (
               style={{ marginBottom: 25, height: 50 }}
             >
               <Input
-                prefix={<PhoneOutlined style={styleIconInput} />}
-                size="large"
-                disabled={isInfoPacienteEditable ? false : true}
-                placeholder="Telefono"
-                maxLength={9}
-                type="text"
-                style={{
-                  height: "100%",
-                  borderColor: emptyFieldsPaciente.telefono
-                    ? "#FF0A0A"
-                    : undefined,
-                }}
-                value={paciente.telefono}
-                onChange={(e) => {
-                  handleSetChangePaciente(
-                    "telefono",
-                    e.target.value,
-                    paciente.telefono
-                  );
-                }}
-              />
+  addonBefore={countrySelector3}
+  
+  //prefix={<PhoneOutlined style={styleIconInput} />}
+  size="large"
+  placeholder="Telefono"
+  maxLength={9}
+  type="text"
+  style={{
+    height: "100%",
+    borderColor: emptyFieldsHuesped.telefono ? "#FF0A0A" : undefined,
+  }}
+  value={hospedado.telefono}
+  onChange={(e) => {
+    handleSetChangeHuesped(
+      "telefono",
+      e.target.value,
+      hospedado.telefono
+    );
+  }}
+/>
             </Col>
           </Row>
         </Card>
