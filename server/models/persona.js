@@ -68,10 +68,24 @@ const Persona = sequelize.define('Persona', {
     type: Sequelize.TEXT,
     allowNull: true,
   },
-  extranjero:{
+  telefono:
+    {
+      type: Sequelize.STRING(15),
+      allowNull: false
+    },
+    referencia_telefonica:
+    {
+      type: Sequelize.STRING(4),
+      allowNull: false
+    },
+    identidad_extranjero:{
     type: Sequelize.BOOLEAN,
     defaultValue: false
-  }
+    },
+    pasaporte:{
+    type: Sequelize.BOOLEAN,
+    defaultValue: false
+    }
 }, {
   tableName: 'persona',
   timestamps: false,
@@ -142,53 +156,18 @@ const Lugar = sequelize.define('Lugar', {
   timestamps: false
 });
 
-const Telefono = sequelize.define('Telefono',
-  {
-    id_telefono:
-    {
-      type: Sequelize.INTEGER,
-      primaryKey: true,
-      autoIncrement: true
-    },
-    id_pais:
-    {
-      type: Sequelize.INTEGER,
-      allowNull: false
-    },
-    id_persona:
-    {
-      type: Sequelize.INTEGER,
-      allowNull: false
-    },
-    telefono:
-    {
-      type: Sequelize.STRING(15),
-      allowNull: false
-    },
-    referencia_telefonica:
-    {
-      type: Sequelize.STRING(4),
-      allowNull: false
-    }
-  },{
-    tableName: 'telefono',
-    timestamps: false
-  });
 
 Persona.belongsTo(Ocupacion, { foreignKey: 'id_ocupacion' });
 Persona.belongsTo(Lugar, { foreignKey: 'id_lugar' });
-Telefono.belongsTo(Persona,{foreignKey: 'id_persona'});
-Telefono.belongsTo(Pais,{foreignKey: 'id_pais'});
 Lugar.belongsTo(Pais,{foreignKey: 'id_pais'});
 Municipio.belongsTo(Departamento,{foreignKey: 'departamento_id'});
 Persona.belongsTo(Municipio, { foreignKey: 'municipio_id' });
 
 Ocupacion.hasMany(Persona, { foreignKey: 'id_ocupacion' });
 Lugar.hasMany(Persona, { foreignKey: 'id_lugar' });
-Persona.hasMany(Telefono,{foreignKey: 'id_persona'});
 Pais.hasMany(Departamento,{foreignKey: 'id_pais'});
 Pais.hasMany(Lugar, {foreignKey: 'id_pais'});
 Departamento.hasMany(Municipio,{foreignKey: 'departamento_id'});
 Municipio.hasMany(Persona, { foreignKey: 'municipio_id' });
 
-module.exports = { Persona, Ocupacion, Municipio, Lugar, Telefono};
+module.exports = { Persona, Ocupacion, Municipio, Lugar};

@@ -27,8 +27,21 @@ const deletePais = async (id) => {
     }
 };
 
+const getDepartamentoMunicipio= async (id) => 
+{
+    try
+    {
+        const data = await axiosInstance.get(`/pais-todo/${id}`);
+        return data;
+    }catch(error)
+    {
+        return [];
+    };
+};
+
 export default {
     getPaisForTable,
     setPais,
-    deletePais
+    deletePais,
+    getDepartamentoMunicipio
 };

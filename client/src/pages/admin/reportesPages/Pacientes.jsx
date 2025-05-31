@@ -83,13 +83,13 @@ export default function Pacientes() {
         {/* TABLA */}
         <div className="w-full mt-6">
           <div className="w-full bg-[#98e6b1] rounded-t-xl">
-            <div className="grid grid-cols-6 font-bold text-white text-lg py-2 px-4">
+            <div className="grid grid-cols-6 font-bold text-white text-lg py-2 px-4 items-center">
               <div><input type="checkbox" /></div>
               <div>Paciente</div>
               <div>Hospital</div>
               <div>Género</div>
               <div>Edad</div>
-              <div>Acciones</div>
+              <div className="flex justify-center items-center">Acciones</div>
             </div>
           </div>
           <div className="w-full bg-white rounded-b-xl border-t-0">
@@ -103,8 +103,8 @@ export default function Pacientes() {
                 <div>{p.hospital}</div>
                 <div>{p.genero}</div>
                 <div>{p.edad}</div>
-                <div>
-                  <span className="cursor-pointer text-gray-700 text-xl flex justify-center">
+                <div className="flex justify-center items-center h-full">
+                  <span className="cursor-pointer text-gray-700 text-xl">
                     <HiOutlineEye />
                   </span>
                 </div>

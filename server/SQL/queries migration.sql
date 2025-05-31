@@ -71,31 +71,24 @@ INSERT INTO persona (
     id_persona, id_lugar, id_ocupacion, dni, municipio_id,
     direccion, primer_nombre, segundo_nombre, primer_apellido, segundo_apellido,
     genero, fecha_nacimiento, compartio_evangelio, acepto_a_cristo,
-    iglesia, reconcilio, extranjero, observacion
+    iglesia, reconcilio, observacion,referencia_telefonica, telefono
 )
 VALUES
-(2, 1, 1, '0801-1975-00330', 10, 'COL. AMERICA', 'VINDA', 'ESTHER', 'SABILLON', 'CORRALES', 'FEMENINO', '1975-01-07', true, true, 'Iglesia Central', false, false, NULL),
-(52, 2, 12, '0801-1989-16375', 10, 'TATUMBLA FM', 'CESAR', 'ROBERTO', 'CASTELLANOS', 'AGURCIA', 'MASCULINO', '1989-09-26', true, true, 'Iglesia Central', false, false, NULL),
-(53, 2, 12, '0801-1989-16365', 10, 'TATUMBLA FM', 'CESAR', 'ROBERTO', 'CASTELLANOS', 'AGURCIA', 'MASCULINO', '1989-09-26', true, true, 'Iglesia Central', false, false, NULL),
-(1, 1, 2, '0801-1975-06770', 10, 'COLONIA AMERICA', 'RIGOBERTO', '', 'AGURCIA', 'ZELAYA', 'MASCULINO', '1975-11-13', true, true, 'Iglesia Central', false, false, NULL),
-(118, 1, 37, '0310-1984-00425', 45, 'ALDEA LA DEFENSA', 'MARIO', 'SAUL', 'CABALLERO', 'BONILLA', 'MASCULINO', '1984-10-01', true, true, 'Iglesia Central', false, false, NULL),
-(119, 1, 38, '0310-2012-00261', 45, 'ALDEA LA DEFENSA', 'LICSA', 'YARELY', 'CABALLERO', 'BAIRES', 'FEMENINO', '2012-06-11', true, false, 'Iglesia Central', false, false, NULL),
-(120, 1, 39, '0310-1986-00250', 45, 'ALDEA LA DEFENSA', 'TERESA', '', 'BAIRES', 'OVIEDO', 'FEMENINO', '1986-10-03', true, false, 'Iglesia Central', false, false, NULL),
-(121, 1, 40, '0107-1976-01399', 7, 'BARRIO EL RETIRO', 'PATRICIA', 'LIZZETH', 'FUENTES', 'PORTILLO', 'FEMENINO', '1976-05-19', true, false, 'Iglesia Central', false, false, NULL),
-(54, 1, 12, '1011-1992-00074', 10, 'SAN PEDRO SULA', 'DEYBI', 'NOEL', 'RAMOS', 'SANTOS', 'MASCULINO', '1992-08-26', false, false, 'Iglesia Central', false, false, NULL),
-(122, 1, 39, '0101-1961-01846', 33, 'ALDEA CUACAZONA', 'MARIA', 'ESPERANZA', 'RODRIGUEZ', '', 'FEMENINO', '1961-12-01', false, false, 'Iglesia Central', false, false, NULL),
-(123, 1, 37, '0209-1955-00081', 33, 'ALDEA CUACAZONA', 'CARLOS', 'SEBASTIAN', 'REYES', 'MEJIA', 'MASCULINO', '1995-09-25', true, true, 'Iglesia Central', false, false, NULL),
-(151, 1, 69, '0801-1979-10397', 79, 'COLONIA FESITRANH, SAN PEDRO SULA', 'DEBBIE', 'ELAINY', 'BANEGAS', 'OSORIO', 'FEMENINO', '1979-02-24', true, true, 'Iglesia Central', false, false, NULL),
-(152, 1, 69, '1801-1976-00571', 79, 'COLONIA FESITRANH, SAN PEDRO SULA', 'CARMEN', 'AMERICA', 'SOSA', 'ESCOBAR', 'FEMENINO', '1976-04-27', true, true, 'Iglesia Central', false, false, NULL),
-(69, 1, 1, '0505-2005-00577', 90, 'Pueblo Good Sight, Disco 2, Registro 4', 'Jorge', 'Fernando', 'Hernandez', 'Cruz', 'MASCULINO', '2005-08-28', true, true, 'Iglesia Central', false, false, NULL),
-(15,1,1,'0501-2005-08506',79,'Costa Verde Villas','Johnny','Josue','Melgar','Machorro','MASCULINO','2005-07-23',true,true,'Iglesia Central',false,false,NULL);
-
-    -- Teléfonos
-INSERT INTO telefono (id_pais,id_telefono, id_persona, referencia_telefonica, telefono)
-VALUES
-(1,1, 118, '+504', '9566-4072'),
-(1,2, 119, '+504', '9202-5240'),
-(1,3, 120, '+504', '9202-5240');
+(2, 1, 1, '0801-1975-00330', 10, 'COL. AMERICA', 'VINDA', 'ESTHER', 'SABILLON', 'CORRALES', 'FEMENINO', '1975-01-07', true, true, 'Iglesia Central', false,  NULL,'+504', '9566-4272'),
+(52, 2, 12, '0801-1989-16375', 10, 'TATUMBLA FM', 'CESAR', 'ROBERTO', 'CASTELLANOS', 'AGURCIA', 'MASCULINO', '1989-09-26', true, true, 'Iglesia Central', false, NULL,'+504', '9566-4172'),
+(53, 2, 12, '0801-1989-16365', 10, 'TATUMBLA FM', 'CESAR', 'ROBERTO', 'CASTELLANOS', 'AGURCIA', 'MASCULINO', '1989-09-26', true, true, 'Iglesia Central', false, NULL,'+504', '9566-4092'),
+(1, 1, 2, '0801-1975-06770', 10, 'COLONIA AMERICA', 'RIGOBERTO', '', 'AGURCIA', 'ZELAYA', 'MASCULINO', '1975-11-13', true, true, 'Iglesia Central', false, NULL,'+504', '9566-4082'),
+(118, 1, 37, '0310-1984-00425', 45, 'ALDEA LA DEFENSA', 'MARIO', 'SAUL', 'CABALLERO', 'BONILLA', 'MASCULINO', '1984-10-01', true, true, 'Iglesia Central', false, NULL,'+504', '9566-4079'),
+(119, 1, 38, '0310-2012-00261', 45, 'ALDEA LA DEFENSA', 'LICSA', 'YARELY', 'CABALLERO', 'BAIRES', 'FEMENINO', '2012-06-11', true, false, 'Iglesia Central', false, NULL,'+504', '9566-4078'),
+(120, 1, 39, '0310-1986-00250', 45, 'ALDEA LA DEFENSA', 'TERESA', '', 'BAIRES', 'OVIEDO', 'FEMENINO', '1986-10-03', true, false, 'Iglesia Central', false, NULL,'+504', '9566-4077'),
+(121, 1, 40, '0107-1976-01399', 7, 'BARRIO EL RETIRO', 'PATRICIA', 'LIZZETH', 'FUENTES', 'PORTILLO', 'FEMENINO', '1976-05-19', true, false, 'Iglesia Central', false, NULL,'+504', '9566-4076'),
+(54, 1, 12, '1011-1992-00074', 10, 'SAN PEDRO SULA', 'DEYBI', 'NOEL', 'RAMOS', 'SANTOS', 'MASCULINO', '1992-08-26', false, false, 'Iglesia Central', false, NULL,'+504', '9566-4075'),
+(122, 1, 39, '0101-1961-01846', 33, 'ALDEA CUACAZONA', 'MARIA', 'ESPERANZA', 'RODRIGUEZ', '', 'FEMENINO', '1961-12-01', false, false, 'Iglesia Central', false, NULL,'+504', '9566-4074'),
+(123, 1, 37, '0209-1955-00081', 33, 'ALDEA CUACAZONA', 'CARLOS', 'SEBASTIAN', 'REYES', 'MEJIA', 'MASCULINO', '1995-09-25', true, true, 'Iglesia Central', false, NULL,'+504', '9566-4073'),
+(151, 1, 69, '0801-1979-10397', 79, 'COLONIA FESITRANH, SAN PEDRO SULA', 'DEBBIE', 'ELAINY', 'BANEGAS', 'OSORIO', 'FEMENINO', '1979-02-24', true, true, 'Iglesia Central', false, NULL,'+504', '9569-4072'),
+(152, 1, 69, '1801-1976-00571', 79, 'COLONIA FESITRANH, SAN PEDRO SULA', 'CARMEN', 'AMERICA', 'SOSA', 'ESCOBAR', 'FEMENINO', '1976-04-27', true, true, 'Iglesia Central', false, NULL,'+504', '9568-4072'),
+(69, 1, 1, '0505-2005-00577', 90, 'Pueblo Good Sight, Disco 2, Registro 4', 'Jorge', 'Fernando', 'Hernandez', 'Cruz', 'MASCULINO', '2005-08-28', true, true, 'Iglesia Central', false, NULL,'+504', '9567-4072'),
+(15,1,1,'0501-2005-08506',79,'Costa Verde Villas','Johnny','Josue','Melgar','Machorro','MASCULINO','2005-07-23',true,true,'Iglesia Central',false,NULL,'+504', '9566-4072');
 
 
 -- Lista Negra

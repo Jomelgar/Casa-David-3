@@ -57,6 +57,7 @@ export const LayoutContextProvider = ({ children }) => {
     "/mantenimiento/usuarios": "Mantenimiento / Usuarios",
     "/mantenimiento/habitaciones": "Mantenimiento / Habitaciones",
     "/mantenimiento/paises": "Mantenimiento / Países",
+    "/mantenimiento/paises/info" : "Mantenimiento / Información de Países",
     "/reportes/pagos": "Reportes / Pagos",
     "/reportes/reporte-de-huespedes": "Reportes / Huéspedes Totales",
     "/reportes/personas": "Reportes / Personas",

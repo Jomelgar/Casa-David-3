@@ -5,11 +5,13 @@ exports.getAllPais = async (req, res) => {
     try {
         const paises = await pService.getDepartamentosConMunicipiosPorPais(id_pais);
         res.status(200).json(paises);
+        return res;
     } catch (error) {
         res.status(500).json({
             message: 'Error to obtains departments and municipalities by country',
             error: error.message
         });
+        return res;
     }
 };
 

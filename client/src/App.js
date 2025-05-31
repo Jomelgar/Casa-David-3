@@ -133,8 +133,10 @@ function App() {
               />
 
               <Route
-                path="/mantenimiento/paises/:id"
-                element={<pagesAdmin.TiposPaises />}
+                path="/mantenimiento/paises/info"
+                element={<ProtectedRoute isAllow={validarPrivilegio(getUserFromToken(), 11)}>
+                  <pagesAdmin.InfoPaises/>
+                </ProtectedRoute>}
               />
 
             </Route>

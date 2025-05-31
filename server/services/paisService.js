@@ -65,8 +65,10 @@ exports.getAllPaisesForTable = async () => {
       'codigo_iso',
       'referencia_telefonica',
       'formato_dni',
+      'total_departamentos',
       [sequelize.fn('COUNT', sequelize.literal('DISTINCT "Hospitals"."id_hospital"')), 'num_hospitales'],
       [sequelize.fn('COUNT', sequelize.literal('DISTINCT "Lugars"."id_lugar"')), 'num_casas'],
+      [sequelize.fn('COUNT', sequelize.literal('DISTINCT "Departamentos->Municipios"."municipio_id"')), 'num_municipios'],
     ],
     include: [
       {
@@ -78,9 +80,29 @@ exports.getAllPaisesForTable = async () => {
         model: Lugar,
         attributes: [],
         required: false,
+      },
+      {
+        model: Departamento,
+        attributes: [],
+        required: false,
+        include: [
+          {
+            model: Municipio,
+            attributes: [],
+            required: false,
+          }
+        ]
       }
     ],
-    group: ['Pais.id_pais', 'Pais.nombre', 'Pais.divisa']
+    group: [
+      'Pais.id_pais',
+      'Pais.nombre',
+      'Pais.divisa',
+      'Pais.codigo_iso',
+      'Pais.referencia_telefonica',
+      'Pais.formato_dni',
+      'Pais.total_departamentos'
+    ]
   });
 
   return paises;

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Button, Input, Table, ConfigProvider, Layout, Space } from 'antd';
 import { SearchOutlined, DownloadOutlined, PlusCircleOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import * as XLSX from 'xlsx';
+import { Link } from "react-router-dom";
 import PaisApi from '../../../api/Pais.api';
 import { PopUpFormulario } from './PopUpPaises/PopUpAgregarPais';
 import { PopUpEliminarPais } from './PopUpPaises/PopUpEliminarPais';
@@ -28,6 +29,7 @@ function Paises() {
       console.error('Error al obtener los datos de países');
     }
   };
+
 
   useEffect(() => {
     cargarDatos();
@@ -82,7 +84,7 @@ function Paises() {
         </div>
       ),
       filterIcon: () => <SearchOutlined />,
-      onFilter: (value, record) => record.codigo_iso.toLowerCase().includes(value.toLowerCase()) // ✅ Corregido aquí: estaba filtrando por divisa
+      onFilter: (value, record) => record.codigo_iso.toLowerCase().includes(value.toLowerCase())
     },
     {
       title: 'Número de hospitales',
@@ -117,11 +119,13 @@ function Paises() {
             }}
             style={{ color: 'red', fontSize: '18px' }}
           />
-          <Button
-            type="text"
-            icon={<EditOutlined style={{ fontSize: '30px' }} />}
-            style={{ color: 'black', fontSize: '18px' }}
-          />
+          <Link to={'/mantenimiento/paises/info'} state={{ pais : record}}>
+            <Button
+              type="text"
+              icon={<EditOutlined style={{ fontSize: '30px' }} />}
+              style={{ color: 'black', fontSize: '18px' }}
+            />
+          </Link>
         </Space>
       )
     }
