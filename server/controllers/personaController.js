@@ -148,3 +148,13 @@ exports.getIdPais = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+exports.getFormatoDniByPaisId = async (id_pais) => {
+  const pais = await perService.getFormatoDniByPaisId(id_pais, {
+    attributes: ['formato_dni']
+  });
+
+  if (!pais) throw new Error("País no encontrado");
+
+  return pais.formato_dni;
+};

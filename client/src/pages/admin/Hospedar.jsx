@@ -14,7 +14,7 @@ import SalasApi from "../../api/Salas.api";
 import CausaVisitaApi from "../../api/CausaVisita.api";
 
 import axios from "axios";
-
+import axiosInstance from '../../api/axiosInstance';
 import camaApi from "../../api/Cama.api";
 import personaApi from "../../api/Persona.api";
 import solicitudApi from "../../api/Solicitud.api";
@@ -25,6 +25,8 @@ import pacienteHuespedApi from "../../api/pacienteHuesped.api";
 import { getDepartamentos } from "../../api/departamentoApi";
 import { getMunicipiosByDepartamentoId } from "../../api/municipioApi";
 import { getMunicipioById } from "../../api/municipioApi";
+import PersonApi from "../../api/Persona.api";
+import UserApi from "../../api/User.api";
 
 import { getAllCausas } from "../../api/CausaVisita.api";
 
@@ -83,7 +85,7 @@ const styleIconInput = { fontSize: 24, color: "#dedede", paddingRight: 10 };
 //Regex formats
 const dateFormat = "DD-MM-YYYY";
 const telFormat = /\d{4}-\d{4}/;
-const dniFormat = /^\d{4}-\d{4}-\d{5}$/;
+
 
 const regexFecha = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -111,7 +113,14 @@ const causasVisitaPredeterminadas = [
   { value: 9, label: "Dado De Alta, En Recuperacón" },
 ];
 
+
+
 function Hospedar() {
+  const [dniFormat, setdniFormat] = useState("/^\d{4}-\d{4}-\d{5}$/");
+  const [idPais, setIdPais] = useState(null);
+  const [digitos,setdigitos] = useState(0);
+  const obtenerDigitos = (tipo) => tipo === "DNI" ? digitos : 15;
+
   // Espacio para guardar los datos vacios de los formularios
   const [emptyFieldsHuesped, setEmptyFieldsHuesped] = useState({});
   const [emptyFieldsPaciente, setEmptyFieldsPaciente] = useState({});
@@ -244,6 +253,26 @@ function Hospedar() {
       return Object.keys(newEmptyFields).length === 0;
     }
   };
+
+  const validarFormato = (valor, formatoEsperado) => {
+  const soloNumeros = valor.replace(/\D/g, '');
+  const cantidadNumeros = soloNumeros.length;
+  const totalNumerosEsperados = (formatoEsperado.match(/#/g) || []).length;
+
+  // Construir regex a partir del formato
+  const regexStr = "^" + formatoEsperado
+    .replace(/#/g, "\\d")
+    .replace(/[-\s]/g, (s) => `\\${s}`) + "$";
+  const regex = new RegExp(regexStr);
+
+  // Asignar a variables globales (declaradas arriba)
+  digitos = cantidadNumeros;
+  setdniFormat = formatoEsperado;
+  obtenerDigitos = (tipo) => tipo === "DNI" ? digitos : 15;
+};
+
+
+
  const [selected, setSelected] = useState("DNI");
  
   const TipoDocumentoSelector = () => {
@@ -1694,11 +1723,14 @@ const countrySelector3 = (
     setHospedado({ ...hospedado, observacion_reservacion: e.target.value });
   };
 
+
   // Funcion que maneja el cambio del texto en los inputs/selects del front
   const handleSetChangePaciente = (key, value, previousValue = null) => {
     let newValue = value;
 
     switch (key) {
+
+
       case "dni":
         if (previousValue !== null && value.length > previousValue.length) {
           if (/^\d{4}$/.test(value) || /^\d{4}-\d{4}$/.test(value)) {
@@ -2192,6 +2224,27 @@ const countrySelector3 = (
 
   useEffect(() => {
     console.log("SE CORRIO EL useeffect GENERAL");
+    
+    const fetchData = async () => {
+    try{
+        const userToken = getUserFromToken();
+        const userProp = await UserApi.getUserRequest(userToken.userId);
+        const personaId = userProp.data.id_persona;
+
+        const resUser = await PersonApi.getPersonaRequest(personaId);
+        const lugar = resUser.data.id_lugar;
+
+        const paisResponse = await axiosInstance.get(`/personas/${personaId}/pais`);
+        const idPais = paisResponse.data.idPais;
+        setIdPais(idPais);
+        
+        const FormatoResponse = await axiosInstance.get(`/personas/${personaId}/formato`);
+        const Formato = FormatoResponse.data.idPais;
+        setdniFormat(Formato);
+        console.log("El formato es: "+ dniFormat)
+    }catch (error) {
+        console.error("Error al conseguir info:", error);
+      }}
     loadOcupaciones();
     loadProcedencias();
     loadHospitales(); // Cargar los hospitales para que se puedan elegir en el select apenas se meta a la vista
@@ -2491,7 +2544,7 @@ const countrySelector3 = (
                 prefix={<IdcardOutlined style={styleIconInput} />}
                 size="large"
                 placeholder={selected}
-                maxLength={15}
+                maxLength={obtenerDigitos(selected)}
                 type="text"
                 style={{
                   height: "100%",
@@ -2989,7 +3042,7 @@ const countrySelector3 = (
                     prefix={<IdcardOutlined style={styleIconInput} />}
                     size="large"
                     placeholder={selected2}
-                    maxLength={15}
+                    maxLength={obtenerDigitos(selected2)}
                     type="text"
                     style={{
                       height: "100%",
@@ -3405,7 +3458,7 @@ const countrySelector3 = (
                 prefix={<IdcardOutlined style={styleIconInput} />}
                 size="large"
                 placeholder={selected3}
-                maxLength={15}
+                maxLength={obtenerDigitos(selected3)}
                 disabled={
                   acompanante.es_paciente
                     ? true

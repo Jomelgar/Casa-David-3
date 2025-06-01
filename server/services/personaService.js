@@ -1,4 +1,5 @@
 const sequelize = require('../Db');
+const { Pais } = require('../models/pais'); // Asegúrate de tener el modelo de Pais definido
 const { Persona, Lugar } = require('../models/persona');
 
 exports.getAllPersonas = async () => {
@@ -104,6 +105,17 @@ exports.getIdPais = async (id) => {
   if (!idPais) throw new Error("País no encontrado");
 
   return idPais; 
+};
+
+
+exports.getFormatoDniByPaisId = async (id_pais) => {
+  const pais = await Pais.findByPk(id_pais, {
+    attributes: ['formato_dni']
+  });
+
+  if (!pais) throw new Error("País no encontrado");
+
+  return pais.formato_dni;
 };
 
 

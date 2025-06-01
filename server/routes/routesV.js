@@ -34,6 +34,7 @@ router.get("/persona/dni/:dni", personaController.getPersonaByDni); //funciona
 router.get("/persona/observacion/:id", personaController.getObservacion);
 router.put("/persona/observacion/:id", personaController.setObservacion);
 router.get("/personas/:id/pais", personaController.getIdPais);
+router.get("/personas/:pais/formato", personaController.getFormatoDniByPaisId);
 
  // Rutas para evangelización
  router.get('/persona/:id/evangelizacion', personaController.getEvangelizacion); // GET
