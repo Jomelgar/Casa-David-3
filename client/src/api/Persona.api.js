@@ -66,6 +66,19 @@ const deletePersonaRequest = async (id) => {
   }
 };
 
+const getPaisByPersona = async (id) =>
+{
+    try
+    {
+        const data = await axiosInstance.get(`/personas/${id}/pais`);
+        console.log(data);
+        return data;
+    }catch(error)
+    {
+        return error;
+    }
+};
+
 export default {
   getPersonaRequest,
   getPersonasRequest,
@@ -73,4 +86,5 @@ export default {
   postPersonaRequest,
   deletePersonaRequest,
   getPersonaByDniRequest,
+  getPaisByPersona,
 };

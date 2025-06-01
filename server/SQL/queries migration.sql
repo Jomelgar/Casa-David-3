@@ -29,7 +29,7 @@ VALUES
     (10, 'Está prohibido el ingreso de animales, excepto animales de servicio debidamente identificados.');
 
 
--- Corrección completa tabla lugar
+--tabla lugar
 INSERT INTO lugar (id_lugar, id_pais, codigo, direccion, activo)
 VALUES
 (1, 1, 'TGU', 'Tegucigalpa, Honduras', true),

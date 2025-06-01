@@ -20,6 +20,7 @@ import personaApi from "../../api/Persona.api";
 import solicitudApi from "../../api/Solicitud.api";
 import huespedApi from "../../api/Huesped.api";
 import pacienteApi from "../../api/Paciente.api";
+import PaisApi from "../../api/Pais.api";
 import pacienteHuespedApi from "../../api/pacienteHuesped.api";
 import { getDepartamentos } from "../../api/departamentoApi";
 import { getMunicipiosByDepartamentoId } from "../../api/municipioApi";
@@ -526,22 +527,41 @@ const [countries, setCountries] = useState([]);
 const [selectedCountry, setSelectedCountry] = useState(null);
 const [PacienteMarcado,setPacienteMarcado]= useState(0);
 
-useEffect(() => {
-  axios.get(COUNTRIES_API).then((res) => {
-    const filtered = res.data
-      .filter(c => c.idd?.root && c.idd?.suffixes && c.flags?.png)
-      .map(c => ({
-        name: c.name.common,
-        code: c.idd.root + (c.idd.suffixes[0] || ''),
-        flag: c.flags.png
-      }))
-      .sort((a, b) => a.name.localeCompare(b.name));
+const cargarPaisdeUso = async() => 
+  {
+    const id_pais = await personaApi.getPaisByPersona(usuario.id_persona);
+    const paises = await PaisApi.getPaisForTable();
+    const pais = paises.data.find(p => p.id_pais === id_pais.data.idPais);
+    console.log(pais);
+    return pais;
+  };
 
-    setCountries(filtered);
-    
-    setSelectedCountry(filtered.find(c => c.code === "+504")); // Honduras por defecto (si quieres)
-  });
+useEffect(() => {
+  const fetchData = async () => {
+    try {
+      const res = await axios.get(COUNTRIES_API);
+      const filtered = res.data
+        .filter(c => c.idd?.root && c.idd?.suffixes && c.flags?.png)
+        .map(c => ({
+          name: c.name.common,
+          code: c.idd.root + (c.idd.suffixes[0] || ''),
+          flag: c.flags.png
+        }))
+        .sort((a, b) => a.name.localeCompare(b.name));
+
+      setCountries(filtered);
+
+      const pais = await cargarPaisdeUso();
+      const selected = await filtered.find(c => c.code === pais.referencia_telefonica);
+      setSelectedCountry(selected || filtered[0]);
+    } catch (error) {
+      console.error('Error al cargar datos de países:', error);
+    }
+  };
+
+  fetchData();
 }, []);
+
 
 
 
@@ -553,9 +573,7 @@ const countrySelector = (
     style={{
       width: 250,
       height: 48,
-      //borderRadius: 8,
-      //backgroundColor: "#fafafa",
-      //borderColor: "#d9d9d9",
+      
     }}
     value={selectedCountry?.code}
     onChange={(value) => {

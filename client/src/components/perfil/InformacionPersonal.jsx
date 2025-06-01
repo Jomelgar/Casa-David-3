@@ -18,7 +18,6 @@ import {
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import { useLayout } from "../../context/LayoutContext";
-//import customParseFormat from "dayjs/plugin/customParseFormat";
 import OcupacionesApi from "../../api/Ocupaciones.api";
 import { getDepartamentos } from "../../api/departamentoApi";
 import {
@@ -32,17 +31,15 @@ const { TextArea } = Input;
 
 dayjs.extend(customParseFormat);
 
-const dateFormat = "YYYY-MM-DD";
-
-
-
-const styleIconInput = { fontSize: 24, color: "#dedede", paddingRight: 10 };
-
 const InformacionPersonal = ({
   user,
   changeUser,
   isEditable,
   handleSetChangeUser,
+  selected,
+  selectedCountry,
+  countries,
+  setSelectedCountry,
 }) => {
   const usuario = getUserFromToken();
   const rolLog = usuario.rol;
@@ -55,24 +52,12 @@ const InformacionPersonal = ({
   const [ocupaciones, setOcupaciones] = useState([]);
   const [departamentos, setDepartamentos] = useState([]);
   const [municipios, setMunicipios] = useState([]);
-  const [iglesia, setIglesia] = useState(user.iglesia || "");
-
-  const [selectedDepartamento, setSelectedDepartamento] = useState(
-    user?.municipio_id?.departamento_id || null
-  );
-  const [selectedMunicipio, setSelectedMunicipio] = useState(
-    user?.municipio_id?.nombre || null
-  );
-
-  //const [selectedDepartamento, setSelectedDepartamento] = useState(user.municipio_id ? user.municipio_id.departamento_id : null);
-  //const [selectedMunicipio, setSelectedMunicipio] = useState(user.municipio_id || null);
-
-  const { openNotification } = useLayout();
-
+  const [selectedDepartamento, setSelectedDepartamento] = useState(null);
+  const [selectedMunicipio, setSelectedMunicipio] = useState(null);
   const [searchOcupacion, setSearchOcupacion] = useState("");
   const [loading, setLoading] = useState(false);
 
-  
+  const { openNotification } = useLayout();
 
   const loadOcupaciones = async () => {
     try {
@@ -84,7 +69,6 @@ const InformacionPersonal = ({
             label: e.descripcion,
           }))
         );
-        return;
       } else {
         throw new Error("No se pudo cargar las ocupaciones");
       }
@@ -96,20 +80,18 @@ const InformacionPersonal = ({
   const loadMunicipioAndDepartamento = async () => {
     if (user.municipio_id) {
       try {
-        // Obtener los datos del municipio por ID
         const municipioData = await getMunicipioById(user.municipio_id);
-        //console.log("municipioData", municipioData);
-        setSelectedMunicipio(municipioData.nombre);
-
-        // Ahora, obtener el nombre del departamento con el departamento_id del municipio
+        setSelectedMunicipio(municipioData.municipio_id);
         const departamentoData = await getDepartamentos();
-        const departamentoNombre = departamentoData.find(
+        const departamento = departamentoData.find(
           (d) => d.departamento_id === municipioData.departamento_id
-        )?.nombre;
-
-        // Almacenar el nombre del departamento en el estado
-        setSelectedDepartamento(departamentoNombre || null);
+        );
+        setSelectedDepartamento(departamento?.departamento_id || null);
         setDepartamentos(departamentoData);
+        const municipios = await getMunicipiosByDepartamentoId(
+          municipioData.departamento_id
+        );
+        setMunicipios(municipios);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -119,13 +101,7 @@ const InformacionPersonal = ({
   useEffect(() => {
     loadOcupaciones();
     loadMunicipioAndDepartamento();
-    //console.log("Abriendo informacion personal con user:", user);
-    //console.log("Abriendo informacion personal con changeUser:", changeUser);
   }, []);
-
-  const formattedDate = user.fecha_nacimiento
-    ? dayjs(user.fecha_nacimiento).format("DD-MM-YYYY")
-    : null;
 
   const handleCrearOcupacion = async () => {
     setLoading(true);
@@ -147,15 +123,15 @@ const InformacionPersonal = ({
       );
 
       loadOcupaciones();
-
       handleSetChangeUser("id_ocupacion", id_ocupacion_creada);
-
       document.getElementById("selectOcupacion").blur();
     } catch (error) {
       console.error(error);
     }
     setLoading(false);
   };
+
+  const styleIconInput = { fontSize: 24, color: "#dedede", paddingRight: 10 };
 
   return (
     <ConfigProvider
@@ -167,9 +143,6 @@ const InformacionPersonal = ({
           colorText: "#626262",
           colorBgContainerDisabled: "#fcfcfc",
           colorTextDisabled: "#939393",
-        },
-        components: {
-          Input: {},
         },
       }}
     >
@@ -462,23 +435,72 @@ const InformacionPersonal = ({
             lg={{ flex: "50%" }}
             style={{ marginBottom: 25, height: 50 }}
           >
-            <Input
-              prefix={<PhoneOutlined style={styleIconInput} />}
-              size="large"
-              disabled={isEditable ? false : true}
-              placeholder="Telefono"
-              maxLength={9}
-              type="text"
-              style={{ height: "100%" }}
-              value={isEditable ? changeUser.telefono : user.telefono}
-              onChange={(e) => {
-                handleSetChangeUser(
-                  "telefono",
-                  e.target.value,
-                  changeUser.telefono
-                );
-              }}
-            />
+            <Row gutter={0} style={{ width: '100%' }}>
+              <Col span={8}>
+                <Select
+                  suffixIcon ={<PhoneOutlined style={{ color: "#8c8c8c" }} />}
+                  disabled={!isEditable}
+                  showSearch
+                  value={selectedCountry?.code}
+                  onChange={(value) => {
+                    const found = countries.find((c) => c.code === value);
+                    setSelectedCountry(found);
+                  }}
+                  optionLabelProp="label"
+                  placeholder="País"
+                  filterOption={(input, option) =>
+                    option.label.toLowerCase().includes(input.toLowerCase())
+                  }
+                  style={{
+                    width: "100%",
+                    height: 48,
+                    borderTopRightRadius: 0,
+                    borderBottomRightRadius: 0,
+                    borderRight: "none",
+                    boxShadow: "none",
+                  }}
+                >
+                  {countries.map(({ code, name, flag }) => (
+                    <Select.Option
+                      key={code}
+                      value={code}
+                      label={`${name} (${code})`}
+                    >
+                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        <img
+                          src={flag}
+                          alt={name}
+                          style={{ width: 20, height: 15, borderRadius: 2, objectFit: "cover" }}
+                        />
+                        {name} ({code})
+                      </div>
+                    </Select.Option>
+                  ))}
+                </Select>
+              </Col>
+              <Col span={16}>
+                <Input
+                  size="large"
+                  disabled={!isEditable}
+                  placeholder="Teléfono"
+                  maxLength={9}
+                  type="text"
+                  
+                  value={isEditable ? changeUser.telefono : user.telefono}
+                  onChange={(e) => {
+                    handleSetChangeUser("telefono", e.target.value, changeUser.telefono);
+                  }}
+                  style={{
+                    height: 48,
+                    width: '100%',
+                    borderTopLeftRadius: 0,
+                    borderBottomLeftRadius: 0,
+                    borderLeft: "none",
+                    boxShadow: "none",
+                  }}
+                />
+              </Col>
+            </Row>
           </Col>
         </Row>
       </Card>

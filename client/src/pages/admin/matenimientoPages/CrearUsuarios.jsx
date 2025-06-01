@@ -356,7 +356,7 @@ function CrearUsuarios() {
     console.log("Buscando " + in_dni);
     cargarInformacion(in_dni);
   };
-
+  
   const cargarInformacion = async (in_dni) => {
     try {
       const response = await personaApi.getPersonaByDniRequest(in_dni);

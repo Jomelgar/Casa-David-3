@@ -1,5 +1,5 @@
-import { Tabs, ConfigProvider, Flex, Input, Card } from "antd";
-import { UserOutlined, SettingOutlined, LockOutlined } from "@ant-design/icons";
+import { Tabs, ConfigProvider, Flex, Input, Card,Select } from "antd";
+import { UserOutlined, SettingOutlined, LockOutlined,PhoneOutlined } from "@ant-design/icons";
 import React, { useState, useEffect } from "react";
 import InformacionPersonal from "../../../components/perfil/InformacionPersonal";
 import RolUsuario from "../../../components/perfil/RolUsuario";
@@ -9,9 +9,14 @@ import PrivilegiosPersonal from "../../../components/perfil/PrivilegiosPersonal"
 import ContraPersonal from "../../../components/perfil/ContraPersonal";
 import { useParams, userParams } from "react-router-dom";
 import { getUserFromToken } from "../../../utilities/auth.utils";
+import axios from "axios";
 
 import personaApi from "../../../api/Persona.api";
 import userApi from "../../../api/User.api";
+
+import { COUNTRIES_API } from "../../../api/Huesped.api";
+
+
 
 function VistaUsuario() {
   const { setCurrentPath, isXS } = useLayout();
@@ -21,6 +26,8 @@ function VistaUsuario() {
   const [isEditable, setIsEditable] = useState(false);
 
   const params = useParams();
+  const [countries, setCountries] = useState([]);
+  const [selectedCountry, setSelectedCountry] = useState(null);
   const [userProp, setUserProp] = useState({});
   /*
     para manejar la info del usuario los componentes requieren de un objeto
@@ -47,6 +54,7 @@ function VistaUsuario() {
 
   */
 
+    
   const [user, setUser] = useState({});
 
   const [changeUser, setChangeUser] = useState({});
@@ -82,7 +90,8 @@ function VistaUsuario() {
           segundo_apellido,
           primer_apellido,
           telefono,
-          iglesia
+          iglesia,
+          referencia_telefonica
         } = userInformacionPersonal;
 
         const user = {
@@ -101,7 +110,8 @@ function VistaUsuario() {
           telefono,
           rol: rol.toUpperCase(),
           nickname,
-          iglesia
+          iglesia,
+          referencia_telefonica
         };
         console.log("Usuario pasandose a informacion personal: ", user);
         setUser(user);
@@ -144,6 +154,73 @@ function VistaUsuario() {
 
     loadUser();
   }, []);
+
+useEffect(() => {
+  const fetchData = async () => {
+    try {
+      const res = await axios.get(COUNTRIES_API);
+      const filtered = res.data
+        .filter(c => c.idd?.root && c.idd?.suffixes && c.flags?.png)
+        .map(c => ({
+          name: c.name.common,
+          code: c.idd.root + (c.idd.suffixes[0] || ''),
+          flag: c.flags.png
+        }))
+        .sort((a, b) => a.name.localeCompare(b.name));
+
+      setCountries(filtered);
+
+      // Solo se selecciona país si ya está disponible el código en `user.referencia_telefonica`
+      if (user?.referencia_telefonica) {
+        const selected = filtered.find(c => c.code === user.referencia_telefonica);
+        setSelectedCountry(selected || filtered[0]);
+      } else {
+        setSelectedCountry(filtered[0]);
+      }
+    } catch (error) {
+      console.error('Error al cargar datos de países:', error);
+    }
+  };
+
+  fetchData();
+}, [user?.referencia_telefonica]);
+
+
+  const countrySelector = (
+    <Select
+    suffixIcon={<PhoneOutlined style={{ color: "#8c8c8c", width:230}} />}
+      disabled={isEditable}
+      showSearch
+      style={{
+        width: 250,
+        height: 48,
+      }}
+      value={selectedCountry?.code}
+      onChange={(value) => {
+        const found = countries.find((c) => c.code === value);
+        setSelectedCountry(found);
+      }}
+      optionLabelProp="label"
+      
+    >
+      {countries.map((country) => (
+        <Select.Option
+          key={country.code}
+          value={country.code}
+          label={`${country.name} (${country.code})`}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <img
+              src={country.flag}
+              alt={country.name}
+              style={{ width: 20, height: 15 }}
+            />
+            {country.name} ({country.code})
+          </div>
+        </Select.Option>
+      ))}
+    </Select>
+  );
 
   const handleSetChangeUser = (e, value, anterior = null) => {
     switch (e) {
@@ -260,6 +337,9 @@ function VistaUsuario() {
           changeUser={changeUser}
           isEditable={isEditable}
           handleSetChangeUser={handleSetChangeUser}
+          countries={countries}
+          selectedCountry={selectedCountry}
+          setSelectedCountry={setSelectedCountry}
         />
       )}
       <AccionesPerfil
@@ -272,6 +352,9 @@ function VistaUsuario() {
         idUser={userId}
         idPersona={personaId}
         forUserLog={false}
+        selectedCountry={selectedCountry}
+        countries={countries}
+        setSelectedCountry={setSelectedCountry}
       />
     </div>,
     <div>
