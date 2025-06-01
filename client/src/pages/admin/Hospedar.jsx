@@ -525,6 +525,8 @@ const CustomCheckboxButtonPasaporte = () => {
 
 const [countries, setCountries] = useState([]);
 const [selectedCountry, setSelectedCountry] = useState(null);
+const [selectedCountry2, setSelectedCountry2] = useState(null);
+const [selectedCountry3, setSelectedCountry3] = useState(null);
 const [PacienteMarcado,setPacienteMarcado]= useState(0);
 
 const cargarPaisdeUso = async() => 
@@ -554,6 +556,8 @@ useEffect(() => {
       const pais = await cargarPaisdeUso();
       const selected = await filtered.find(c => c.code === pais.referencia_telefonica);
       setSelectedCountry(selected || filtered[0]);
+      setSelectedCountry2(selected || filtered[0]);
+      setSelectedCountry3(selected || filtered[0]);
     } catch (error) {
       console.error('Error al cargar datos de países:', error);
     }
@@ -601,7 +605,6 @@ const countrySelector = (
     ))}
   </Select>
 );
-const [selectedCountry2, setSelectedCountry2] = useState(null);
 
 const countrySelector2 = (
   <Select
@@ -641,8 +644,6 @@ const countrySelector2 = (
     ))}
   </Select>
 );
-
-const [selectedCountry3, setSelectedCountry3] = useState(null);
 
 const countrySelector3 = (
   <Select

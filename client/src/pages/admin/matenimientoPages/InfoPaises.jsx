@@ -19,13 +19,20 @@ import {
   EditOutlined,
   DownOutlined,Collapse, List,PaperClipOutlined,
   ArrowRightOutlined,
-  StarFilled
+  StarFilled,
+  AppstoreAddOutlined,
+  PlusCircleFilled,
+  DeleteFilled
 } from '@ant-design/icons';
 import { HiOutlineBeaker, HiOutlineChip, HiOutlineDotsCircleHorizontal } from 'react-icons/hi';
 import { PiArrowsOutCardinalDuotone, PiDotsThree, PiDotsThreeOutlineVertical } from 'react-icons/pi';
 import { useLocation } from 'react-router-dom';
 import PaisApi from '../../../api/Pais.api';
 import LugarApi from '../../../api/Lugar.api';
+import AgregarDepartamento from './PopUpPaises/PopUpAgregarDepartamento';
+import EliminarMunicipio from './PopUpPaises/PopUpEliminarMunicipio';
+import AgregarMunicipio from './PopUpPaises/AgregarMunicipio'
+import EliminarDepartamento from './PopUpPaises/EliminarDepartamento';
 
 const { Title } = Typography;
 function InfoPaises() {
@@ -34,6 +41,11 @@ function InfoPaises() {
   const [paisData, setPaisData] = useState(pais);
   const [countryData, setCountryData] = useState([]);
   const [lugar, setLugares] = useState([]);
+
+  const [depAddView,setDepAddView] = useState(false);
+  const [depDeleteView,setDepDeleteView] = useState(false);
+  const [munAddView,setMunAddView] = useState(false);
+  const [munDeleteView,setMunDeleteView] = useState(false);
 
   useEffect(() => 
   {
@@ -68,6 +80,7 @@ function InfoPaises() {
 
       fetchData();
   }, [paisData]);
+
 
   return (
     <div>
@@ -131,24 +144,25 @@ function InfoPaises() {
       ) : (
         <div className='flex'>
           <Card className="bg-white p-4 rounded-md shadow-md border-2 border-[#dddddd] w-[95vw]">
-            <div className="text-[#049DBF] text-2xl font-bold mb-4">No hay casas registradas.</div>
+            <div className="text-[#049DBF] text-2xl font-bold mb-3">No hay casas registradas.</div>
           </Card>
         </div>
       )}
       <div className="w-full mt-4">
   <Card className="p-4 rounded-md shadow-md border-2 border-[#dddddd] w-full">
     <div className="flex justify-between items-center mb-4 w-full">
-      <p className="text-[#049DBF] text-2xl font-bold">Departamentos y Municipios</p>
+      <p className="text-[#049DBF] text-2xl font-bold mr-2">Departamentos y Municipios</p>
       <div>
         <Space>
           <Button
             icon={<PlusOutlined />}
             type="primary"
             className="bg-green-500 text-white hover:bg-green-600"
+            onClick={() => setDepAddView(true)}
           >
             Agregar
           </Button>
-          <Button icon={<DeleteOutlined />} danger>
+          <Button icon={<DeleteOutlined />} onClick={() => {setDepDeleteView(true);}} danger>
             Eliminar
           </Button>
         </Space>
@@ -162,7 +176,7 @@ function InfoPaises() {
               ...dept,
               title: (
                 <div
-                  className='text-black flex'
+                  className="text-black flex justify-between items-center"
                   style={{
                     padding: '12px 16px',
                     margin: '5px',
@@ -174,8 +188,25 @@ function InfoPaises() {
                     border: '1px solid #049DBF'
                   }}
                 >
-                  <StarFilled className= 'text-green-500 ' style={{ marginRight: 10 }}/>
-                  {dept.nombre}
+                  <div className="flex items-center">
+                    <StarFilled className="text-green-500" style={{ marginRight: 10, fontSize: 24 }} />
+                    {dept.nombre}
+                  </div>
+
+                  <div className="flex items-center">
+                    <Button
+                      type="text"
+                      icon={<PlusCircleFilled className='text-green-500 bg-white' style={{ fontSize: 24, borderRadius: 10}} />}
+                      style={{ padding: 0 }}
+                      onClick={() => setMunAddView(true)}
+                    />
+                    <Button
+                      type="text"
+                      icon={<DeleteFilled className= 'text-red-500'style={{ fontSize: 24}} />}
+                      style={{ padding: 0 }}
+                      onClick={() => setMunDeleteView(true)}
+                    />
+                  </div>
                 </div>
               ),
           children: dept.Municipios.map((mun) => ({
@@ -211,6 +242,10 @@ function InfoPaises() {
         </div>
       </Card>
     </div>
+    {depAddView && <AgregarDepartamento/>}
+    {depDeleteView && <EliminarDepartamento visible={depDeleteView} onClose={() => {setDepDeleteView(false)}}/>}
+    {munAddView && <AgregarMunicipio visible={munAddView}/>}
+    {munDeleteView && <EliminarMunicipio visible={munDeleteView}/>}
   </div>
   );
 }
