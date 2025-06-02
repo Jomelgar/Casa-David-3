@@ -50,3 +50,11 @@ exports.getDepartamentoByMunicipioId = async (municipio_id) => {
     const departamento = await Departamento.findByPk(municipio.departamento_id);
     return departamento;
 };
+
+exports.getDepartamentoByPais = async(id_pais) => 
+{
+    const departamentos = await Departamento.findAll({
+        where: { id_pais }
+    });
+    return departamentos;
+} 

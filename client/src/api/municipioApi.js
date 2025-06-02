@@ -19,4 +19,17 @@ const getMunicipioById = async (municipioId) => {
     }
 };
 
-export { getMunicipiosByDepartamentoId, getMunicipioById };
+const setMunicipio = async(data) => 
+{
+  try
+  {
+    const response = await axiosInstance.post(`/municipio`,data);
+    return response.data;
+  }
+  catch(error)
+  {
+    throw new Error('Error creating municipio');
+  }
+};
+
+export { getMunicipiosByDepartamentoId, getMunicipioById,setMunicipio};

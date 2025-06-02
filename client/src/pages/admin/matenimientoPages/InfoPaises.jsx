@@ -35,17 +35,17 @@ import AgregarMunicipio from './PopUpPaises/AgregarMunicipio'
 import EliminarDepartamento from './PopUpPaises/EliminarDepartamento';
 
 const { Title } = Typography;
+
 function InfoPaises() {
   const location = useLocation();
   const { pais } = location.state || {};
   const [paisData, setPaisData] = useState(pais);
   const [countryData, setCountryData] = useState([]);
-  const [lugar, setLugares] = useState([]);
-
+  const [lugares, setLugares] = useState([]);
   const [depAddView,setDepAddView] = useState(false);
   const [depDeleteView,setDepDeleteView] = useState(false);
-  const [munAddView,setMunAddView] = useState(false);
-  const [munDeleteView,setMunDeleteView] = useState(false);
+  const [munAddView,setMunAddView] = useState(null);
+  const [munDeleteView,setMunDeleteView] = useState(null);
 
   useEffect(() => 
   {
@@ -121,12 +121,13 @@ function InfoPaises() {
           </Space>
         </Card>
       </div>
-      {lugar.length > 0 ? (
+      {lugares.length > 0 ? (
         <div className= 'flex'>
           <Card className="bg-white p-4 rounded-md shadow-md border-2 border-[#dddddd] w-[95vw]">
             <div className="text-[#049DBF] text-2xl font-bold mb-4">Casas de {paisData.nombre}</div>
+            <hr className='w-full mb-4'/>
             <Row gutter={[16, 16]}>
-              {lugar.map((l, index) => (
+              {lugares.map((l, index) => (
                 <Col key={index} xs={24} sm={12} md={8}>
                   <Card
                     className="border border-[#049DBF] rounded-md shadow-sm"
@@ -145,6 +146,7 @@ function InfoPaises() {
         <div className='flex'>
           <Card className="bg-white p-4 rounded-md shadow-md border-2 border-[#dddddd] w-[95vw]">
             <div className="text-[#049DBF] text-2xl font-bold mb-3">No hay casas registradas.</div>
+            <hr className='w-full mb-4'/>
           </Card>
         </div>
       )}
@@ -168,6 +170,7 @@ function InfoPaises() {
         </Space>
       </div>
     </div>
+    <hr className='w-full mb-4'/>
         <div className="w-full flex">
           <Tree
             defaultExpandAll
@@ -198,13 +201,15 @@ function InfoPaises() {
                       type="text"
                       icon={<PlusCircleFilled className='text-green-500 bg-white' style={{ fontSize: 24, borderRadius: 10}} />}
                       style={{ padding: 0 }}
-                      onClick={() => setMunAddView(true)}
+                      onClick={async(e) => {
+                        setMunAddView(dept);
+                      }}
                     />
                     <Button
                       type="text"
                       icon={<DeleteFilled className= 'text-red-500'style={{ fontSize: 24}} />}
                       style={{ padding: 0 }}
-                      onClick={() => setMunDeleteView(true)}
+                      onClick={() => setMunDeleteView(dept)}
                     />
                   </div>
                 </div>
@@ -242,10 +247,10 @@ function InfoPaises() {
         </div>
       </Card>
     </div>
-    {depAddView && <AgregarDepartamento/>}
-    {depDeleteView && <EliminarDepartamento visible={depDeleteView} onClose={() => {setDepDeleteView(false)}}/>}
-    {munAddView && <AgregarMunicipio visible={munAddView}/>}
-    {munDeleteView && <EliminarMunicipio visible={munDeleteView}/>}
+    {depAddView && <AgregarDepartamento visible={depAddView} onClose={() => {setDepAddView(false)}} id_pais={pais.id_pais}/>}
+    {depDeleteView && <EliminarDepartamento visible={depDeleteView} onClose={() => {setDepDeleteView(false)}} id_pais={pais.id_pais}/>}
+    {munAddView && <AgregarMunicipio visible={munAddView} onClose={() => {setMunAddView(null)}}/>}
+    {munDeleteView && <EliminarMunicipio visible={munDeleteView} onClose={() => {setMunDeleteView(null)}}/>}
   </div>
   );
 }

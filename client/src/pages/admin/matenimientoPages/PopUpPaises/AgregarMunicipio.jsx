@@ -1,6 +1,6 @@
 
 
-function AgregarMunicipio()
+function AgregarMunicipio({visible, onClose})
 {
     return(
     <>

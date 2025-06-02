@@ -39,3 +39,14 @@ exports.getDepartamentoByMunicipioId = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 }
+
+exports.getDepartamentoByPais = async(req,res)=>
+{
+    try {
+        const id_pais = req.params.id;
+        const departamento = await departamentoService.getDepartamentoByPais(id_pais);
+        res.status(200).json(departamento);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+}

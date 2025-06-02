@@ -36,4 +36,27 @@ const getDepartamentoByMunicipioId = async (municipio_id) => {
   }
 };
 
-export { getDepartamentos, getDepartamentoById, getDepartamentoByMunicipioId, setDepartamentoMunicipio };
+const getDepartamentoByPais= async(id_pais) => {
+  try
+  {
+    const response = await axiosInstance.get(`/departamento/pais/${id_pais}`);
+    return response.data;
+  }catch(error)
+  {
+    throw new Error('Error fetching departamento by Pais ID');
+  }
+};
+
+const setDepartamento = async(data) => 
+{
+  try
+  {
+    const response = await axiosInstance.post(`/departamento`,data);
+    return response.data;
+  }
+  catch(error)
+  {
+
+  }
+};
+export { getDepartamentos, getDepartamentoById, getDepartamentoByMunicipioId, setDepartamentoMunicipio, getDepartamentoByPais,setDepartamento};
