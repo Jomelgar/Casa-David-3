@@ -19,13 +19,13 @@ async function getPersonsInListaEspera(req, res) {
 }
 
 const getReservaciones = async (req, res) => {
-  const { startDate, endDate } = req.query;
+  const { startDate, endDate, id_lugar } = req.query;
   if (!startDate || !endDate) {
     return res.status(400).json({ error: 'Faltan parametros de fechas.' });
   }
 
   try {
-    const reservaciones = await MiscelanousService.getReservaciones(startDate, endDate);
+    const reservaciones = await MiscelanousService.getReservaciones(startDate, endDate, id_lugar);
     res.json(reservaciones);
   } catch (error) {
     console.error(error);

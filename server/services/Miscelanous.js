@@ -21,7 +21,7 @@ async function getPersonsInListaEsperaService() {
   });
 }
 
-const getReservaciones = async (startDate, endDate) => {
+const getReservaciones = async (startDate, endDate, id_lugar) => {
   const query = `
     SELECT 
       CONCAT(p.primer_nombre, ' ', p.primer_apellido) AS nombre,
@@ -39,13 +39,16 @@ const getReservaciones = async (startDate, endDate) => {
       cama c ON r.id_cama = c.id_cama
     JOIN 
       habitacion hab ON c.id_habitacion = hab.id_habitacion
+    JOIN
+      lugar l ON hab.id_lugar = l.id_lugar
     WHERE 
       r.fecha_salida BETWEEN :startDate AND :endDate
       AND r.activa = true
+      AND hab.id_lugar = :id_lugar
     ORDER BY
       r.fecha_salida ASC;  
   `;
-  const replacements = { startDate, endDate };
+  const replacements = { startDate, endDate , id_lugar};
   const [results] = await sequelize.query(query, { replacements });
   return results;
 };

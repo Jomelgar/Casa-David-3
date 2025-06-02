@@ -11,7 +11,7 @@ const displayDateFormat = "DD-MM-YYYY";
 
 const { RangePicker } = DatePicker;
 
-const SalidasModal = ({ isVisible, handleClose }) => {
+const SalidasModal = ({ isVisible, handleClose, id_lugar}) => {
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [data, setData] = useState([]);
@@ -25,14 +25,15 @@ const SalidasModal = ({ isVisible, handleClose }) => {
   };
 
   const fetchData = async () => {
-    if (!startDate || !endDate) return;
+    if (!startDate || !endDate || !id_lugar) return;
     
     setLoading(true);
     try {
       const response = await axiosInstance.get('/getSalidas', {
         params: {
           startDate: startDate.format('YYYY-MM-DD'),
-          endDate: endDate.format('YYYY-MM-DD')
+          endDate: endDate.format('YYYY-MM-DD'),
+          id_lugar: id_lugar
         }
       });
       setData(response.data);

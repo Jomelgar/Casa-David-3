@@ -53,6 +53,7 @@ function App() {
   const [departamentosRegistrados, setDepartamentosRegistrados] = useState([]);
   const [departamentosTotales, setDeptoTot] = useState(0);
   const [idPais, setIdPais] = useState(null);
+  const [idlugar, setLugar] = useState(null);
 
 
   useEffect(() => {
@@ -67,6 +68,7 @@ function App() {
 
         const resUser = await PersonApi.getPersonaRequest(personaId);
         const lugar = resUser.data.id_lugar;
+        setLugar(lugar);
 
         const paisResponse = await axiosInstance.get(`/personas/${personaId}/pais`);
         const idPais = paisResponse.data.idPais;
@@ -308,7 +310,11 @@ function App() {
         </Col>
       </Row>
 */}
-      <SalidasModal isVisible={isModalVisible} handleClose={handleCloseModal} />
+      <SalidasModal 
+        isVisible={isModalVisible} 
+        handleClose={handleCloseModal}
+        id_lugar={idlugar}
+      />
     </div>
   );
 }
