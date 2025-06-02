@@ -50,3 +50,14 @@ exports.getDepartamentoByPais = async(req,res)=>
         res.status(500).json({ error: error.message });
     }
 }
+
+exports.setDepartamento = async(req,res)=>
+{
+    try {
+        const data = req.body;
+        const departamento = await departamentoService.setDepartamento(data);
+        res.status(200).json(departamento);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+}

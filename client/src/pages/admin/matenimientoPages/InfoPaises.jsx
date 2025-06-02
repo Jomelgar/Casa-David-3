@@ -47,9 +47,7 @@ function InfoPaises() {
   const [munAddView,setMunAddView] = useState(null);
   const [munDeleteView,setMunDeleteView] = useState(null);
 
-  useEffect(() => 
-  {
-    const fetchLugaresByPais = async() =>
+  const fetchLugaresByPais = async() =>
     {
       try
       {
@@ -61,26 +59,41 @@ function InfoPaises() {
       }
     };
 
-    fetchLugaresByPais();
-  },[])
-
-  useEffect(() => {
-      async function fetchData() {
+  async function fetchData() {
         if (!pais?.id_pais) return;
         try {
           const data = await PaisApi.getDepartamentoMunicipio(pais.id_pais);
-          console.log("Datos recibidos:", data.data);
-          if(data.status !== 200) return []; 
-          setCountryData(data.data || []);
+          console.log("Datos recibidos:", data.data); 
+          setCountryData(data?.data || []);
         } catch (error) {
           console.error("Error al cargar los datos:", error);
           setCountryData([]);
         }
       }
 
-      fetchData();
-  }, [paisData]);
+const cargarPais = async () => {
+    const res = await PaisApi.getPaisForTable();
+    if (res && res.data) {
+      const paises = res.data;
+      const pais = res.data.find(i => i.id_pais === paisData.id_pais);
+      setPaisData(pais);
+    } else {
+      console.error('Error al obtener los datos de países');
+    }
+  };
 
+const cargarDatos= async()=>
+{
+  await cargarPais();
+  await fetchLugaresByPais();
+  await fetchData();
+}
+useEffect(() => {
+  const fetchAll = async () => {
+    await cargarDatos();
+  };
+  fetchAll();
+}, []);
 
   return (
     <div>
@@ -247,10 +260,10 @@ function InfoPaises() {
         </div>
       </Card>
     </div>
-    {depAddView && <AgregarDepartamento visible={depAddView} onClose={() => {setDepAddView(false)}} id_pais={pais.id_pais}/>}
-    {depDeleteView && <EliminarDepartamento visible={depDeleteView} onClose={() => {setDepDeleteView(false)}} id_pais={pais.id_pais}/>}
-    {munAddView && <AgregarMunicipio visible={munAddView} onClose={() => {setMunAddView(null)}}/>}
-    {munDeleteView && <EliminarMunicipio visible={munDeleteView} onClose={() => {setMunDeleteView(null)}}/>}
+    {depAddView && <AgregarDepartamento visible={depAddView} onLoad={cargarDatos} onClose={() => {setDepAddView(false)}} id_pais={pais.id_pais}/>}
+    {depDeleteView && <EliminarDepartamento visible={depDeleteView} onLoad={cargarDatos} onClose={() => {setDepDeleteView(false)}} id_pais={pais.id_pais}/>}
+    {munAddView && <AgregarMunicipio visible={munAddView} onLoad={cargarDatos} onClose={() => {setMunAddView(null)}}/>}
+    {munDeleteView && <EliminarMunicipio visible={munDeleteView} onLoad={cargarDatos} onClose={() => {setMunDeleteView(null)}}/>}
   </div>
   );
 }

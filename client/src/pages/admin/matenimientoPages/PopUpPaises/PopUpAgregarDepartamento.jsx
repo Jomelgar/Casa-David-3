@@ -1,18 +1,30 @@
 import { Modal, Input, Button, ConfigProvider, Select,Typography} from 'antd';
 import { useState,useEffect } from 'react';
+import {setDepartamento} from '../../../../api/departamentoApi';
 import { useLayout } from "../../../../context/LayoutContext";
-import {getDepartamentoByPais} from '../../../../api/departamentoApi'
 import { use } from 'react';
 
 const { Text } = Typography;
 
 
-function AgregarDepartamento({visible, onClose, id_pais})
+function AgregarDepartamento({visible, onClose, id_pais,onLoad})
 {
+    const { openNotification } = useLayout();
+
     const [name,setName] = useState(null);
-    const handleSubmit = () =>
+    const handleSubmit = async() =>
     {
-        //TODO
+        if(!name) {
+            openNotification(2, "Alerta", "Por favor completa todos los campos obligatorios.")
+            return;
+        };
+        const data = {"id_pais": id_pais, "nombre": name};
+        const status = await setDepartamento(data);
+        if(status === 200) openNotification(0, "Éxito", `Municipio agregado correctamente a ${visible.nombre}.`);
+        else openNotification(2, "Alerta", "No se logro crear el municipio solicitado.");
+        
+        await onLoad();
+        onClose();
     };
 
     return (
@@ -48,7 +60,7 @@ function AgregarDepartamento({visible, onClose, id_pais})
                 padding: '24px 32px',
             }}
         >
-            <Input placeholder='Nombre'/>
+            <Input placeholder='Nombre' value={name} onChange={(e) => setName(e.target.value.toUpperCase())} />
         </Modal>
     </ConfigProvider>);
 }

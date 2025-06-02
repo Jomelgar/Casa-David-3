@@ -62,10 +62,12 @@ router.get('/causaVisita/:id',causaVisitaController.getCausaById);
 router.get('/departamento', departamentoController.getAllDepartamento);
 router.get('/departamento/:id', departamentoController.getDepartamentoById);
 router.get('/departamento/municipio/:id', departamentoController.getDepartamentoByMunicipioId);
+router.post('/departamento',departamentoController.setDepartamento);
 router.post('/departamento-municipio', departamentoController.setDepartamentoMunicipio);
 router.get('/departamento/pais/:id', departamentoController.getDepartamentoByPais);
 
 //municipio
+router.post('/municipio',municipioController.setMunicipio);
 router.get('/municipio', municipioController.getAllMunicipio);
 router.get('/municipio/:id', municipioController.getMunicipioById);
 router.get('/municipios/departamento/:id', municipioController.getAllMunicipiosByDepartamentoId);

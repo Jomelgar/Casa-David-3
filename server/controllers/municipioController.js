@@ -30,3 +30,14 @@ exports.getAllMunicipiosByDepartamentoId = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 }
+
+exports.setMunicipio = async(req,res) =>
+{
+    try {
+        const data = req.body;
+        const municipio = await municipioService.setMunicipio(data);
+        res.status(200).json(municipio);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};

@@ -19,17 +19,15 @@ const getMunicipioById = async (municipioId) => {
     }
 };
 
-const setMunicipio = async(data) => 
-{
-  try
-  {
-    const response = await axiosInstance.post(`/municipio`,data);
-    return response.data;
-  }
-  catch(error)
-  {
-    throw new Error('Error creating municipio');
+const setMunicipio = async (data) => {
+  try {
+    const response = await axiosInstance.post(`/municipio`, data);
+    return response.status;
+  } catch (error) {
+    console.error("Error al crear municipio:", error.response?.data || error.message);
+    throw new Error(error.response?.data?.message || 'Error al crear municipio');
   }
 };
+
 
 export { getMunicipiosByDepartamentoId, getMunicipioById,setMunicipio};

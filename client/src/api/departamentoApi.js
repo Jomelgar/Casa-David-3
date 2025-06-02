@@ -52,7 +52,7 @@ const setDepartamento = async(data) =>
   try
   {
     const response = await axiosInstance.post(`/departamento`,data);
-    return response.data;
+    return response.status;
   }
   catch(error)
   {

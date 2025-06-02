@@ -57,4 +57,14 @@ exports.getDepartamentoByPais = async(id_pais) =>
         where: { id_pais }
     });
     return departamentos;
-} 
+}
+
+exports.setDepartamento = async(data)=>
+{
+    const departamento = await Departamento.create(
+    {
+            nombre: data.nombre,
+            id_pais: data.id_pais
+    })
+    return departamento;
+}

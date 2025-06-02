@@ -18,3 +18,12 @@ exports.getAllMunicipiosByDepartamentoId = async (id) => {
     });
     return municipios;
 };
+
+exports.setMunicipio = async(data) => 
+{
+    const municipio = await Municipio.create({
+        nombre: data.nombre,
+        departamento_id: data.departamento_id
+    });
+    return municipio;
+}

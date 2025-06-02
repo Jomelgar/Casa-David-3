@@ -21,6 +21,7 @@ exports.getDepartamentosConMunicipiosPorPais = async (id_pais) => {
       {
         model: Municipio,
         where: { activo: true },
+        required: false,
         attributes: ['municipio_id', 'nombre', 'activo']
       }
     ]
