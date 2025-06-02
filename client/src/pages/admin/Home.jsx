@@ -91,7 +91,7 @@ function App() {
         setDepartamentosRegistrados(DRResponse.data);
         console.log(DRResponse);
 
-        const DResponse = await axiosInstance.get(`/departamento/cantidad/${idPais}`);
+        const DResponse = await axiosInstance.get(`/departamento/pais/${idPais}`);
         setDeptoTot(DResponse.data.cantidad);
       } catch (error) {
         console.error("Error al conseguir info:", error);
