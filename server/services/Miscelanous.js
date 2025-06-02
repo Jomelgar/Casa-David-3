@@ -126,9 +126,9 @@ const getTop3ClosestFechaSalida = async () => {
 };
 
 
-const countDepartamentosRegistrados = async () => {
-  const query = "SELECT COUNT(DISTINCT TRIM(LOWER(d.nombre))) AS total_departamentos_registrados FROM huesped JOIN persona ON persona.id_persona = huesped.id_persona JOIN municipio ON municipio.municipio_id = persona.municipio_id JOIN departamento d ON d.departamento_id = municipio.departamento_id WHERE huesped.activo = true;"
-  const [results] = await sequelize.query(query);
+const countDepartamentosRegistrados = async (id_pais) => {
+  const query = "SELECT COUNT(DISTINCT TRIM(LOWER(d.nombre))) AS total_departamentos_registrados FROM huesped JOIN persona ON persona.id_persona = huesped.id_persona JOIN municipio ON municipio.municipio_id = persona.municipio_id JOIN departamento d ON d.departamento_id = municipio.departamento_id WHERE huesped.activo = true AND d.id_pais = :id_pais;"
+  const [results] = await sequelize.query(query, {replacements: { id_pais },});
   return results[0].total_departamentos_registrados;
 };
 

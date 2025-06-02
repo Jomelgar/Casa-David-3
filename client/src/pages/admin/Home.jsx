@@ -6,9 +6,9 @@ import { useLayout } from '../../context/LayoutContext';
 import { UserOutlined, HomeOutlined, DiffOutlined } from '@ant-design/icons'; // Import icons from Ant Design
 import axiosInstance from '../../api/axiosInstance';
 //import HondurasIcon from "../../../src/assets/honduras.png";
-import hnMap from '../../assets/hn.svg';
-import gtMap from '../../assets/gt.svg';
-import svMap from '../../assets/sv.svg';
+//import hnMap from '../../assets/hn.svg';
+//import gtMap from '../../assets/gt.svg';
+//import svMap from '../../assets/sv.svg';
 import SalidasModal from "../../components/Tablas/salidasProximasModal"; // Import the SalidasModal component
 import * as XLSX from "xlsx";
 import dayjs from "dayjs";
@@ -28,13 +28,13 @@ const formatDate = (date) => {
 function obtenerMapaPorIdPais(idPais) {
   switch (idPais) {
     case 1:
-      return hnMap;
+      return "/iconoPaises/hn.svg";
     case 2:
-      return gtMap;
+      return "/iconoPaises/gt.svg";
     case 3:
-      return svMap;
+      return "/iconoPaises/sv.svg";
     default:
-      return hnMap;
+      return "/iconoPaises/hn.svg";
   }
 }
 
@@ -51,6 +51,7 @@ function App() {
   const [proximosASalir, setProximosASalir] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [departamentosRegistrados, setDepartamentosRegistrados] = useState([]);
+  const [departamentosTotales, setDeptoTot] = useState(0);
   const [idPais, setIdPais] = useState(null);
 
 
@@ -86,9 +87,12 @@ function App() {
         const proximosASalirResponse = await axiosInstance.get('top3-salidas');
         setProximosASalir(proximosASalirResponse.data);
 
-        const DRResponse = await axiosInstance.get('departamentos-registrados');
+        const DRResponse = await axiosInstance.get(`/departamentos_registrados/${idPais}`);
         setDepartamentosRegistrados(DRResponse.data);
         console.log(DRResponse);
+
+        const DResponse = await axiosInstance.get(`/departamento/cantidad/${idPais}`);
+        setDeptoTot(DResponse.data.cantidad);
       } catch (error) {
         console.error("Error al conseguir info:", error);
       }
@@ -222,7 +226,7 @@ function App() {
             }}
           >
             <div className="flex items-center" style={{ fontSize: "55px" }}>
-              {departamentosRegistrados + "/18"}
+              {departamentosRegistrados + "/" + departamentosTotales}
 
               <img
                 src={obtenerMapaPorIdPais(idPais)}
@@ -274,10 +278,9 @@ function App() {
           </Card>
         </Col>
       </Row>
-
+{/*         Exportar quitado
       <Row gutter={16} className="w-full mt-4">
         <Col span={8} offset={0}>
-          <Card
             title={
               <button>
                 <div>
@@ -302,10 +305,9 @@ function App() {
               width: 1096,
               height: 47,
             }}
-          />
         </Col>
       </Row>
-
+*/}
       <SalidasModal isVisible={isModalVisible} handleClose={handleCloseModal} />
     </div>
   );
