@@ -26,10 +26,17 @@ import {
 } from "../../api/municipioApi";
 import { getUserFromToken } from "../../utilities/auth.utils";
 
+import axios from "axios";
+import axiosInstance from '../../api/axiosInstance';
+import { COUNTRIES_API } from "../../api/Huesped.api";
+import personaApi from "../../api/Persona.api";
+import PaisApi from "../../api/Pais.api";
+
 const { Meta } = Card;
 const { TextArea } = Input;
 
 dayjs.extend(customParseFormat);
+
 
 const InformacionPersonal = ({
   user,
@@ -42,6 +49,41 @@ const InformacionPersonal = ({
   const [countries,setCountries] = useState([]);
   const [selected, setSelected] = useState(null);
   const [selectedCountry,setSelectedCountry] = useState(null);
+
+  const cargarPaisdeUso = async() => 
+{
+    const id_pais = await personaApi.getPaisByPersona(usuario.id_persona);
+    const paises = await PaisApi.getPaisForTable();
+    const pais = paises.data.find(p => p.id_pais === id_pais.data.idPais);
+    console.log(pais);
+    return pais;
+};
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await axios.get(COUNTRIES_API);
+        const filtered = res.data
+          .filter(c => c.idd?.root && c.idd?.suffixes && c.flags?.png)
+          .map(c => ({
+            name: c.name.common,
+            code: c.idd.root + (c.idd.suffixes[0] || ''),
+            flag: c.flags.png
+          }))
+          .sort((a, b) => a.name.localeCompare(b.name));
+  
+        setCountries(filtered);
+  
+        const pais = await cargarPaisdeUso();
+        const selected = await filtered.find(c => c.code === pais.referencia_telefonica);
+        setSelectedCountry(selected || filtered[0]);
+      } catch (error) {
+        console.error('Error al cargar datos de países:', error);
+      }
+    };
+  
+    fetchData();
+  }, []);
   
   const generos = [
     { value: "MASCULINO", label: "MASCULINO" },
