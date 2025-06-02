@@ -18,7 +18,6 @@ function Perfil() {
   const { setCurrentPath, isXS, openNotification } = useLayout();
 
   const [tab, setTab] = useState(0);
-
   const [isEditable, setIsEditable] = useState(false);
 
   const params = useParams();

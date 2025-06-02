@@ -36,14 +36,13 @@ const InformacionPersonal = ({
   changeUser,
   isEditable,
   handleSetChangeUser,
-  selected,
-  selectedCountry,
-  countries,
-  setSelectedCountry,
 }) => {
   const usuario = getUserFromToken();
   const rolLog = usuario.rol;
-
+  const [countries,setCountries] = useState([]);
+  const [selected, setSelected] = useState(null);
+  const [selectedCountry,setSelectedCountry] = useState(null);
+  
   const generos = [
     { value: "MASCULINO", label: "MASCULINO" },
     { value: "FEMENINO", label: "FEMENINO" },
