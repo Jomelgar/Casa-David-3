@@ -92,7 +92,7 @@ function App() {
         console.log(DRResponse);
 
         const DResponse = await axiosInstance.get(`/departamento/pais/${idPais}`);
-        setDeptoTot(DResponse.data.cantidad);
+        setDeptoTot(DResponse.data.length);
       } catch (error) {
         console.error("Error al conseguir info:", error);
       }
