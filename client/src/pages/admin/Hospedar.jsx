@@ -594,7 +594,7 @@ const cargarFormato = async () => {
 const cargarCAFormato = async () => {
   const pais = await cargarPaisdeUso(); // ← agregar await
   const formato = pais.formato_dni;
-  return (formato.match(/#/g) || []).length;
+  return (formato.length);
 };
 
 // useEffect que carga ambos valores al inicio
@@ -1690,14 +1690,10 @@ const countrySelector3 = (
 
     switch (key) {
       case "dni":
-        // Pone el formato de dni
-        if (previousValue !== null && value.length > previousValue.length) {
-          if (/^\d{4}$/.test(value) || /^\d{4}-\d{4}$/.test(value)) {
-            newValue = value + "-";
-          }
-        }
-
-        if (/^\d{4}-\d{4}-\d{5}$/.test(newValue)) {
+        if(selected=="DNI"){
+        newValue = aplicarFormatoDNI(value, dniFormat);
+        
+        if (validarFormatoConGuiones(newValue, dniFormat)) {
           if (await isInListaNegar(newValue)) {
             ResetearAtributos();
             console.log("Esta en ngra");
@@ -1712,7 +1708,7 @@ const countrySelector3 = (
             console.log("Eseta en reservacion");
             return;
           } else searchDni(newValue, 0);
-        }
+        }}
         break;
 
       case "fecha_nacimiento":
@@ -1766,6 +1762,38 @@ const countrySelector3 = (
     setHospedado({ ...hospedado, observacion_reservacion: e.target.value });
   };
 
+  const aplicarFormatoDNI = (valor, formato) => {
+  const soloDigitos = valor.replace(/\D/g, ''); // Elimina guiones y otros no números
+  let resultado = '';
+  let i = 0;
+
+  for (const char of formato) {
+    if (char === '#') {
+      if (i < soloDigitos.length) {
+        resultado += soloDigitos[i++];
+      } else {
+        break;
+      }
+    } else {
+      if (i < soloDigitos.length) {
+        resultado += char;
+      }
+    }
+  }
+
+  return resultado;
+};
+
+const validarFormatoConGuiones = (valor, formato) => {
+  // Convertir el formato (ej: ###-####-#####) en expresión regular
+  const regexStr = "^" + formato
+    .replace(/#/g, "\\d") // '#' se convierte en dígito
+    .replace(/[-\s]/g, (s) => `\\${s}`) + "$"; // escapamos guiones o espacios
+
+  const regex = new RegExp(regexStr);
+  return regex.test(valor); // true si coincide exactamente
+};
+
 
   // Funcion que maneja el cambio del texto en los inputs/selects del front
   const handleSetChangePaciente = (key, value, previousValue = null) => {
@@ -1775,15 +1803,11 @@ const countrySelector3 = (
 
 
       case "dni":
-        if (previousValue !== null && value.length > previousValue.length) {
-          if (/^\d{4}$/.test(value) || /^\d{4}-\d{4}$/.test(value)) {
-            newValue = value + "-";
-          }
-        }
-
-        if (/^\d{4}-\d{4}-\d{5}$/.test(newValue)) {
+        if(selected2=="DNI"){
+        newValue = aplicarFormatoDNI(value, dniFormat);
+        if (validarFormatoConGuiones(newValue, dniFormat)) {
           searchDni(newValue, 1);
-        }
+        }}
 
         break;
 
@@ -1873,14 +1897,13 @@ const countrySelector3 = (
 
     switch (key) {
       case "dni":
-        if (previousValue !== null && value.length > previousValue.length) {
-          if (/^\d{4}$/.test(value) || /^\d{4}-\d{4}$/.test(value)) {
-            newValue = value + "-";
-          }
+        if(selected3=="DNI"){
+        newValue = aplicarFormatoDNI(value, dniFormat);
+        if (validarFormatoConGuiones(newValue, dniFormat)) {
+          searchDni(newValue, 1);
         }
 
-        if (/^\d{4}-\d{4}-\d{5}$/.test(newValue)) {
-          if (/^\d{4}-\d{4}-\d{5}$/.test(newValue)) {
+        if (validarFormatoConGuiones(newValue, dniFormat)) {
             if (await isInListaNegar(newValue)) {
               resetearAcompanante();
               return;
@@ -1893,7 +1916,6 @@ const countrySelector3 = (
             } else searchDni(newValue, 2);
           }
         }
-
         break;
 
       case "telefono":
@@ -1902,8 +1924,8 @@ const countrySelector3 = (
           value.length > previousValue.length &&
           value.length === 4
         ) {
-          if (/\d{4}/.test(value)) {
-            newValue = value + "-";
+          if (validarFormatoConGuiones(newValue, dniFormat)) {
+          searchDni(newValue, 1);
           }
         }
         break;
