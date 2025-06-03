@@ -116,7 +116,8 @@ const causasVisitaPredeterminadas = [
 
 
 function Hospedar() {
-  const [dniFormat, setdniFormat] = useState("/^\d{4}-\d{4}-\d{5}$/");
+  const [idlugar,setLugar]=useState(0);
+  const [dniFormat, setdniFormat] = useState("####");
   const [idPais, setIdPais] = useState(null);
   const [digitos,setdigitos] = useState(0);
   const obtenerDigitos = (tipo) => tipo === "DNI" ? digitos : 15;
@@ -253,7 +254,7 @@ function Hospedar() {
       return Object.keys(newEmptyFields).length === 0;
     }
   };
-
+/*
   const validarFormato = (valor, formatoEsperado) => {
   const soloNumeros = valor.replace(/\D/g, '');
   const cantidadNumeros = soloNumeros.length;
@@ -266,8 +267,27 @@ function Hospedar() {
   const regex = new RegExp(regexStr);
 
   // Asignar a variables globales (declaradas arriba)
-  digitos = cantidadNumeros;
+  digitos = totalNumerosEsperados;
   setdniFormat = formatoEsperado;
+  obtenerDigitos = (tipo) => tipo === "DNI" ? digitos : 15;
+  };
+*/
+  
+  const validarFormato = (valor, formatoEsperado) => {
+  //const soloNumeros = valor.replace(/\D/g, ''); ####-####-#####
+  const totalNumerosEsperados = (formatoEsperado.match(/#/g) || []).length;
+
+  // Construir regex a partir del formato
+  const regexStr = "^" + formatoEsperado
+    .replace(/#/g, "\\d")
+    .replace(/[-\s]/g, (s) => `\\${s}`) + "$";
+  const regex = new RegExp(regexStr);
+
+  // Asignar a variables globales (declaradas arriba)
+  setdigitos = totalNumerosEsperados;
+  setdniFormat = formatoEsperado;
+  //esValido = regex.test(valor); // Puedes usar esta también si necesitas validar
+
   obtenerDigitos = (tipo) => tipo === "DNI" ? digitos : 15;
 };
 
@@ -289,7 +309,7 @@ function Hospedar() {
       </Col>
       <Col>
         <CustomCheckboxButton
-          label="Dni Extranjero"
+          label="DNI Extranjero"
           selected={selected === "DNI Extranjero"}
           onClick={() => setSelected("DNI Extranjero")}
         />
@@ -313,14 +333,14 @@ const [selected2, setSelected2] = useState("DNI");
     <Row gutter={16} style={{ marginTop: 20,justify:"start"} }>
       <Col>
         <CustomCheckboxButton
-          label="Dni"
+          label="DNI"
           selected={selected2 === "DNI"}
           onClick={() => setSelected2("DNI")}
         />
       </Col>
       <Col>
         <CustomCheckboxButton
-          label="Dni Extranjero"
+          label="DNI Extranjero"
           selected={selected2 === "DNI Extranjero"}
           onClick={() => setSelected2("DNI Extranjero")}
         />
@@ -345,7 +365,7 @@ const [selected3, setSelected3] = useState("DNI");
     <Row gutter={16} style={{ marginTop: 20,justify:"start"} }>
       <Col>
         <CustomCheckboxButton
-          label="Dni"
+          label="DNI"
           selected={selected3 === "DNI"}
           onClick={() => setSelected3("DNI")}
         />
@@ -558,14 +578,36 @@ const [selectedCountry2, setSelectedCountry2] = useState(null);
 const [selectedCountry3, setSelectedCountry3] = useState(null);
 const [PacienteMarcado,setPacienteMarcado]= useState(0);
 
-const cargarPaisdeUso = async() => 
-  {
-    const id_pais = await personaApi.getPaisByPersona(usuario.id_persona);
-    const paises = await PaisApi.getPaisForTable();
-    const pais = paises.data.find(p => p.id_pais === id_pais.data.idPais);
-    console.log(pais);
-    return pais;
+const cargarPaisdeUso = async () => {
+  const id_pais = await personaApi.getPaisByPersona(usuario.id_persona);
+  const paises = await PaisApi.getPaisForTable();
+  const pais = paises.data.find(p => p.id_pais === id_pais.data.idPais);
+  return pais;
+};
+
+const cargarFormato = async () => {
+  const pais = await cargarPaisdeUso(); // ← agregar await
+  const formato = pais.formato_dni;
+  return formato;
+};
+
+const cargarCAFormato = async () => {
+  const pais = await cargarPaisdeUso(); // ← agregar await
+  const formato = pais.formato_dni;
+  return (formato.match(/#/g) || []).length;
+};
+
+// useEffect que carga ambos valores al inicio
+useEffect(() => {
+  const fetchFormato = async () => {
+    const formato1 = await cargarFormato();
+    const cantidad = await cargarCAFormato();
+    setdniFormat(formato1);
+    setdigitos(cantidad); // ✅ correctamente llamada
   };
+  fetchFormato();
+}, []);
+
 
 useEffect(() => {
   const fetchData = async () => {
@@ -712,6 +754,7 @@ const countrySelector3 = (
     ))}
   </Select>
 );
+
 
 
   const usuario = getUserFromToken();
@@ -2227,24 +2270,15 @@ const countrySelector3 = (
     
     const fetchData = async () => {
     try{
-        const userToken = getUserFromToken();
-        const userProp = await UserApi.getUserRequest(userToken.userId);
-        const personaId = userProp.data.id_persona;
-
-        const resUser = await PersonApi.getPersonaRequest(personaId);
-        const lugar = resUser.data.id_lugar;
-
-        const paisResponse = await axiosInstance.get(`/personas/${personaId}/pais`);
-        const idPais = paisResponse.data.idPais;
-        setIdPais(idPais);
         
-        const FormatoResponse = await axiosInstance.get(`/personas/${personaId}/formato`);
-        const Formato = FormatoResponse.data.idPais;
-        setdniFormat(Formato);
-        console.log("El formato es: "+ dniFormat)
+        console.log("SI FUNCIONOOOOOOOOOOOOOOOOOOOOOO");
+        console.error("SI FUNCIONOOOOOOOOOOOOOOOOOOOOOO");
     }catch (error) {
         console.error("Error al conseguir info:", error);
+        console.log("NO FUNCIONOOOOOOOOOOOOOOOOOOOOOO");
+        console.error("NO FUNCIONOOOOOOOOOOOOOOOOOOOOOO");
       }}
+      console.log("Ya salio, Pais es: "+idPais+", Formato de dni: "+dniFormat+", cantidad de numeros: "+", Lugar: "+idlugar);
     loadOcupaciones();
     loadProcedencias();
     loadHospitales(); // Cargar los hospitales para que se puedan elegir en el select apenas se meta a la vista
@@ -2578,7 +2612,7 @@ const countrySelector3 = (
                     .toLowerCase()
                     .localeCompare((optionB?.label ?? "").toLowerCase())
                 }
-                placeholder="Ocupacion"
+                placeholder={"Ocupacion"}
                 size="large"
                 notFoundContent={
                   <Button
