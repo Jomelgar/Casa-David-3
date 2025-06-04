@@ -260,7 +260,7 @@ useEffect(() => {
         </div>
       </Card>
     </div>
-    {depAddView && <AgregarDepartamento visible={depAddView} onLoad={cargarDatos} onClose={() => {setDepAddView(false)}} id_pais={pais.id_pais}/>}
+    {depAddView && <AgregarDepartamento visible={depAddView} Name={paisData?.nombre || '...'}onLoad={cargarDatos} onClose={() => {setDepAddView(false)}} id_pais={pais.id_pais}/>}
     {depDeleteView && <EliminarDepartamento visible={depDeleteView} onLoad={cargarDatos} onClose={() => {setDepDeleteView(false)}} id_pais={pais.id_pais}/>}
     {munAddView && <AgregarMunicipio visible={munAddView} onLoad={cargarDatos} onClose={() => {setMunAddView(null)}}/>}
     {munDeleteView && <EliminarMunicipio visible={munDeleteView} onLoad={cargarDatos} onClose={() => {setMunDeleteView(null)}}/>}

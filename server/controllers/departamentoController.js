@@ -61,3 +61,15 @@ exports.setDepartamento = async(req,res)=>
         res.status(500).json({ error: error.message });
     }
 }
+
+exports.deleteDepartamento= async(req,res) => 
+{
+    try {
+        const id = req.params.id;
+        const isOkey =await departamentoService.deleteDepartamento(id);
+        if(isOkey) res.status(200).json({message: `Great delete on ${id}`});
+        else res.status(501).json({message: `Error at deleting on ${id}`});
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+}

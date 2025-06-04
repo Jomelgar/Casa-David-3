@@ -17,7 +17,7 @@ function EliminarMunicipio({ onClose, visible }) {
   const handleDelete = () => {
     if (!key) return;
     // Aquí puedes usar key.id_municipio, key.nombre, etc.
-    console.log('Eliminando municipio:', key);
+    console.log('Eliminando municipio:', key.municipio_id);
     // TODO: llamada a API para eliminar y cierre de modal
   };
 

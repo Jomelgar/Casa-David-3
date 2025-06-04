@@ -56,7 +56,18 @@ const setDepartamento = async(data) =>
   }
   catch(error)
   {
-
+    throw new Error('Error creatinf Departamento');
   }
 };
-export { getDepartamentos, getDepartamentoById, getDepartamentoByMunicipioId, setDepartamentoMunicipio, getDepartamentoByPais,setDepartamento};
+
+const deleteDepartamento = async(id) =>
+{
+  try {
+    const response = await axiosInstance.delete(`/departamento/${id}`);
+    return response;
+  } catch (error) {
+    throw new Error('Error deleting departamento');
+  }
+};
+export { getDepartamentos, getDepartamentoById, 
+  getDepartamentoByMunicipioId, setDepartamentoMunicipio, getDepartamentoByPais,setDepartamento,deleteDepartamento};

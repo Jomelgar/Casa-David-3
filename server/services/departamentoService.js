@@ -1,5 +1,6 @@
 const {Departamento} = require('../models/departamento')
 const {Municipio} = require('../models/persona');
+const sequelize = require('../Db');
 
 exports.getAllDepartamento = async () => {
     const departamentos = await Departamento.findAll();
@@ -51,10 +52,10 @@ exports.getDepartamentoByMunicipioId = async (municipio_id) => {
     return departamento;
 };
 
-exports.getDepartamentoByPais = async(id_pais) => 
+exports.getDepartamentoByPais = async(id) => 
 {
     const departamentos = await Departamento.findAll({
-        where: { id_pais }
+        where: { id_pais : id, activo : true}
     });
     return departamentos;
 }
@@ -67,4 +68,17 @@ exports.setDepartamento = async(data)=>
             id_pais: data.id_pais
     })
     return departamento;
+}
+
+exports.deleteDepartamento = async(id) => 
+{
+  try {
+    await sequelize.query('CALL public.eliminarDepto(:ID);', {
+      replacements: { ID: Number(id) },
+    });
+    return true;
+  } catch (error) {
+    console.error('Error al eliminar departamento:', error);
+    throw error;
+  }
 }

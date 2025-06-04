@@ -1,10 +1,14 @@
 import { Modal, Button, ConfigProvider, Select, Typography } from 'antd';
 import { useState, useEffect } from 'react';
-import { getDepartamentoByPais } from '../../../../api/departamentoApi';
+import { getDepartamentoByPais,deleteDepartamento } from '../../../../api/departamentoApi';
+import { useLayout } from "../../../../context/LayoutContext";
+import { PiKeyhole } from 'react-icons/pi';
 
 const { Text } = Typography;
 
-function EliminarDepartamento({ visible, onClose, id_pais }) {
+function EliminarDepartamento({ visible, onClose, id_pais,onLoad }) {
+  const { openNotification } = useLayout();
+
   const [key, setKey] = useState(null);
   const [data, setData] = useState([]);
 
@@ -13,10 +17,14 @@ function EliminarDepartamento({ visible, onClose, id_pais }) {
     setData(Departamento);
   };
 
-  const handleDelete = () => {
+  const handleDelete = async() => {
     if (!key) return;
-    console.log('Eliminando departamento:', key);
-    // TODO: llamada a API para eliminar departamento usando key.departamento_id
+    
+    const response = await deleteDepartamento(Number(key.departamento_id));
+    if(response.status === 200) openNotification(0, "Éxito", `Departamento eliminado correctamente.`);
+    else{ openNotification(2, "Alerta", "No se logro eliminar el departamento solicitado."); return;}
+    onLoad();
+    onClose();
   };
 
   useEffect(() => {

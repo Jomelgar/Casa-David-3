@@ -57,10 +57,11 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION reducir_contadores_departamento()
 RETURNS TRIGGER AS $$
 BEGIN
+IF OLD.activo = TRUE AND NEW.activo = FALSE THEN
   UPDATE pais
-  SET total_departamentos = COALESCE(total_departamentos, 0) + 1
+  SET total_departamentos = COALESCE(total_departamentos, 0) - 1
   WHERE id_pais = NEW.id_pais;
-
+end if;
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -71,6 +72,6 @@ FOR EACH ROW
 EXECUTE FUNCTION incrementar_contadores_departamento();
 
 CREATE TRIGGER trg_reducir_contadores
-AFTER DELETE ON departamento
+AFTER UPDATE ON departamento
 FOR EACH ROW
 EXECUTE FUNCTION reducir_contadores_departamento();

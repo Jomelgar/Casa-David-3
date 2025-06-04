@@ -7,8 +7,9 @@ import { use } from 'react';
 const { Text } = Typography;
 
 
-function AgregarDepartamento({visible, onClose, id_pais,onLoad})
+function AgregarDepartamento({visible,Name,onClose, id_pais,onLoad})
 {
+    console.log(visible);
     const { openNotification } = useLayout();
 
     const [name,setName] = useState(null);
@@ -20,7 +21,7 @@ function AgregarDepartamento({visible, onClose, id_pais,onLoad})
         };
         const data = {"id_pais": id_pais, "nombre": name};
         const status = await setDepartamento(data);
-        if(status === 200) openNotification(0, "Éxito", `Municipio agregado correctamente a ${visible.nombre}.`);
+        if(status === 200) openNotification(0, "Éxito", `Departamento agregado correctamente a ${Name}.`);
         else openNotification(2, "Alerta", "No se logro crear el municipio solicitado.");
         
         await onLoad();

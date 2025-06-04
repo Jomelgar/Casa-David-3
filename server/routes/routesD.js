@@ -59,6 +59,7 @@ router.delete('/causaVisita/:id',causaVisitaController.deleteCausaVisita);
 router.get('/causaVisita/:id',causaVisitaController.getCausaById);
 
 //departamento
+router.delete('/departamento/:id', departamentoController.deleteDepartamento);
 router.get('/departamento', departamentoController.getAllDepartamento);
 router.get('/departamento/:id', departamentoController.getDepartamentoById);
 router.get('/departamento/municipio/:id', departamentoController.getDepartamentoByMunicipioId);
