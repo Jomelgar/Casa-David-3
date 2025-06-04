@@ -27,7 +27,7 @@ const Pais = sequelize.define(
         },
         codigo_iso:
         {
-            type: Sequelize.STRING(5),
+            type: Sequelize.STRING(4),
             allowNull: false
         },
         divisa:

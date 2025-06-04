@@ -9,19 +9,13 @@ const { Text } = Typography;
 function PopUpFormulario({ visible, onClose, onLoad}) {
   const { openNotification } = useLayout();
   
-  const [name, setName] = useState('');
+  const [name, setName] = useState("");
   const [coin, setCoin] = useState('');
   const [currency, setCurrency] = useState('');
   const [formatoDNI, setFormatoDNI] = useState('');
   const [telephone, setTelephone] = useState('');
   const [file, setFile] = useState(null);
   const [jsonData, setJsonData] = useState(null);
-
-  const handleChange = (e) => {
-    const value = e.target.value;
-    const filtrado = value.replace(/[^#-]/g, '');
-    setFormatoDNI(filtrado);
-  };
 
   const handleOk = async () => {  
     if (!name || !telephone || !currency || !coin || !formatoDNI) {
@@ -117,7 +111,17 @@ function PopUpFormulario({ visible, onClose, onLoad}) {
             <Input
               placeholder="Estados Unidos"
               value={name}
-              onChange={(e) => setName(e.target.value.toUpperCase())}
+              onChange={(e) => {
+                const value = e.target.value.toUpperCase();
+                if (value.length <= 30) {
+                  setName(value);
+                }
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Backspace' || e.key === 'Delete') {
+                  setName(e.target.value.toUpperCase());
+                }
+              }}
             />
           </div>
           <div style={{ flex: 1 }}>
@@ -125,7 +129,18 @@ function PopUpFormulario({ visible, onClose, onLoad}) {
             <Input
               placeholder="+1"
               value={telephone}
-              onChange={(e) => setTelephone(e.target.value.toUpperCase())}
+              onChange={(e) => {
+                const value = e.target.value.toUpperCase();
+                if (value.length <= 4) {
+                  const filtered = value.replace(/[^0-9+]/g, '');
+                  setTelephone(filtered);
+                }
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Backspace' || e.key === 'Delete') {
+                  setTelephone(e.target.value.toUpperCase());
+                }
+              }}
             />
           </div>
         </div>
@@ -136,7 +151,18 @@ function PopUpFormulario({ visible, onClose, onLoad}) {
             <Input
               placeholder="USD"
               value={currency}
-              onChange={(e) => setCurrency(e.target.value.toUpperCase())}
+              onChange={(e) => {
+                const value = e.target.value.toUpperCase();
+                if (value.length <= 4) {
+                  const filtered = value.replace(/[^A-Z]/g, '');
+                  setCurrency(filtered);
+                }
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Backspace' || e.key === 'Delete') {
+                  setCurrency(e.target.value.toUpperCase());
+                }
+              }}
             />
           </div>
           <div style={{ flex: 1 }}>
@@ -144,7 +170,17 @@ function PopUpFormulario({ visible, onClose, onLoad}) {
             <Input
               placeholder="$."
               value={coin}
-              onChange={(e) => setCoin(e.target.value.toUpperCase())}
+              onChange={(e) => {
+                const value = e.target.value.toUpperCase();
+                if (value.length <= 10) {
+                  setCoin(value);
+                }
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Backspace' || e.key === 'Delete') {
+                  setCoin(e.target.value.toUpperCase());
+                }
+              }}
             />
           </div>
         </div>
@@ -154,7 +190,11 @@ function PopUpFormulario({ visible, onClose, onLoad}) {
           <Input
             placeholder="####-####-#####"
             value={formatoDNI}
-            onChange={handleChange}
+            onChange={(e) => {
+              const value = e.target.value;
+              const filtrado = value.replace(/[^#-]/g, '');
+              setFormatoDNI(filtrado.slice(0, 50));
+            }}
           />
         </div>
 
