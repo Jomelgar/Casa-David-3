@@ -107,7 +107,7 @@ function Login() {
         </div>
         {error && <p className='text-red-500 mt-2'>{error}</p>}
       </form>
-      <span className="text-sm text-slate-600 italic">Versión 1.1.0</span>
+      <span className="text-sm text-slate-600 italic">Versión 2.0</span>
     </div>
   );
 }
