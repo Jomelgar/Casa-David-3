@@ -330,7 +330,7 @@ const [selected2, setSelected2] = useState("DNI");
   
 
   return (
-    <Row gutter={16} style={{ marginTop: 20,justify:"start"} }>
+    <Row gutter={16} style={{ marginTop: 5,justify:"start"} }>
       <Col>
         <CustomCheckboxButton
           label="DNI"
@@ -635,7 +635,9 @@ useEffect(() => {
   fetchData();
 }, []);
 
-
+const [referenciaTelefonica,setreferenciaTelefonica]= useState('');
+const [referenciaTelefonica2,setreferenciaTelefonica2]= useState('');
+const [referenciaTelefonica3,setreferenciaTelefonica3]= useState('');
 
 
 const countrySelector = (
@@ -661,6 +663,7 @@ const countrySelector = (
         key={country.code}
         value={country.code}
         label={`${country.name} (${country.code})`}
+        setreferenciaTelefonica= {country.code}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <img
@@ -700,6 +703,7 @@ const countrySelector2 = (
         key={country.code}
         value={country.code}
         label={`${country.name} (${country.code})`}
+        setreferenciaTelefonica2= {country.code}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <img
@@ -739,6 +743,7 @@ const countrySelector3 = (
         key={country.code}
         value={country.code}
         label={`${country.name} (${country.code})`}
+        setreferenciaTelefonica3= {country.code}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <img
@@ -1988,9 +1993,9 @@ const validarFormatoConGuiones = (valor, formato) => {
         return false;
       }
       if (
-        key === "dni" &&
+        key === "dni" && selected==="DNI" &&
         value.match(dniFormat) === null &&
-        value.match(regexFecha) === null
+        dniFormat.length !=digitos
       ) {
         openNotification(
           2,
@@ -2037,9 +2042,9 @@ const validarFormatoConGuiones = (valor, formato) => {
         return false;
       }
       if (
-        key === "dni" &&
+        key === "dni" && selected3==="DNI" &&
         value.match(dniFormat) === null &&
-        value.match(regexFecha) === null
+        dniFormat.length !=digitos
       ) {
         openNotification(
           2,
@@ -2083,9 +2088,10 @@ const validarFormatoConGuiones = (valor, formato) => {
         return false;
       }
       if (
-        key === "dni" &&
+        
+        key === "dni" && selected2==="DNI" &&
         value.match(dniFormat) === null &&
-        value.match(regexFecha) === null
+        dniFormat.length !=digitos
       ) {
         openNotification(
           2,
@@ -2144,6 +2150,9 @@ const validarFormatoConGuiones = (valor, formato) => {
         fecha_salida: dayjs(hospedado.fecha_salida, "DD-MM-YYYY").format(
           "YYYY-MM-DD"
         ),
+        referencia_telefonica:referenciaTelefonica,
+        identidad_extrangero: selected === "DNI Extranjero"? true : false,
+        pasaporte: selected === "Pasaporte"? true:false 
       };
 
       setContentModal(
@@ -2180,6 +2189,9 @@ const validarFormatoConGuiones = (valor, formato) => {
         fecha_nacimiento: dayjs(paciente.fecha_nacimiento, "DD-MM-YYYY").format(
           "YYYY-MM-DD"
         ),
+        referencia_telefonica:referenciaTelefonica3,
+        identidad_extrangero: selected3 === "DNI Extranjero"? true : false,
+        pasaporte: selected3 === "Pasaporte"? true:false 
         //fecha_entrada: dayjs(paciente.fecha_entrada, 'DD-MM-YYYY').format('YYYY-MM-DD'),
         //fecha_salida: dayjs(paciente.fecha_salida, 'DD-MM-YYYY').format('YYYY-MM-DD'),
       };
@@ -2196,6 +2208,9 @@ const validarFormatoConGuiones = (valor, formato) => {
               acompanante.fecha_nacimiento,
               "DD-MM-YYYY"
             ).format("YYYY-MM-DD"),
+            referencia_telefonica:referenciaTelefonica2,
+            identidad_extrangero: selected2 === "DNI Extranjero"? true : false,
+            pasaporte: selected2 === "Pasaporte"? true:false 
           };
         }
 
@@ -2235,6 +2250,7 @@ const validarFormatoConGuiones = (valor, formato) => {
       };
 
       try {
+        
         const response = await solicitudApi.createSolicitud({
           huespedData,
           pacienteData,
@@ -2545,11 +2561,11 @@ const validarFormatoConGuiones = (valor, formato) => {
       style={{ width: 270, height: 45, marginRight:20, marginLeft:370}}
       checked={acompanante.es_paciente}
       onChange={async (e) => {
-        const isChecked = e.target.checked;
-        setAcompanante({ ...acompanante, es_paciente: isChecked });
+        const isChecked1 = e.target.checked;
+        setAcompanante({ ...acompanante, es_paciente: isChecked1 });
         
 
-        if (isChecked) {
+        if (isChecked1) {
           setPacienteMarcado(1);
           setPaciente({
             ...paciente,
@@ -3031,13 +3047,19 @@ const validarFormatoConGuiones = (valor, formato) => {
             <div></div>
           ) : (
 
-            <Card style={{ marginTop: 20 }} className="shadow-#1">
+            <Card style={{ marginTop: 5 }} className="shadow-#1">
+              <Meta title="Informacion del Acompañante" />
               <div className="flex items-center justify-between mb-6">
-                <Meta title="Informacion del Acompañante" />
+                
+                <Row>
                 <TipoDocumentoSelectorSegundaPersona />
-
+                </Row>
+                <Row gutter={16} style={{ marginTop: 70 } }justify="end">
+                
                 {PacienteMarcado !== 1 && (
                 <Checkbox
+                  style={{ width: 270, height: 45, marginRight:20, marginLeft:370}}
+
                   checked={acompanante.es_paciente}
                   onChange={async (e) => {
                     const isChecked = e.target.checked;
@@ -3085,7 +3107,10 @@ const validarFormatoConGuiones = (valor, formato) => {
                   Marcar como paciente
                 </Checkbox>
                 )}
+                
+              </Row>
               </div>
+
 
               <Row gutter={25} style={{ marginTop: 20 }}>
                 <Col
