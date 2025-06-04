@@ -27,3 +27,9 @@ exports.setMunicipio = async(data) =>
     });
     return municipio;
 }
+
+exports.deleteMunicipio = async(id) => 
+{
+    const value = Municipio.update({activo: false},{where: {municipio_id: id}});
+    return value;
+} 

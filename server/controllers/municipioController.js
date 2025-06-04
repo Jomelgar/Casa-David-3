@@ -41,3 +41,14 @@ exports.setMunicipio = async(req,res) =>
         res.status(500).json({ error: error.message });
     }
 };
+
+exports.deleteMunicipio = async(req,res) => 
+{
+    try {
+        const id = req.params.id;
+        const value = await municipioService.deleteMunicipio(id);
+        if(value) res.status(200).json({message: "Succesful elimination of municipio."});
+    } catch (error) {
+        
+    }
+}

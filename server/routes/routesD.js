@@ -68,6 +68,7 @@ router.post('/departamento-municipio', departamentoController.setDepartamentoMun
 router.get('/departamento/pais/:id', departamentoController.getDepartamentoByPais);
 
 //municipio
+router.delete('/municipio/:id',municipioController.deleteMunicipio);
 router.post('/municipio',municipioController.setMunicipio);
 router.get('/municipio', municipioController.getAllMunicipio);
 router.get('/municipio/:id', municipioController.getMunicipioById);

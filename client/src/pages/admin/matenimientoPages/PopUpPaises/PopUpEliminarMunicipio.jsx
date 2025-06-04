@@ -1,10 +1,14 @@
 import { Modal, Input, Button, ConfigProvider, Select, Typography } from 'antd';
 import { useState, useEffect } from 'react';
 import { getMunicipiosByDepartamentoId } from '../../../../api/municipioApi';
+import { useLayout } from "../../../../context/LayoutContext";
+import { deleteMunicipio } from '../../../../api/municipioApi';
 
 const { Text } = Typography;
 
-function EliminarMunicipio({ onClose, visible }) {
+function EliminarMunicipio({ onClose, visible, onLoad}) {
+  const { openNotification } = useLayout();
+  
   const [key, setKey] = useState(null);
   const [data, setData] = useState([]);
 
@@ -14,11 +18,15 @@ function EliminarMunicipio({ onClose, visible }) {
     console.log(municipios);
   };
 
-  const handleDelete = () => {
+  const handleDelete = async() => {
     if (!key) return;
-    // Aquí puedes usar key.id_municipio, key.nombre, etc.
+    
+    const response = await deleteMunicipio(key.municipio_id);
+    if(response.status === 200) openNotification(0, "Éxito", `Municipio eliminado correctamente.`);
+    else{ openNotification(2, "Alerta", "No se logro eliminar el Municipio solicitado."); return;}
+    onLoad();
+    onClose();
     console.log('Eliminando municipio:', key.municipio_id);
-    // TODO: llamada a API para eliminar y cierre de modal
   };
 
   useEffect(() => {

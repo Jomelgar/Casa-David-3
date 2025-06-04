@@ -29,5 +29,15 @@ const setMunicipio = async (data) => {
   }
 };
 
+const deleteMunicipio = async(id) => 
+{
+  try {
+    const response = await axiosInstance.delete(`/municipio/${id}`);
+    return response;
+  } catch (error) {
+    console.error("Error al crear municipio:", error.response?.data || error.message);
+    throw new Error(error.response?.data?.message || 'Error al eliminar municipio');
+  }
+}
 
-export { getMunicipiosByDepartamentoId, getMunicipioById,setMunicipio};
+export { getMunicipiosByDepartamentoId, getMunicipioById,setMunicipio,deleteMunicipio};
