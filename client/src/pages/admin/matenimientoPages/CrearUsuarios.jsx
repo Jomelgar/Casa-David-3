@@ -6,6 +6,7 @@ import customParseFormat from "dayjs/plugin/customParseFormat";
 import OcupacionesApi from "../../../api/Ocupaciones.api";
 import { getDepartamentos } from "../../../api/departamentoApi";
 import { getMunicipiosByDepartamentoId } from "../../../api/municipioApi";
+import lugarApi from "../../../api/Lugar.api";
 import { getMunicipioById } from "../../../api/municipioApi";
 import hospitalesApi from "../../../api/Hospitales.api";
 import usuarioApi from "../../../api/User.api";
@@ -46,10 +47,11 @@ const dniFormat = /^\d{4}-\d{4}-\d{5}$/;
 
 const CaraEspecial = ["!", "@", "#", "$", "^", "&", "*"];
 
-const lugar = [
-  { value: 1, label: "SPS" },
-  { value: 2, label: "TGU" },
-];
+const cargarlugares = async (id) => 
+  {
+    const lugares = await lugarApi.getLugarByPais(1);
+    return lugares;
+  };
 
 const generos = [
   { value: 1, label: "Femenino" },
@@ -324,6 +326,7 @@ function CrearUsuarios() {
   */
 
   const [user, setUser] = useState({});
+  const [lugares, setLugares] = useState([]);
 
   const ResetearAtributos = () => {
     const userVacio = {
@@ -680,12 +683,14 @@ function CrearUsuarios() {
     setLoading(false);
   };
 
-  useEffect(() => {
+  useEffect(async() => {
     loadOcupaciones();
     loadHospitales();
     loadDepartamentos();
     loadMunicipios();
-
+    const lugar = await cargarlugares();
+    console.log(lugar);
+    setLugares(lugar?.data || []);
     ResetearAtributos();
     cargarInformacion();
     setCurrentPath("/ Mantenimiento / Usuarios / Crear Usuario");
@@ -909,14 +914,19 @@ function CrearUsuarios() {
             >
               <Select
                 placeholder="Lugar"
-                size="large"
-                options={lugar}
+                size="large"  
                 style={{ width: "100%", height: "100%" }}
                 value={user.id_lugar}
                 onChange={(e) => {
                   handleSetChangeUser("id_lugar", e);
                 }}
-              ></Select>
+              >
+                 {lugares.map((lugar) => (
+                  <Select.Option key={lugar.id_lugar} value={lugar.id_lugar}>
+                    {`${lugar.codigo}`}
+                  </Select.Option>
+                ))}
+              </Select>
             </Col>
           </Row>
           <Row gutter={25}>
