@@ -75,20 +75,24 @@ exports.getAllPaisesForTable = async () => {
       {
         model: Hospital,
         attributes: [],
+        where: {activo: true},
         required: false,
       },
       {
         model: Lugar,
         attributes: [],
+        where: {activo: true},
         required: false,
       },
       {
         model: Departamento,
         attributes: [],
+        where: {activo: true},
         required: false,
         include: [
           {
             model: Municipio,
+            where: {activo: true},
             attributes: [],
             required: false,
           }

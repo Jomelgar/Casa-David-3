@@ -11,6 +11,7 @@ exports.getUserByUsername = async (username) => {
       include: [
         {
           model: Persona,
+          where: {activo: true},
           attributes: ["id_lugar"],
         },
       ],

@@ -14,7 +14,8 @@ exports.getlugaresByPais = async (id_pais) => {
    try {
       const lugares = await Lugar.findAll({
          where: {
-         id_pais: id_pais
+         id_pais: id_pais,
+         activo: true
          }
       });
       return lugares;
@@ -25,7 +26,7 @@ exports.getlugaresByPais = async (id_pais) => {
 };
  
  exports.getAllLugar = async()=>{
-    const lugar = await Lugar.findAll();
+    const lugar = await Lugar.findAll({where:{activo: true}});
     return lugar
  }
  
@@ -50,10 +51,6 @@ exports.getlugaresByPais = async (id_pais) => {
  
   exports.eliminarlugar = async(req,res)=>{
     const {id} = req.params;
-     await Lugar.destroy({
-       where:{
-          id_lugar:id,
-       }
-    })
+     await Lugar.update({activo: false},{where: {id_lugar: id}})
  
   }

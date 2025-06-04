@@ -16,7 +16,11 @@ create or replace procedure eliminarPais(pais_id_in integer)
 language plpgsql
 as $$
 begin
-    update pais
+    update pais 
+    set activo = false
+    where id_pais = pais_id_in;
+
+    update lugar
     set activo = false
     where id_pais = pais_id_in;
 
@@ -24,12 +28,18 @@ begin
     set activo = false
     where id_pais = pais_id_in;
 
-update municipio m
-set activo = false
-from departamento d
-where m.departamento_id = d.departamento_id
-  and d.id_pais = pais_id_in;
+    update municipio 
+    set activo = false
+    from departamento d join municipio m on d.departamento_id = m.departamento_id
+    where d.id_pais = pais_id_in;
 
+    update persona 
+    set activo = false
+    from lugar l join persona p on p.id_lugar = l.id_lugar where l.id_pais = pais_id_in;
+
+    update hospital 
+    set activo = false
+    where id_pais = pais_id_in;
 end;
 $$;
 

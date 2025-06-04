@@ -85,6 +85,11 @@ const Persona = sequelize.define('Persona', {
     pasaporte:{
     type: Sequelize.BOOLEAN,
     defaultValue: false
+    },
+    activo:
+    {
+      type: Sequelize.BOOLEAN,
+      defaultValue: true
     }
 }, {
   tableName: 'persona',
