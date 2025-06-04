@@ -359,8 +359,6 @@ const [selected2, setSelected2] = useState("DNI");
 const [selected3, setSelected3] = useState("DNI");
  
   const TipoDocumentoSelectorTerceraPersona = () => {
-  
-
   return (
     <Row gutter={16} style={{ marginTop: 20,justify:"start"} }>
       <Col>
@@ -1161,6 +1159,7 @@ const countrySelector3 = (
   ////////////////////////////Cambios para municipio y departamento
   const loadDepartamentos = async () => {
     try {
+      
       const response = await getDepartamentos();
 
       if (!response) {
@@ -1803,7 +1802,7 @@ const validarFormatoConGuiones = (valor, formato) => {
 
 
       case "dni":
-        if(selected2=="DNI"){
+        if(selected3=="DNI"){
         newValue = aplicarFormatoDNI(value, dniFormat);
         if (validarFormatoConGuiones(newValue, dniFormat)) {
           searchDni(newValue, 1);
@@ -1897,7 +1896,7 @@ const validarFormatoConGuiones = (valor, formato) => {
 
     switch (key) {
       case "dni":
-        if(selected3=="DNI"){
+        if(selected2=="DNI"){
         newValue = aplicarFormatoDNI(value, dniFormat);
         if (validarFormatoConGuiones(newValue, dniFormat)) {
           searchDni(newValue, 1);
