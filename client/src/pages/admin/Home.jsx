@@ -216,7 +216,7 @@ function App() {
               backgroundColor: "#049DBF",
               color: "white",
               width: 500,
-              marginRight: 85,
+              marginRight: 5,
               height: 207,
             }}
           >
@@ -265,7 +265,7 @@ function App() {
             style={{
               backgroundColor: "#049DBF",
               color: "white",
-              marginLeft: 45,
+              marginLeft: 5,
               width: 540,
               height: 207,
             }}
