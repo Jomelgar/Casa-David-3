@@ -112,3 +112,13 @@ exports.getAllPaisesForTable = async () => {
 
   return paises;
 };
+
+exports.updatePais = async(id,data) => 
+{
+  const pais = await Pais.update({referencia_telefonica: data.referencia_telefonica,
+    nombre: data.nombre,
+    divisa: data.divisa,
+    codigo_iso: data.codigo_iso,
+    formato_dni: data.formato_dni
+  },{where:{id_pais: id}});
+};

@@ -80,6 +80,7 @@ router.get('/lugares/pais/:id_pais', lugarController.getlugarByPais);
 router.delete('/lugares/:id', lugarController.eliminarlugar);
 
 //pais
+router.put('/pais/:id', paisController.updatePais);
 router.get('/paisForTable', paisController.getAllPaisesForTable);
 router.get('/pais-todo/:id', paisController.getAllPais);
 router.post('/pais', paisController.createPais);

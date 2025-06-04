@@ -23,7 +23,7 @@ function EliminarDepartamento({ visible, onClose, id_pais,onLoad }) {
     const response = await deleteDepartamento(Number(key.departamento_id));
     if(response.status === 200) openNotification(0, "Éxito", `Departamento eliminado correctamente.`);
     else{ openNotification(2, "Alerta", "No se logro eliminar el departamento solicitado."); return;}
-    onLoad();
+    await onLoad();
     onClose();
   };
 

@@ -24,7 +24,7 @@ function EliminarMunicipio({ onClose, visible, onLoad}) {
     const response = await deleteMunicipio(key.municipio_id);
     if(response.status === 200) openNotification(0, "Éxito", `Municipio eliminado correctamente.`);
     else{ openNotification(2, "Alerta", "No se logro eliminar el Municipio solicitado."); return;}
-    onLoad();
+    await onLoad();
     onClose();
     console.log('Eliminando municipio:', key.municipio_id);
   };

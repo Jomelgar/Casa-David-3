@@ -61,3 +61,15 @@ exports.getAllPaisesForTable = async (req, res) => {
         res.status(500).json({ message: 'Error retrieving countries for table', error });
     }
 };
+
+exports.updatePais = async(req,res) => 
+{
+    try {
+        const id = req.params.id;
+        const data = req.body;
+        const pais = await pService.updatePais(id,data);
+        res.status(200).json(pais);
+    } catch (error) {
+        res.status(500).json({message: 'Error updating country',error})
+    }        
+}

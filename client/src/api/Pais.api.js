@@ -39,9 +39,20 @@ const getDepartamentoMunicipio= async (id) =>
     };
 };
 
+const updatePais = async(id,data) => 
+{
+    try {
+        const new_value = await axiosInstance.put(`/pais/${id}`,data);
+        return new_value;
+    } catch (error) {
+        return null;
+    }
+}
+
 export default {
     getPaisForTable,
     setPais,
     deletePais,
-    getDepartamentoMunicipio
+    getDepartamentoMunicipio,
+    updatePais
 };
