@@ -9,7 +9,7 @@ router.get('/active-huespedes', MiscelanousController.getActiveHuespedes);
 router.get('/personas-beneficiadas', MiscelanousController.getPersonasBeneficiadas);
 router.get('/camas-disponibles', MiscelanousController.getCamasDisponibles);
 router.get('/numero-camas', MiscelanousController.getNumeroCamas);
-router.get('/top3-salidas', MiscelanousController.getTop3Closest);
+router.get('/top3-salidas/:id', MiscelanousController.getTop3Closest);
 router.get('/departamentos_registrados/:id_pais', MiscelanousController.getDepartamentosRegistrados);
 
 

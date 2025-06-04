@@ -14,7 +14,7 @@ const getHabitacionRequest = async (id) => {
 
 const getAllHabitacionesRequest = async (id) => {
   try {
-    const response = await axiosInstance.get(`habitaciones/`);
+    const response = await axiosInstance.get(`habitaciones`);
 
     return response;
   } catch (error) {

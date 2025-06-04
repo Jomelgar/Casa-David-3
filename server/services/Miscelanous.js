@@ -105,7 +105,7 @@ const countNumeroCamas = async (id_lugar) => {
   return results[0].numerocamascount;
 };
 
-const getTop3ClosestFechaSalida = async () => {
+const getTop3ClosestFechaSalida = async (id) => {
   const query = `
     SELECT 
       CONCAT(p.primer_nombre, ' ', p.primer_apellido) AS nombre,
@@ -119,18 +119,24 @@ const getTop3ClosestFechaSalida = async () => {
     JOIN 
       persona p ON h.id_persona = p.id_persona
     WHERE 
-      r.activa = true
+      r.activa = true AND p.id_lugar = :ID
     ORDER BY 
       r.fecha_salida ASC
     LIMIT 3;
   `;
-  const [results] = await sequelize.query(query);
+  const [results] = await sequelize.query(query,{replacements: {ID: id}});
   return results;
 };
 
 
 const countDepartamentosRegistrados = async (id_pais) => {
-  const query = "SELECT COUNT(DISTINCT TRIM(LOWER(d.nombre))) AS total_departamentos_registrados FROM huesped JOIN persona ON persona.id_persona = huesped.id_persona JOIN municipio ON municipio.municipio_id = persona.municipio_id JOIN departamento d ON d.departamento_id = municipio.departamento_id WHERE huesped.activo = true AND d.id_pais = :id_pais;"
+  const query = `SELECT COUNT(DISTINCT TRIM(LOWER(d.nombre))) AS 
+  total_departamentos_registrados 
+  FROM 
+  huesped JOIN persona ON persona.id_persona = huesped.id_persona 
+  JOIN municipio ON municipio.municipio_id = persona.municipio_id JOIN 
+  departamento d ON d.departamento_id = municipio.departamento_id 
+  WHERE huesped.activo = true AND d.id_pais = :id_pais;`
   const [results] = await sequelize.query(query, {replacements: { id_pais },});
   return results[0].total_departamentos_registrados;
 };

@@ -139,11 +139,11 @@ exports.setObservacion = async (req, res) => {
   }
 }
 
-exports.getIdPais = async (req, res) => {
+exports.getPais = async (req, res) => {
   try {
     const idPersona = req.params.id;
-    const idPais = await perService.getIdPais(idPersona);
-    res.json({ idPais }); 
+    const Pais = await perService.getPais(idPersona);
+    res.json(Pais.Lugar.Pai); 
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

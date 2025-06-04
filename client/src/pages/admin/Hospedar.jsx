@@ -579,7 +579,7 @@ const [PacienteMarcado,setPacienteMarcado]= useState(0);
 const cargarPaisdeUso = async () => {
   const id_pais = await personaApi.getPaisByPersona(usuario.id_persona);
   const paises = await PaisApi.getPaisForTable();
-  const pais = paises.data.find(p => p.id_pais === id_pais.data.idPais);
+  const pais = paises.data.find(p => p.id_pais === id_pais.data.id_pais);
   return pais;
 };
 

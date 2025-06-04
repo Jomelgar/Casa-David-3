@@ -33,7 +33,7 @@ router.put("/persona/:id", personaController.editarPersona);
 router.get("/persona/dni/:dni", personaController.getPersonaByDni); //funciona
 router.get("/persona/observacion/:id", personaController.getObservacion);
 router.put("/persona/observacion/:id", personaController.setObservacion);
-router.get("/personas/:id/pais", personaController.getIdPais);
+router.get("/personas/:id/pais", personaController.getPais);
 router.get("/personas/:pais/formato", personaController.getFormatoDniByPaisId);
 
  // Rutas para evangelización

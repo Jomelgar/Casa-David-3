@@ -1,14 +1,18 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef} from "react";
 import { saveAs } from "file-saver";
+
+import CountryMap from "../../components/Mapa";
 
 import { Card, Col, Row, Modal } from 'antd';
 import { useLayout } from '../../context/LayoutContext';
 import { UserOutlined, HomeOutlined, DiffOutlined } from '@ant-design/icons'; // Import icons from Ant Design
 import axiosInstance from '../../api/axiosInstance';
-//import HondurasIcon from "../../../src/assets/honduras.png";
-//import hnMap from '../../assets/hn.svg';
+import HondurasIcon from "../../../src/assets/honduras.png";
 //import gtMap from '../../assets/gt.svg';
 //import svMap from '../../assets/sv.svg';
+import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
 import SalidasModal from "../../components/Tablas/salidasProximasModal"; // Import the SalidasModal component
 import * as XLSX from "xlsx";
 import dayjs from "dayjs";
@@ -25,18 +29,6 @@ const formatDate = (date) => {
   return dayjs(date).format(displayDateFormat);
 };
 
-function obtenerMapaPorIdPais(idPais) {
-  switch (idPais) {
-    case 1:
-      return "/iconoPaises/hn.svg";
-    case 2:
-      return "/iconoPaises/gt.svg";
-    case 3:
-      return "/iconoPaises/sv.svg";
-    default:
-      return "/iconoPaises/hn.svg";
-  }
-}
 
 function App() {
 
@@ -52,56 +44,56 @@ function App() {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [departamentosRegistrados, setDepartamentosRegistrados] = useState([]);
   const [departamentosTotales, setDeptoTot] = useState(0);
-  const [idPais, setIdPais] = useState(null);
+  const pais = useRef();
   const [idlugar, setLugar] = useState(null);
 
 
   useEffect(() => {
-    setCurrentPath("/ Inicio");
+  setCurrentPath("/ Inicio");
 
-    const fetchData = async () => {
-      try {
+  const fetchData = async () => {
+    try {
+      const userToken = getUserFromToken();
+      const userProp = await UserApi.getUserRequest(userToken.userId);
+      const personaId = userProp.data.id_persona;
 
-        const userToken = getUserFromToken();
-        const userProp = await UserApi.getUserRequest(userToken.userId);
-        const personaId = userProp.data.id_persona;
+      const resUser = await PersonApi.getPersonaRequest(personaId);
+      const lugar = resUser.data.id_lugar;
+      setLugar(lugar);
 
-        const resUser = await PersonApi.getPersonaRequest(personaId);
-        const lugar = resUser.data.id_lugar;
-        setLugar(lugar);
+      const paisResponse = await axiosInstance.get(`/personas/${personaId}/pais`);
+      pais.current = paisResponse.data; 
+      console.log('Pais recibido:', pais);
 
-        const paisResponse = await axiosInstance.get(`/personas/${personaId}/pais`);
-        const idPais = paisResponse.data.idPais;
-        setIdPais(idPais);
-        
-        const activeHuespedesResponse = await axiosInstance.get('active-huespedes', {params: { id_lugar: lugar }});
-        setActiveHuespedes(activeHuespedesResponse.data.activeHuespedesCount);
+      const activeHuespedesResponse = await axiosInstance.get('active-huespedes', { params: { id_lugar: lugar } });
+      setActiveHuespedes(activeHuespedesResponse.data.activeHuespedesCount);
 
-        const personasBeneficiadasResponse = await axiosInstance.get('personas-beneficiadas', {params: { id_lugar: lugar }});
-        setPersonasBeneficiadas(personasBeneficiadasResponse.data.personasBeneficiadasCount);
+      const personasBeneficiadasResponse = await axiosInstance.get('personas-beneficiadas', { params: { id_lugar: lugar } });
+      setPersonasBeneficiadas(personasBeneficiadasResponse.data.personasBeneficiadasCount);
 
-        const camasDisponiblesResponse = await axiosInstance.get('camas-disponibles', {params: { id_lugar: lugar }});
-        setCamasDisponibles(camasDisponiblesResponse.data.camasDisponiblesCount);
+      const camasDisponiblesResponse = await axiosInstance.get('camas-disponibles', { params: { id_lugar: lugar } });
+      setCamasDisponibles(camasDisponiblesResponse.data.camasDisponiblesCount);
 
-        const numeroCamasResponse = await axiosInstance.get('numero-camas', {params: { id_lugar: lugar }});
-        setNumeroCamas(numeroCamasResponse.data.numeroCamasCount);
+      const numeroCamasResponse = await axiosInstance.get('numero-camas', { params: { id_lugar: lugar } });
+      setNumeroCamas(numeroCamasResponse.data.numeroCamasCount);
 
-        const proximosASalirResponse = await axiosInstance.get('top3-salidas');
-        setProximosASalir(proximosASalirResponse.data);
+      const proximosASalirResponse = await axiosInstance.get(`top3-salidas/${lugar}`);
+      setProximosASalir(proximosASalirResponse.data);
 
-        const DRResponse = await axiosInstance.get(`/departamentos_registrados/${idPais}`);
+      if (paisResponse.data && paisResponse.data.id_pais) {
+        const DRResponse = await axiosInstance.get(`/departamentos_registrados/${pais.current.id_pais}`);
         setDepartamentosRegistrados(DRResponse.data);
-        console.log(DRResponse);
-
-        const DResponse = await axiosInstance.get(`/departamento/pais/${idPais}`);
-        setDeptoTot(DResponse.data.length);
-      } catch (error) {
-        console.error("Error al conseguir info:", error);
+        console.log('Departamentos registrados:', DRResponse.data);
       }
-    };
 
-    fetchData();
-  }, [setCurrentPath]);
+      setDeptoTot(pais.current.total_departamentos);
+    } catch (error) {
+      console.error("Error al conseguir info:", error);
+    }
+  };
+
+  fetchData();
+}, [setCurrentPath]);
 
   const handleGetDownloadExcelRequest = async () => {
     try {
@@ -214,7 +206,7 @@ function App() {
         </Col>
       </Row>
 
-      <Row gutter={16} className="w-full mt-4">
+      <Row gutter={16} className="w-sm mt-4 mr-4">
         <Col span={8} offset={0}>
           <Card
             title="Departamentos Alcanzados"
@@ -223,29 +215,49 @@ function App() {
             style={{
               backgroundColor: "#049DBF",
               color: "white",
-              width: 540,
+              width: 500,
+              marginRight: 85,
               height: 207,
             }}
           >
-            <div className="flex items-center" style={{ fontSize: "55px" }}>
+            <div className="flex items-center " style={{ fontSize: "55px" }}>
               {departamentosRegistrados + "/" + departamentosTotales}
 
-              <img
-                src={obtenerMapaPorIdPais(idPais)}
-                alt="Mapa del país"
+              {/* Reemplazamos la imagen por el mapa */}
+              <div
+                className="flex items-center"
                 style={{
                   width: "230px",
                   height: "130px",
                   marginRight: "10px",
+                 display: "flex",
+                  justifyContent: "center",
                   marginLeft: "100px",
+                  marginTop: "-15px",
+                  overflow: "hidden",
+                  borderRadius: "12px",
+                }}
+              >
+              {pais.current?.nombre === "HONDURAS" ? (
+                <img
+                src={HondurasIcon}
+                alt="Honduras Icon"
+                style={{
+                  width: "230px",
+                  height: "130px",
+                  marginLeft: "10px",
                   marginTop: "-15px",
                 }}
               />
+              ) : (
+                <CountryMap countryName={pais.current?.nombre || ''} />
+              )}
+              </div>
             </div>
           </Card>
         </Col>
 
-        <Col span={8} offset={4}>
+        <Col span={6} offset={4}>
           <Card
             title="Próximos a salir"
             bordered={false}
@@ -253,6 +265,7 @@ function App() {
             style={{
               backgroundColor: "#049DBF",
               color: "white",
+              marginLeft: 45,
               width: 540,
               height: 207,
             }}

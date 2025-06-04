@@ -1,3 +1,4 @@
+const { attribute } = require('@sequelize/core/_non-semver-use-at-your-own-risk_/expression-builders/attribute.js');
 const sequelize = require('../Db');
 const { Pais } = require('../models/pais'); // Asegúrate de tener el modelo de Pais definido
 const { Persona, Lugar } = require('../models/persona');
@@ -89,22 +90,19 @@ exports.setObservacion = async (id, observacion) => {
     return true;
 }
 
-exports.getIdPais = async (id) => {
+exports.getPais = async (id) => {
   const persona = await Persona.findByPk(id, {
     include: {
       model: Lugar,
-      attributes: ['id_pais'], 
+      include: 
+      {
+        model: Pais
+      }
     },
   });
 
   if (!persona) throw new Error("Persona no encontrada");
-
-  console.log('Lugar:', persona.Lugar?.id_pais);
-
-  const idPais = persona.Lugar?.id_pais;
-  if (!idPais) throw new Error("País no encontrado");
-
-  return idPais; 
+  return persona; 
 };
 
 

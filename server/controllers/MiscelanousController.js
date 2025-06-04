@@ -78,7 +78,8 @@ const getNumeroCamas = async (req, res) => {
 };
 const getTop3Closest = async (req, res) => {
   try {
-    const top3ClosestFechaSalida = await MiscelanousService.getTop3ClosestFechaSalida();
+    const id_lugar = req.params.id;
+    const top3ClosestFechaSalida = await MiscelanousService.getTop3ClosestFechaSalida(id_lugar);
     res.json(top3ClosestFechaSalida);
   } catch (error) {
     console.error(error);

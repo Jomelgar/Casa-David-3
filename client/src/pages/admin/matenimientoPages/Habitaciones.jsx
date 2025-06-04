@@ -12,7 +12,7 @@ import {
   DeleteOutlined,
   CloseCircleOutlined,
 } from "@ant-design/icons";
-
+import { getUserFromToken } from "../../../utilities/auth.utils";
 import occupiedBedIcon from "../../../assets/occupiedBed.png";
 import freeBedIcon from "../../../assets/freeBed.png";
 
@@ -28,8 +28,6 @@ import CamaApi from "../../../api/Cama.api";
 import PersonApi from "../../../api/Persona.api";
 import UserApi from "../../../api/User.api";
 import ReservacionesApi from "../../../api/Reservaciones.api";
-import { getUserFromToken } from "../../../utilities/auth.utils";
-
 const { PORT_CLIENT, URL_HOSTING } = require("../../../config");
 
 /**
@@ -460,6 +458,10 @@ function Habitaciones() {
       setEmptyRoomWarning(true);
     } else {
       try {
+        const userToken = getUserFromToken();
+        const resUser = await PersonApi.getPersonaRequest(
+        userToken.userId
+        );
         const data = {
           id_lugar: userLog.id_lugar,
           nombre: newRoomName,
