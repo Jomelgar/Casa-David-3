@@ -1,23 +1,18 @@
-import React, { useEffect, useState, useRef} from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { saveAs } from "file-saver";
-
-import CountryMap from "../../components/Mapa";
-
 import { Card, Col, Row, Modal } from 'antd';
 import { useLayout } from '../../context/LayoutContext';
-import { UserOutlined, HomeOutlined, DiffOutlined } from '@ant-design/icons'; // Import icons from Ant Design
+import { UserOutlined, HomeOutlined, DiffOutlined, GlobalOutlined } from '@ant-design/icons';
 import axiosInstance from '../../api/axiosInstance';
 import HondurasIcon from "../../../src/assets/honduras.png";
-//import gtMap from '../../assets/gt.svg';
-//import svMap from '../../assets/sv.svg';
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import SalidasModal from "../../components/Tablas/salidasProximasModal"; // Import the SalidasModal component
+import CustomCountryMap from "../../components/Mapa";
+import SalidasModal from "../../components/Tablas/salidasProximasModal";
 import * as XLSX from "xlsx";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
-
 import PersonApi from "../../api/Persona.api";
 import UserApi from "../../api/User.api";
 import { getUserFromToken } from "../../utilities/auth.utils";
@@ -29,12 +24,7 @@ const formatDate = (date) => {
   return dayjs(date).format(displayDateFormat);
 };
 
-
 function App() {
-
-  
-  //const { pais, lugar } = useLayout();
-  //const [lugar, setLugar] = useState({ id_lugar: 1 });
   const { setCurrentPath } = useLayout();
   const [activeHuespedes, setActiveHuespedes] = useState(0);
   const [personasBeneficiadas, setPersonasBeneficiadas] = useState(0);
@@ -47,77 +37,50 @@ function App() {
   const pais = useRef();
   const [idlugar, setLugar] = useState(null);
 
-
   useEffect(() => {
-  setCurrentPath("/ Inicio");
+    setCurrentPath("/ Inicio");
 
-  const fetchData = async () => {
-    try {
-      const userToken = getUserFromToken();
-      const userProp = await UserApi.getUserRequest(userToken.userId);
-      const personaId = userProp.data.id_persona;
+    const fetchData = async () => {
+      try {
+        const userToken = getUserFromToken();
+        const userProp = await UserApi.getUserRequest(userToken.userId);
+        const personaId = userProp.data.id_persona;
 
-      const resUser = await PersonApi.getPersonaRequest(personaId);
-      const lugar = resUser.data.id_lugar;
-      setLugar(lugar);
+        const resUser = await PersonApi.getPersonaRequest(personaId);
+        const lugar = resUser.data.id_lugar;
+        setLugar(lugar);
 
-      const paisResponse = await axiosInstance.get(`/personas/${personaId}/pais`);
-      pais.current = paisResponse.data; 
-      console.log('Pais recibido:', pais);
+        const paisResponse = await axiosInstance.get(`/personas/${personaId}/pais`);
+        pais.current = paisResponse.data; 
 
-      const activeHuespedesResponse = await axiosInstance.get('active-huespedes', { params: { id_lugar: lugar } });
-      setActiveHuespedes(activeHuespedesResponse.data.activeHuespedesCount);
+        const activeHuespedesResponse = await axiosInstance.get('active-huespedes', { params: { id_lugar: lugar } });
+        setActiveHuespedes(activeHuespedesResponse.data.activeHuespedesCount);
 
-      const personasBeneficiadasResponse = await axiosInstance.get('personas-beneficiadas', { params: { id_lugar: lugar } });
-      setPersonasBeneficiadas(personasBeneficiadasResponse.data.personasBeneficiadasCount);
+        const personasBeneficiadasResponse = await axiosInstance.get('personas-beneficiadas', { params: { id_lugar: lugar } });
+        setPersonasBeneficiadas(personasBeneficiadasResponse.data.personasBeneficiadasCount);
 
-      const camasDisponiblesResponse = await axiosInstance.get('camas-disponibles', { params: { id_lugar: lugar } });
-      setCamasDisponibles(camasDisponiblesResponse.data.camasDisponiblesCount);
+        const camasDisponiblesResponse = await axiosInstance.get('camas-disponibles', { params: { id_lugar: lugar } });
+        setCamasDisponibles(camasDisponiblesResponse.data.camasDisponiblesCount);
 
-      const numeroCamasResponse = await axiosInstance.get('numero-camas', { params: { id_lugar: lugar } });
-      setNumeroCamas(numeroCamasResponse.data.numeroCamasCount);
+        const numeroCamasResponse = await axiosInstance.get('numero-camas', { params: { id_lugar: lugar } });
+        setNumeroCamas(numeroCamasResponse.data.numeroCamasCount);
 
-      const proximosASalirResponse = await axiosInstance.get(`top3-salidas/${lugar}`);
-      setProximosASalir(proximosASalirResponse.data);
+        const proximosASalirResponse = await axiosInstance.get(`top3-salidas/${lugar}`);
+        setProximosASalir(proximosASalirResponse.data);
 
-      if (paisResponse.data && paisResponse.data.id_pais) {
-        const DRResponse = await axiosInstance.get(`/departamentos_registrados/${pais.current.id_pais}`);
-        setDepartamentosRegistrados(DRResponse.data);
-        console.log('Departamentos registrados:', DRResponse.data);
+        if (paisResponse.data && paisResponse.data.id_pais) {
+          const DRResponse = await axiosInstance.get(`/departamentos_registrados/${pais.current.id_pais}`);
+          setDepartamentosRegistrados(DRResponse.data);
+        }
+
+        setDeptoTot(pais.current.total_departamentos);
+      } catch (error) {
+        console.error("Error al conseguir info:", error);
       }
+    };
 
-      setDeptoTot(pais.current.total_departamentos);
-    } catch (error) {
-      console.error("Error al conseguir info:", error);
-    }
-  };
-
-  fetchData();
-}, [setCurrentPath]);
-
-  const handleGetDownloadExcelRequest = async () => {
-    try {
-      const response = await axiosInstance.get("downloadExcel", {
-        responseType: "blob", 
-      });
-
-   
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement("a");
-      link.href = url;
-      link.setAttribute("download", "Reporte.xlsx"); 
-      document.body.appendChild(link);
-      link.click();
-      link.parentNode.removeChild(link);
-    } catch (error) {
-      console.log("Error: " + error);
-    }
-  };
-
-  const downloadExcelFile = async () => {
-    handleGetDownloadExcelRequest();
-    console.log("WENO");
-  };
+    fetchData();
+  }, [setCurrentPath]);
 
   const handleOpenModal = () => {
     setIsModalVisible(true);
@@ -128,201 +91,149 @@ function App() {
   };
 
   return (
-    <div className="flex flex-col items-center bg-gray-100 pt-10">
-      <Row gutter={16} className="w-full">
-        <Col span={8}>
+    <div className="bg-gray-100 p-4 md:p-10">
+      {/* Primera fila de tarjetas */}
+      <Row gutter={[16, 16]} className="mb-4">
+        <Col xs={24} sm={12} md={8} lg={8} xl={8}>
           <Card
             title="Huespedes activos"
             bordered={false}
             headStyle={{ color: "white" }}
+            className="h-full"
             style={{
               backgroundColor: "#9AD9B5",
               color: "white",
-              width: "100%",
-              height: 172,
+              minHeight: "172px"
             }}
           >
-            <div className="flex items-center" style={{ fontSize: "55px" }}>
-              {activeHuespedes}
-              <UserOutlined
-                style={{
-                  fontSize: "65px",
-                  marginRight: "10px",
-                  marginLeft: "50px",
-                }}
-              />
+            <div className="flex justify-between items-center">
+              <span className="text-4xl md:text-5xl">{activeHuespedes}</span>
+              <UserOutlined className="text-5xl md:text-6xl" />
             </div>
           </Card>
         </Col>
 
-        <Col span={8}>
+        <Col xs={24} sm={12} md={8} lg={8} xl={8}>
           <Card
             title="Personas beneficiadas"
             bordered={false}
             headStyle={{ color: "white" }}
+            className="h-full"
             style={{
               backgroundColor: "#9AD9B5",
               color: "white",
-              width: "100%",
-              height: 172,
+              minHeight: "172px"
             }}
           >
-            <div className="flex items-center" style={{ fontSize: "55px" }}>
-              {personasBeneficiadas}
-              <HomeOutlined
-                style={{
-                  fontSize: "65px",
-                  marginRight: "10px",
-                  marginLeft: "50px",
-                }}
-              />
+            <div className="flex justify-between items-center">
+              <span className="text-4xl md:text-5xl">{personasBeneficiadas}</span>
+              <HomeOutlined className="text-5xl md:text-6xl" />
             </div>
           </Card>
         </Col>
 
-        <Col span={8}>
+        <Col xs={24} sm={24} md={8} lg={8} xl={8}>
           <Card
             title="Disponibilidad"
             bordered={false}
             headStyle={{ color: "white" }}
+            className="h-full"
             style={{
               backgroundColor: "#9AD9B5",
               color: "white",
-              width: "100%",
-              height: 172,
+              minHeight: "172px"
             }}
           >
-            <div className="flex items-center" style={{ fontSize: "55px" }}>
-              {camasDisponibles}/{numeroCamas}
-              <HomeOutlined
-                style={{
-                  fontSize: "65px",
-                  marginRight: "10px",
-                  marginLeft: "50px",
-                }}
-              />
+            <div className="flex justify-between items-center">
+              <span className="text-4xl md:text-5xl">{camasDisponibles}/{numeroCamas}</span>
+              <HomeOutlined className="text-5xl md:text-6xl" />
             </div>
           </Card>
         </Col>
       </Row>
 
-      <Row gutter={16} className="w-sm mt-4 mr-4">
-        <Col span={8} offset={0}>
+      {/* Segunda fila de tarjetas */}
+      <Row gutter={[16, 16]}>
+        <Col xs={24} md={12} lg={12} xl={12}>
           <Card
-            title="Departamentos Alcanzados"
+            title={<h3 className="text-md m-0">Departamentos Alcanzados</h3>}
             bordered={false}
             headStyle={{ color: "white" }}
+            className="h-full"
             style={{
               backgroundColor: "#049DBF",
               color: "white",
-              width: 500,
-              marginRight: 5,
-              height: 207,
+              minHeight: "230px"
             }}
           >
-            <div className="flex items-center " style={{ fontSize: "55px" }}>
-              {departamentosRegistrados + "/" + departamentosTotales}
-
-              {/* Reemplazamos la imagen por el mapa */}
-              <div
-                className="flex items-center"
-                style={{
-                  width: "230px",
-                  height: "130px",
-                  marginRight: "10px",
-                 display: "flex",
-                  justifyContent: "center",
-                  marginLeft: "100px",
-                  marginTop: "-15px",
-                  overflow: "hidden",
-                  borderRadius: "12px",
-                }}
-              >
-              {pais.current?.nombre === "HONDURAS" ? (
-                <img
-                src={HondurasIcon}
-                alt="Honduras Icon"
-                style={{
-                  width: "230px",
-                  height: "130px",
-                  marginLeft: "10px",
-                  marginTop: "-15px",
-                }}
-              />
+            <div className="flex flex-col md:flex-row items-center justify-between h-full">
+              <span className="text-4xl md:text-5xl font-bold ml-14 mb-4 md:mb-0 text-grey-10 drop-shadow-sm ">
+                {departamentosRegistrados}/{departamentosTotales}
+              </span>
+              <div className="w-full md:w-1/2 h-32 md:h-40 flex items-center overflow-hidden rounded-lg">
+              {pais.current?.nombre === "HONDURAS" || pais.current?.nombre === "GUATEMALA" || pais.current?.nombre === "EL SALVADOR"? (
+                <CustomCountryMap className="w-full" countryName={pais.current?.nombre || ''} />
               ) : (
-                <CountryMap countryName={pais.current?.nombre || ''} />
-              )}
-              </div>
+                <GlobalOutlined className="ml-5 text-[120px] text-white opacity-80" />
+              )
+              }
+            </div>
             </div>
           </Card>
         </Col>
 
-        <Col span={6} offset={4}>
+        <Col xs={24} md={12} lg={12} xl={12}>
           <Card
-            title="Próximos a salir"
-            bordered={false}
-            headStyle={{ color: "white" }}
-            style={{
-              backgroundColor: "#049DBF",
-              color: "white",
-              marginLeft: 5,
-              width: 540,
-              height: 207,
-            }}
-          >
-            <div>
-              {proximosASalir.map((item, index) => (
-                <div key={index} style={{ fontSize: "18px" }}>
-                  {item.nombre} -{" "}
-                  {dayjs(item.fecha_salida).format(displayDateFormat)}
-                </div>
-              ))}
-              <div
-                style={{
-                  marginTop: "10px",
-                  cursor: "pointer",
-                  color: "white",
-                  fontWeight: "bold",
-                  textDecorationLine: "underline",
-                }}
-                onClick={handleOpenModal}
-              >
-                Ir a tabla &gt;
-              </div>
-            </div>
-          </Card>
-        </Col>
-      </Row>
-{/*         Exportar quitado
-      <Row gutter={16} className="w-full mt-4">
-        <Col span={8} offset={0}>
             title={
-              <button>
-                <div>
-                  <span
-                    onClick={downloadExcelFile}
-                    style={{ marginRight: "10px" }}
-                  >
-                    Exportar a Excel
-                  </span>
-                  <DiffOutlined
-                    style={{ fontSize: "24px", verticalAlign: "middle" }}
-                    onClick={downloadExcelFile}
-                  />
-                </div>
-              </button>
+              <div className="flex justify-between items-center w-full">
+                <h3 className="text-md m-0">Próximos a salir</h3>
+                <button
+                  className="font-medium flex items-center gap-1 transition-colors hover:underline"
+                  style={{ color: "white" }}
+                  onClick={handleOpenModal}
+                >
+                  Mostrar más
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              </div>
             }
             bordered={false}
             headStyle={{ color: "white" }}
+            className="h-full"
             style={{
-              backgroundColor: "#FA8787",
+              backgroundColor: "#049DBF",
               color: "white",
-              width: 1096,
-              height: 47,
+              minHeight: "230px"
             }}
+          >
+            <div className="space-y-2 max-h-[150px] overflow-y-auto pr-2">
+              {proximosASalir.length === 0 ? (
+                <div className="text-center text-white-500 text-extrabold">
+                  No hay personas hospedándose actualmente.
+                </div>
+              ) : (
+                proximosASalir.map((item, index) => (
+                  <div 
+                    key={index}
+                    className="flex items-center justify-between p-2 rounded transition-colors border-b"
+                    style={{ borderColor: '#3ab7d1' }}
+                  >
+                    <span className="font-medium truncate max-w-[150px] md:max-w-[200px]">
+                      {item.nombre}
+                    </span>
+                    <span className="text-sm">
+                      {dayjs(item.fecha_salida).format(displayDateFormat)}
+                    </span>
+                  </div>
+                ))
+              )}
+            </div>
+          </Card>
         </Col>
       </Row>
-*/}
+
       <SalidasModal 
         isVisible={isModalVisible} 
         handleClose={handleCloseModal}

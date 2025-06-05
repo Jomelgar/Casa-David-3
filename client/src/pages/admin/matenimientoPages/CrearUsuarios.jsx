@@ -688,7 +688,7 @@ function CrearUsuarios() {
     loadHospitales();
     loadDepartamentos();
     loadMunicipios();
-    const lugar = await cargarlugares();
+    const lugar = await cargarlugares(user.id_persona);
     console.log(lugar);
     setLugares(lugar?.data || []);
     ResetearAtributos();

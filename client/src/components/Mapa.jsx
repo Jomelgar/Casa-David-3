@@ -1,76 +1,31 @@
-import React, { useEffect, useState } from "react";
-import { MapContainer, GeoJSON, useMap } from "react-leaflet";
+import React, { useMemo } from "react";
+import { MapContainer, GeoJSON } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-
-const RecenterMap = ({ geojson }) => {
-  const map = useMap();
-
-  useEffect(() => {
-    if (!geojson) return;
-
-    let coords = [];
-
-    if (geojson.type === "Polygon") {
-      coords = geojson.coordinates[0];
-    } else if (geojson.type === "MultiPolygon") {
-      coords = geojson.coordinates.flat(2); // aplana multipolígonos
-    }
-
-    const latLngs = coords.map(([lng, lat]) => [lat, lng]);
-    map.fitBounds(latLngs, { padding: [5, 5] }); // padding bajo = más zoom
-  }, [geojson, map]);
-
-  return null;
-};
-
-
-const CountrySilhouette = ({ geojson }) => {
-  const style = {
-    fillColor: "lightgrey",
-    color: "lightgrey",
-    weight: 0,
-    fillOpacity: 1,
-  };
-  return <GeoJSON data={geojson} style={style} />;
-};
+import customGeoJson from "../assets/custom.geo.json"; // Asegúrate que incluye todos los países de Centroamérica
 
 const CountryMap = ({ countryName }) => {
-  const [geoData, setGeoData] = useState(null);
+  const geoJsonStyle = (feature) => {
+    const isSelected =
+      feature.properties?.name?.toLowerCase() === countryName.toLowerCase() ||
+      feature.properties?.NAME?.toLowerCase() === countryName.toLowerCase();
 
-  useEffect(() => {
-    const fetchGeoJSON = async () => {
-      try {
-        const cached = localStorage.getItem(`geojson-${countryName}`);
-        if (cached) {
-          const geojson = JSON.parse(cached);
-          setGeoData(geojson);
-          return;
-        }
-
-        const url = `https://nominatim.openstreetmap.org/search.php?q=${encodeURIComponent(
-          countryName
-        )}&polygon_geojson=1&format=json`;
-        const res = await fetch(url);
-        const data = await res.json();
-        if (!data || data.length === 0) throw new Error("No data from Nominatim");
-
-        const geojson = data[0].geojson;
-        localStorage.setItem(`geojson-${countryName}`, JSON.stringify(geojson));
-        setGeoData(geojson);
-      } catch (err) {
-        console.error("Error fetching geojson:", err);
-      }
+    return {
+      fillColor: isSelected ? "lightgreen" : "lightblue", // Azul para seleccionado, gris para otros
+      color: isSelected ? "black" : "lightblue",     // Bordes más oscuros para seleccionado
+      weight: isSelected ? 1 : 1,
+      fillOpacity: isSelected ? 1 : 1,
+      opacity: 1,
+      width: "100%",
+      height: "100%"
     };
+  };
 
-    if (countryName) fetchGeoJSON();
-  }, [countryName]);
-
-  if (!geoData) return <p className="text-xl">Cargando Mapa...</p>;
+  const centerOfCentralAmerica = useMemo(() => [14.5, -85], []);
 
   return (
     <MapContainer
-      center={[0,0]}
-      zoom={5} // Este valor inicial ya no importa porque usamos fitBounds
+      center={centerOfCentralAmerica}
+      zoom={4.2}
       zoomControl={false}
       dragging={false}
       scrollWheelZoom={false}
@@ -78,15 +33,14 @@ const CountryMap = ({ countryName }) => {
       touchZoom={false}
       attributionControl={false}
       style={{
-        width: "230px",
-        height: "130px",
-        marginLeft: "10px",
-        marginTop: "-15px",
         backgroundColor: "transparent",
+        width: '100%',
+        height: '100%',
+        border: "1px solid #e5e7eb",
+        borderRadius: "8px",
       }}
     >
-      <RecenterMap geojson={geoData}/>
-      <CountrySilhouette geojson={geoData} />
+      <GeoJSON data={customGeoJson} style={geoJsonStyle} />
     </MapContainer>
   );
 };
