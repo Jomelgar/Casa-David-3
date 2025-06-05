@@ -1,82 +1,108 @@
-const sequelize = require("../Db");
-const Paciente = require("../models/paciente");
-const { Persona, Ocupacion } = require("../models/persona");
+const sequelize = require('../Db');
+const Paciente       = require('../models/paciente');
+const CausaVisita    = require('../models/causaVisita');
+const { Persona, Ocupacion, Municipio } = require('../models/persona');
+const { Departamento } = require('../models/departamento');
+const { Hospital }    = require('../models/hospital');
+const { Reservacion } = require('../models/reservaciones');
 
 exports.getAllPacientes = async () => {
-  const pacientes = await Paciente.findAll();
-  return pacientes;
-};
-
-exports.getPacienteById = async (id) => {
-  const paciente = await Paciente.findByPk(id);
-  return paciente;
-};
-
-exports.createPaciente = async (pacienteData) => {
-  const nuevoPaciente = await Paciente.create(pacienteData);
-  return nuevoPaciente;
-};
-
-exports.deletePacienteById = async (id) => {
-  const borrar = await Paciente.destroy({
-    where: {
-      id_paciente: id,
-    },
+  const causasRaw = await CausaVisita.findAll({
+    attributes: ['id_causa_visita', 'causa'],
+    raw: true
   });
-  return borrar;
+  const causaMap = Object.fromEntries(
+    causasRaw.map(c => [c.id_causa_visita, c.causa])
+  );
+
+  const pacientes = await Paciente.findAll({
+    attributes: ['id_paciente', 'id_causa_visita'],
+    include: [
+      {
+        model: Persona,
+        attributes: [
+          'primer_nombre',
+          'segundo_nombre',
+          'primer_apellido',
+          'segundo_apellido',
+          'genero',
+          'fecha_nacimiento'
+        ],
+        include: [
+          {
+            model: Municipio,
+            attributes: ['nombre'],
+            include: [{ model: Departamento, attributes: ['nombre'] }]
+          },
+          { model: Ocupacion, attributes: ['descripcion'] },
+        ]
+      },
+      { model: Hospital, attributes: ['nombre'] }
+    ],
+    order: [['id_paciente', 'ASC']]
+  });
+
+  return pacientes.map(pac => {
+    const p = pac.Persona;
+    const nombre = [
+      p.primer_nombre,
+      p.segundo_nombre,
+      p.primer_apellido,
+      p.segundo_apellido
+    ].filter(Boolean).join(' ');
+    const edad = Math.floor(
+      (Date.now() - new Date(p.fecha_nacimiento)) /
+      (1000 * 60 * 60 * 24 * 365.25)
+    );
+    return {
+      id: pac.id_paciente,
+      nombre,
+      departamento: p.Municipio.Departamento.nombre,
+      municipio: p.Municipio.nombre,
+      ocupacion: p.Ocupacion.descripcion,
+      genero: p.genero,
+      hospital: pac.Hospital?.nombre ?? null,
+      causa: causaMap[pac.id_causa_visita] ?? null,
+      edad,
+    };
+  });
+};
+
+
+
+exports.getPacienteById = async id => {
+  return Paciente.findByPk(id);
+};
+
+exports.createPaciente = async pacienteData => {
+  return Paciente.create(pacienteData);
+};
+
+exports.deletePacienteById = async id => {
+  return Paciente.destroy({ where: { id_paciente: id } });
 };
 
 exports.editarPaciente = async (id, pacienteUpdate) => {
-  const pacienteEditado = await Paciente.update(pacienteUpdate, {
-    where: { id_paciente: id },
-  });
+  await Paciente.update(pacienteUpdate, { where: { id_paciente: id } });
+  return Paciente.findOne({ where: { id_paciente: id } });
+};
 
-  if (pacienteEditado) {
-    const edited = await Paciente.findOne({
-      where: { id_paciente: id },
+exports.getPacienteByDNI = async dni => {
+  const tx = await sequelize.transaction();
+  try {
+    const persona  = await Persona.findOne({ where: { dni }, transaction: tx });
+    if (!persona) throw new Error('No se encontró persona con ese DNI');
+
+    const paciente = await Paciente.findOne({
+      where: { id_person: persona.id_persona },
+      transaction: tx
     });
-    return edited;
+    if (!paciente) throw new Error('No se encontró paciente para esa persona');
+
+    await tx.commit();
+    return paciente;
+  } catch (err) {
+    await tx.rollback();
+    throw err;
   }
 };
-
-exports.getAllPacientesWithPersona = async () =>{
-    const pacientes = await Paciente.findAll({include: [
-        {
-            model: Persona,
-            include: [{model: Ocupacion, attributes: [['descripcion', 'ocupacion']]}],
-            attributes: [['primer_nombre', 'nombre'],['primer_apellido', 'apellido'],['dni', 'id'], 'genero']
-        }
-    ], attributes: [['causa_visita', 'causa']]});
-    return pacientes;
-};
-
-exports.gePacienteByDNI = async (dni) => {
-    const probar = await sequelize.transaction();
-    console.log(dni);
-    try {
-      const persona = await Persona.findOne({
-        where: { dni: dni },
-        probar
-      });
-      console.log(persona);
-  
-      if (!persona) {
-        throw new Error('No se encontró ninguna persona con el DNI proporcionado.');
-      }
-      const paciente = await Paciente.findOne({
-        where: { id_persona: persona.id_persona },
-        probar
-      });
-  
-      console.log(paciente);
-      if (!paciente) {
-        throw new Error('No se encontró ningún paciente asociado con la persona proporcionada.');
-      }
-  
-      await probar.commit();
-      return paciente;
-    } catch (error) {
-      await probar.rollback();
-      throw new Error('Error al obtener el paciente: ' + error.message);
-    }
-  };
