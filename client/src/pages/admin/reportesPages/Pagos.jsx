@@ -27,7 +27,7 @@ import { getDepartamentos, getDepartamentoById } from '../../../api/departamento
 import { getMunicipiosByDepartamentoId, getMunicipioById } from '../../../api/municipioApi';
 
 import { useLayout } from "../../../context/LayoutContext";
-import { getUserFromToken } from "../../../utilities/auth.utils";
+import PopUpExport from "./PopUpsInformes/PopUpExport";
 
 dayjs.extend(customParseFormat);
 
@@ -36,14 +36,31 @@ const { Header, Content } = Layout;
 const { RangePicker } = DatePicker;
 
 function Pagos() {
+  const[exportVisible, setExportVisible] = useState(false);
+  
   const { setCurrentPath } = useLayout();
 
-  const exportarExcel = async () => {
+  const abrirModal  = () => {
+    setExportVisible(true); 
+  };
+
+  const exportarExcel = async (tasa, moneda) => {
+    
+    const donacionesConvertidas = totalDonacion * tasa;
+    const becasConvertidas = totalBeca * tasa;
+    const pagosConvertidos = dataSource.map(pago => ({
+      ...pago,
+      monto: (parseFloat(pago.monto) * tasa).toFixed(2),
+    }));
+    
     const data = {
-      donaciones: totalDonacion,
-      cortesia: totalBeca,
-      datosPagos: dataSource,
+      donaciones: donacionesConvertidas.toFixed(2),
+      cortesia: becasConvertidas.toFixed(2),
+      datosPagos: pagosConvertidos,
+      moneda: moneda,
     };
+    console.log(tasa, moneda);
+    console.log(data);
 
     const res = await axiosInstance.post("/excelPagosGenerales", data, { responseType: "arraybuffer" });
 
@@ -833,7 +850,7 @@ function Pagos() {
               />
             </div>
           </ConfigProvider>
-          <button onClick={exportarExcel} className="bg-red-400 font-bold text-lg mt-12 rounded-md shadow pl-6 pr-8 h-fit py-4 text-white-100 text-start hover:-translate-y-2 transition-all ease-in-out duration-150">EXPORTAR A EXCEL</button>
+          <button onClick={abrirModal} className="bg-red-400 font-bold text-lg mt-12 rounded-md shadow pl-6 pr-8 h-fit py-4 text-white-100 text-start hover:-translate-y-2 transition-all ease-in-out duration-150">EXPORTAR A EXCEL</button>
 
         </Content>
       </Layout>
@@ -858,7 +875,13 @@ function Pagos() {
           />
         </ConfigProvider>
       )}
+      <PopUpExport
+        visible={exportVisible}
+        onConfirm={exportarExcel}
+        onCancel={() => setExportVisible(false)}
+      />
     </>
+    
   );
 }
 

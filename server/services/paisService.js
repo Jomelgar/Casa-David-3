@@ -122,3 +122,10 @@ exports.updatePais = async(id,data) =>
     formato_dni: data.formato_dni
   },{where:{id_pais: id}});
 };
+
+exports.getCodigoIso = async (id) =>
+{
+  const pais = await Pais.findByPk(id).codigo_iso;
+  if (!pais) throw new Error(`País con id ${id} no encontrado`);
+  return pais.codigo_iso;
+}

@@ -73,3 +73,17 @@ exports.updatePais = async(req,res) =>
         res.status(500).json({message: 'Error updating country',error})
     }        
 }
+
+exports.getCodigoIso = async(req, res) =>
+{
+    const { id } = req.params;
+    try {
+        const codigo_iso = await pService.getPaisById(id);
+        if (!codigo_iso) {
+            return res.status(404).json({ message: 'Country not found' });
+        }
+        res.status(200).json(codigo_iso);
+    } catch (error) {
+        res.status(500).json({ message: 'Error retrieving country', error });
+    }
+}

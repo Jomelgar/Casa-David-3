@@ -32,6 +32,7 @@ import OcupacionesApi from "../../../api/Ocupaciones.api";
 import ReservacionesApi from "../../../api/Reservaciones.api";
 import OfrendasApi from "../../../api/Ofrenda.api";
 import hospitalesApi from "../../../api/Hospitales.api";
+import PopUpExport from "./PopUpsInformes/PopUpExport";
 
 dayjs.extend(customParseFormat);
 
@@ -83,6 +84,8 @@ const Informes = () => {
   const [listaCausasVisita, setListaCausasVisita] = useState([]);
   const [ocupacionSeleccionada, setOcupacionSeleccionada] = useState(-1);
   const [listaOcupaciones, setListaOcupaciones] = useState([]);
+
+  const[exportVisible, setExportVisible] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -940,13 +943,21 @@ const Informes = () => {
     }
   };
 
-  const onExportClick = async () => {
+  const abrirModal  = () => {
+    setExportVisible(true); 
+  };
+
+  const onExportClick = async (tasa, moneda) => {
+    const donacionesConvertidas = parseFloat(totalDonacion) * tasa;
+    const becasConvertidas = parseFloat(totalBeca) * tasa;
+    
     const data = {
       fechaInicio,
       fechaFinal,
       hombreInfo,
       mujerInfo,
-      donaciones: totalDonacion + totalBeca,
+      moneda,
+      donaciones: donacionesConvertidas + becasConvertidas,
       primeraVez,
       hospedadosDia,
       camasCortesia,
@@ -1143,6 +1154,7 @@ const Informes = () => {
             format={dateFormat}
           />
         </Header>
+        
       </div>
 
       {renderFiltros()}
@@ -1242,12 +1254,18 @@ const Informes = () => {
       </div>
 
       <button
-        onClick={onExportClick}
+        onClick={abrirModal}
         className="bg-red-400 font-bold text-lg mt-12 rounded-md shadow pl-6 pr-8 h-fit py-4 text-white-100 text-start hover:-translate-y-2 transition-all ease-in-out duration-150"
       >
         EXPORTAR A EXCEL
       </button>
+      <PopUpExport
+        visible={exportVisible}
+        onConfirm={onExportClick}
+        onCancel={() => setExportVisible(false)}
+      />
     </div>
+    
   );
 };
 

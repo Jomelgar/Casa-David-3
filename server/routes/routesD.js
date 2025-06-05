@@ -85,4 +85,5 @@ router.get('/paisForTable', paisController.getAllPaisesForTable);
 router.get('/pais-todo/:id', paisController.getAllPais);
 router.post('/pais', paisController.createPais);
 router.delete('/pais/:id', paisController.deletePais);
+router.get('/pais/:id/iso', paisController.getCodigoIso)
 module.exports = router;
