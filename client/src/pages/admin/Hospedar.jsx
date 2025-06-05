@@ -72,7 +72,7 @@ import ListaNegraApi from "../../api/ListaNegra.api";
 import Cookie from "js-cookie";
 
 import { COUNTRIES_API } from "../../api/Huesped.api";
-
+import { formatPhoneNumber } from "../../api/Huesped.api";
 const { Meta } = Card;
 const { TextArea } = Input;
 const { Content } = Layout;
@@ -85,7 +85,6 @@ const styleIconInput = { fontSize: 24, color: "#dedede", paddingRight: 10 };
 //Regex formats
 const dateFormat = "DD-MM-YYYY";
 const telFormat = /\d{4}-\d{4}/;
-
 
 const regexFecha = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -120,6 +119,7 @@ function Hospedar() {
   const [dniFormat, setdniFormat] = useState("####");
   const [idPais, setIdPais] = useState(null);
   const [digitos,setdigitos] = useState(0);
+  const [TelFormat,setTelFormat] = useState("");
   const obtenerDigitos = (tipo) => tipo === "DNI" ? digitos : 15;
 
   // Espacio para guardar los datos vacios de los formularios
@@ -289,6 +289,288 @@ function Hospedar() {
   //esValido = regex.test(valor); // Puedes usar esta también si necesitas validar
 
   obtenerDigitos = (tipo) => tipo === "DNI" ? digitos : 15;
+};
+
+function formatearNumero(numero, codigoPais) {
+  const formato = formatosTelefono[codigoPais];
+  if (!formato) {
+    // Si no se encuentra el formato, devuelve el número sin cambios
+    return numero;
+  }
+
+  // Eliminar caracteres no numéricos
+  const soloNumeros = numero.replace(/\D/g, '');
+
+  let resultado = '';
+  let indice = 0;
+
+  for (let i = 0; i < formato.length; i++) {
+    const segmento = soloNumeros.substr(indice, formato[i]);
+    if (segmento) {
+      resultado += segmento;
+      indice += formato[i];
+      if (i < formato.length - 1) {
+        resultado += '-';
+      }
+    }
+  }
+
+  return resultado;
+} 
+
+function formatearNumeroDinamico(numero, codigoPais) {
+  const formato = formatosTelefono[codigoPais];
+  if (!formato) {
+    return {
+      formateado: numero,
+      cantidad: numero.replace(/\D/g, '').length,
+      excedido: false
+    };
+  }
+
+  // Eliminar caracteres no numéricos
+  const numerosLimpios = numero.replace(/\D/g, '');
+  const maxDigitos = formato.reduce((total, segmento) => total + segmento, 0);
+
+  // Bloquear si se excede el máximo
+  if (numerosLimpios.length > maxDigitos) {
+    return {
+      formateado: numero.slice(0, -1), // Elimina el último dígito ingresado
+      cantidad: maxDigitos,
+      excedido: true
+    };
+  }
+
+  // Aplicar formato si está dentro del límite
+  let resultado = '';
+  let indice = 0;
+
+  for (let i = 0; i < formato.length; i++) {
+    const segmento = numerosLimpios.substr(indice, formato[i]);
+    if (!segmento) break;
+
+    if (i > 0) resultado += '-';
+    resultado += segmento;
+    indice += formato[i];
+  }
+
+  // Agregar dígitos restantes (sin guiones extra)
+  if (indice < numerosLimpios.length) {
+    resultado += numerosLimpios.substr(indice);
+  }
+
+  return {
+    formateado: resultado,
+    cantidad: maxDigitos,
+    excedido: false
+  };
+}
+
+const formatosTelefono = {
+  "+1201": [3, 3, 4],      // USA/Canadá: XXX-XXX-XXXX
+  "+7": [3, 2, 2, 2],   // Rusia: XXX-XX-XX-XX
+  "+20": [2, 3, 4],     // Egipto: XX-XXX-XXXX
+  "+27": [2, 3, 4],     // Sudáfrica: XX-XXX-XXXX
+  "+30": [3, 4],        // Grecia: XXX-XXXX
+  "+31": [2, 4, 4],     // Países Bajos: XX-XXXX-XXXX
+  "+32": [2, 3, 4],     // Bélgica: XX-XXX-XXXX
+  "+33": [1, 2, 2, 2, 2], // Francia: X-XX-XX-XX-XX
+  "+34": [3, 3, 3],     // España: XXX-XXX-XXX
+  "+36": [2, 3, 4],     // Hungría: XX-XXX-XXXX
+  "+39": [3, 3, 4],     // Italia: XXX-XXX-XXXX
+  "+40": [3, 3, 4],     // Rumania: XXX-XXX-XXXX
+  "+41": [2, 3, 4],     // Suiza: XX-XXX-XXXX
+  "+43": [1, 4, 4],     // Austria: X-XXXX-XXXX
+  "+44": [2, 4, 4],     // Reino Unido: XX-XXXX-XXXX
+  "+45": [2, 2, 2, 2],  // Dinamarca: XX-XX-XX-XX
+  "+46": [3, 3, 4],     // Suecia: XXX-XXX-XXXX
+  "+47": [2, 2, 2, 2],  // Noruega: XX-XX-XX-XX
+  "+48": [2, 3, 2, 2],  // Polonia: XX-XXX-XX-XX
+  "+49": [3, 3, 4],     // Alemania: XXX-XXX-XXXX
+  "+51": [3, 3, 4],     // Perú: XXX-XXX-XXXX
+  "+52": [3, 4, 4],     // México: XXX-XXXX-XXXX
+  "+54": [2, 4, 4],     // Argentina: XX-XXXX-XXXX
+  "+55": [2, 5, 4],     // Brasil: XX-XXXXX-XXXX
+  "+56": [2, 3, 4],     // Chile: XX-XXX-XXXX
+  "+57": [3, 3, 4],     // Colombia: XXX-XXX-XXXX
+  "+58": [3, 3, 4],     // Venezuela: XXX-XXX-XXXX
+  "+60": [2, 3, 4],     // Malasia: XX-XXX-XXXX
+  "+61": [2, 4, 4],     // Australia: XX-XXXX-XXXX
+  "+62": [2, 4, 4],     // Indonesia: XX-XXXX-XXXX
+  "+63": [2, 3, 4],     // Filipinas: XX-XXX-XXXX
+  "+64": [2, 3, 4],     // Nueva Zelanda: XX-XXX-XXXX
+  "+65": [4, 4],        // Singapur: XXXX-XXXX
+  "+66": [2, 3, 4],     // Tailandia: XX-XXX-XXXX
+  "+81": [2, 4, 4],     // Japón: XX-XXXX-XXXX
+  "+82": [2, 4, 4],     // Corea del Sur: XX-XXXX-XXXX
+  "+84": [3, 4, 4],     // Vietnam: XXX-XXXX-XXXX
+  "+86": [2, 4, 4],     // China: XX-XXXX-XXXX
+  "+90": [3, 3, 4],     // Turquía: XXX-XXX-XXXX
+  "+91": [3, 3, 4],     // India: XXX-XXX-XXXX
+  "+92": [3, 3, 4],     // Pakistán: XXX-XXX-XXXX
+  "+93": [2, 3, 4],     // Afganistán: XX-XXX-XXXX
+  "+94": [2, 3, 4],     // Sri Lanka: XX-XXX-XXXX
+  "+95": [2, 3, 4],     // Myanmar: XX-XXX-XXXX
+  "+98": [3, 3, 4],     // Irán: XXX-XXX-XXXX
+  "+212": [2, 3, 4],    // Marruecos: XX-XXX-XXXX
+  "+213": [2, 3, 4],    // Argelia: XX-XXX-XXXX
+  "+216": [2, 3, 4],    // Túnez: XX-XXX-XXXX
+  "+218": [2, 3, 4],    // Libia: XX-XXX-XXXX
+  "+220": [3, 4],       // Gambia: XXX-XXXX
+  "+221": [3, 4],       // Senegal: XXX-XXXX
+  "+222": [2, 2, 4],    // Mauritania: XX-XX-XXXX
+  "+223": [2, 2, 4],    // Malí: XX-XX-XXXX
+  "+224": [3, 4],       // Guinea: XXX-XXXX
+  "+225": [2, 2, 4],    // Costa de Marfil: XX-XX-XXXX
+  "+226": [2, 2, 4],    // Burkina Faso: XX-XX-XXXX
+  "+227": [2, 2, 4],    // Níger: XX-XX-XXXX
+  "+228": [2, 2, 4],    // Togo: XX-XX-XXXX
+  "+229": [2, 2, 4],    // Benín: XX-XX-XXXX
+  "+230": [3, 4],       // Mauricio: XXX-XXXX
+  "+231": [3, 4],       // Liberia: XXX-XXXX
+  "+232": [2, 3, 4],    // Sierra Leona: XX-XXX-XXXX
+  "+233": [2, 3, 4],    // Ghana: XX-XXX-XXXX
+  "+234": [3, 3, 4],    // Nigeria: XXX-XXX-XXXX
+  "+235": [2, 2, 4],    // Chad: XX-XX-XXXX
+  "+236": [2, 2, 4],    // República Centroafricana: XX-XX-XXXX
+  "+237": [2, 2, 4],    // Camerún: XX-XX-XXXX
+  "+238": [3, 4],       // Cabo Verde: XXX-XXXX
+  "+239": [3, 4],       // Santo Tomé y Príncipe: XXX-XXXX
+  "+240": [3, 4],       // Guinea Ecuatorial: XXX-XXXX
+  "+241": [2, 2, 4],    // Gabón: XX-XX-XXXX
+  "+242": [2, 2, 4],    // República del Congo: XX-XX-XXXX
+  "+243": [2, 3, 4],    // RD Congo: XX-XXX-XXXX
+  "+244": [2, 3, 4],    // Angola: XX-XXX-XXXX
+  "+245": [3, 4],       // Guinea-Bisáu: XXX-XXXX
+  "+246": [3, 4],       // Territorio Británico del Océano Índico: XXX-XXXX
+  "+248": [1, 3, 4],    // Seychelles: X-XXX-XXXX
+  "+249": [2, 3, 4],    // Sudán: XX-XXX-XXXX
+  "+250": [3, 4],       // Ruanda: XXX-XXXX
+  "+251": [2, 3, 4],    // Etiopía: XX-XXX-XXXX
+  "+252": [2, 3, 4],    // Somalia: XX-XXX-XXXX
+  "+253": [2, 2, 4],    // Yibuti: XX-XX-XXXX
+  "+254": [2, 3, 4],    // Kenia: XX-XXX-XXXX
+  "+255": [2, 3, 4],    // Tanzania: XX-XXX-XXXX
+  "+256": [2, 3, 4],    // Uganda: XX-XXX-XXXX
+  "+257": [2, 2, 4],    // Burundi: XX-XX-XXXX
+  "+258": [2, 3, 4],    // Mozambique: XX-XXX-XXXX
+  "+260": [2, 3, 4],    // Zambia: XX-XXX-XXXX
+  "+261": [2, 2, 4],    // Madagascar: XX-XX-XXXX
+  "+262": [3, 3, 4],    // Reunión: XXX-XXX-XXXX
+  "+263": [2, 3, 4],    // Zimbabue: XX-XXX-XXXX
+  "+264": [2, 3, 4],    // Namibia: XX-XXX-XXXX
+  "+265": [2, 3, 4],    // Malaui: XX-XXX-XXXX
+  "+266": [2, 2, 4],    // Lesoto: XX-XX-XXXX
+  "+267": [2, 3, 4],    // Botsuana: XX-XXX-XXXX
+  "+268": [2, 2, 4],    // Suazilandia: XX-XX-XXXX
+  "+269": [2, 2, 4],    // Comoras: XX-XX-XXXX
+  "+290": [4],          // Santa Elena: XXXX
+  "+291": [2, 3, 4],    // Eritrea: XX-XXX-XXXX
+  "+297": [3, 4],       // Aruba: XXX-XXXX
+  "+298": [3, 4],       // Islas Feroe: XXX-XXXX
+  "+299": [2, 2, 4],    // Groenlandia: XX-XX-XXXX
+  "+350": [3, 4],       // Gibraltar: XXX-XXXX
+  "+351": [3, 3, 3],    // Portugal: XXX-XXX-XXX
+  "+352": [2, 3, 4],    // Luxemburgo: XX-XXX-XXXX
+  "+353": [2, 3, 4],    // Irlanda: XX-XXX-XXXX
+  "+354": [3, 4],       // Islandia: XXX-XXXX
+  "+355": [3, 3, 4],    // Albania: XXX-XXX-XXXX
+  "+356": [4, 4],       // Malta: XXXX-XXXX
+  "+357": [2, 3, 4],    // Chipre: XX-XXX-XXXX
+  "+358": [2, 3, 4],    // Finlandia: XX-XXX-XXXX
+  "+359": [2, 3, 4],    // Bulgaria: XX-XXX-XXXX
+  "+370": [3, 3, 4],    // Lituania: XXX-XXX-XXXX
+  "+371": [2, 3, 4],    // Letonia: XX-XXX-XXXX
+  "+372": [3, 4],       // Estonia: XXX-XXXX
+  "+373": [3, 3, 4],    // Moldavia: XXX-XXX-XXXX
+  "+374": [2, 3, 4],    // Armenia: XX-XXX-XXXX
+  "+375": [2, 3, 4],    // Bielorrusia: XX-XXX-XXXX
+  "+376": [3, 3],       // Andorra: XXX-XXX
+  "+377": [3, 3, 4],    // Mónaco: XXX-XXX-XXXX
+  "+378": [3, 3, 4],    // San Marino: XXX-XXX-XXXX
+  "+379": [3, 3, 4],    // Ciudad del Vaticano: XXX-XXX-XXXX
+  "+380": [2, 3, 4],    // Ucrania: XX-XXX-XXXX
+  "+381": [2, 3, 4],    // Serbia: XX-XXX-XXXX
+  "+382": [2, 3, 4],    // Montenegro: XX-XXX-XXXX
+  "+383": [2, 3, 4],    // Kosovo: XX-XXX-XXXX
+  "+385": [2, 3, 4],    // Croacia: XX-XXX-XXXX
+  "+386": [2, 3, 4],    // Eslovenia: XX-XXX-XXXX
+  "+387": [2, 3, 4],    // Bosnia y Herzegovina: XX-XXX-XXXX
+  "+389": [2, 3, 4],    // Macedonia del Norte: XX-XXX-XXXX
+  "+420": [3, 3, 4],    // República Checa: XXX-XXX-XXXX
+  "+421": [2, 3, 4],    // Eslovaquia: XX-XXX-XXXX
+  "+423": [3, 3, 4],    // Liechtenstein: XXX-XXX-XXXX
+  "+500": [5],          // Islas Malvinas: XXXXX
+  "+501": [3, 4],       // Belice: XXX-XXXX
+  "+502": [4, 4],       // Guatemala: XXXX-XXXX
+  "+503": [4, 4],       // El Salvador: XXXX-XXXX
+  "+504": [4, 4],       // Honduras: XXXX-XXXX
+  "+505": [4, 4],       // Nicaragua: XXXX-XXXX
+  "+506": [4, 4],       // Costa Rica: XXXX-XXXX
+  "+507": [4, 4],       // Panamá: XXXX-XXXX
+  "+508": [3, 4],       // San Pedro y Miquelón: XXX-XXXX
+  "+509": [2, 2, 4],    // Haití: XX-XX-XXXX
+  "+590": [3, 3, 4],    // Guadalupe: XXX-XXX-XXXX
+  "+591": [3, 3, 4],    // Bolivia: XXX-XXX-XXXX
+  "+592": [3, 4],       // Guyana: XXX-XXXX
+  "+593": [2, 3, 4],    // Ecuador: XX-XXX-XXXX
+  "+594": [3, 3, 4],    // Guayana Francesa: XXX-XXX-XXXX
+  "+595": [2, 3, 4],    // Paraguay: XX-XXX-XXXX
+  "+596": [3, 3, 4],    // Martinica: XXX-XXX-XXXX
+  "+597": [3, 4],       // Surinam: XXX-XXXX
+  "+598": [2, 3, 4],    // Uruguay: XX-XXX-XXXX
+  "+599": [3, 4],       // Curazao: XXX-XXXX
+  "+670": [3, 4],       // Timor Oriental: XXX-XXXX
+  "+672": [1, 3, 4],    // Territorio Antártico Australiano: X-XXX-XXXX
+  "+673": [3, 4],       // Brunéi: XXX-XXXX
+  "+674": [3, 4],       // Nauru: XXX-XXXX
+  "+675": [3, 4],       // Papúa Nueva Guinea: XXX-XXXX
+  "+676": [2, 3, 4],    // Tonga: XX-XXX-XXXX
+  "+677": [2, 3, 4],    // Islas Salomón: XX-XXX-XXXX
+  "+678": [2, 3, 4],    // Vanuatu: XX-XXX-XXXX
+  "+679": [3, 4],       // Fiyi: XXX-XXXX
+  "+680": [3, 4],       // Palaos: XXX-XXXX
+  "+681": [2, 2, 4],    // Wallis y Futuna: XX-XX-XXXX
+  "+682": [2, 3, 4],    // Islas Cook: XX-XXX-XXXX
+  "+683": [4],          // Niue: XXXX
+  "+685": [2, 3, 4],    // Samoa: XX-XXX-XXXX
+  "+686": [2, 3, 4],    // Kiribati: XX-XXX-XXXX
+  "+687": [3, 4],       // Nueva Caledonia: XXX-XXXX
+  "+688": [3, 4],       // Tuvalu: XXX-XXXX
+  "+689": [2, 2, 4],    // Polinesia Francesa: XX-XX-XXXX
+  "+690": [1, 3, 4],    // Tokelau: X-XXX-XXXX
+  "+691": [3, 4],       // Micronesia: XXX-XXXX
+  "+692": [3, 4],       // Islas Marshall: XXX-XXXX
+  "+850": [2, 3, 4],    // Corea del Norte: XX-XXX-XXXX
+  "+852": [4, 4],       // Hong Kong: XXXX-XXXX
+  "+853": [4, 4],       // Macao: XXXX-XXXX
+  "+855": [2, 3, 4],    // Camboya: XX-XXX-XXXX
+  "+856": [2, 3, 4],    // Laos: XX-XXX-XXXX
+  "+880": [2, 3, 4],    // Bangladés: XX-XXX-XXXX
+  "+886": [2, 4, 4],    // Taiwán: XX-XXXX-XXXX
+  "+960": [3, 4],       // Maldivas: XXX-XXXX
+  "+961": [1, 3, 4],    // Líbano: X-XXX-XXXX
+  "+962": [2, 3, 4],    // Jordania: XX-XXX-XXXX
+  "+963": [2, 3, 4],    // Siria: XX-XXX-XXXX
+  "+964": [3, 3, 4],    // Irak: XXX-XXX-XXXX
+  "+965": [4, 4],       // Kuwait: XXXX-XXXX
+  "+966": [2, 3, 4],    // Arabia Saudita: XX-XXX-XXXX
+  "+967": [2, 3, 4],    // Yemen: XX-XXX-XXXX
+  "+968": [2, 3, 4],    // Omán: XX-XXX-XXXX
+  "+970": [2, 3, 4],    // Palestina: XX-XXX-XXXX
+  "+971": [2, 3, 4],    // Emiratos Árabes Unidos: XX-XXX-XXXX
+  "+972": [2, 3, 4],    // Israel: XX-XXX-XXXX
+  "+973": [4, 4],       // Baréin: XXXX-XXXX
+  "+974": [4, 4],       // Catar: XXXX-XXXX
+  "+975": [2, 3, 4],    // Bután: XX-XXX-XXXX
+  "+976": [2, 3, 4],    // Mongolia: XX-XXX-XXXX
+  "+977": [2, 3, 4],    // Nepal: XX-XXX-XXXX
+  "+992": [3, 3, 4],    // Tayikistán: XXX-XXX-XXXX
+  "+993": [1, 3, 4],    // Turkmenistán: X-XXX-XXXX
+  "+994": [2, 3, 4],    // Azerbaiyán: XX-XXX-XXXX
+  "+995": [3, 3, 4],    // Georgia: XXX-XXX-XXXX
+  "+996": [3, 3, 4],    // Kirguistán: XXX-XXX-XXXX
+  "+998": [3, 3, 4],    // Uzbekistán: XXX-XXX-XXXX
 };
 
 
@@ -574,6 +856,15 @@ const [countries, setCountries] = useState([]);
 const [selectedCountry, setSelectedCountry] = useState(null);
 const [selectedCountry2, setSelectedCountry2] = useState(null);
 const [selectedCountry3, setSelectedCountry3] = useState(null);
+
+
+const [selectedCountryCode,setSelectedCountryCode]= useState(null);
+const [selectedCountryCode2,setSelectedCountryCode2]= useState(null);
+const [selectedCountryCode3,setSelectedCountryCode3]= useState(null);
+
+const [cantidadNumeros, setcantidadNumeros]= useState(15);
+const [cantidadNumeros2, setcantidadNumeros2]= useState(15);
+const [cantidadNumeros3, setcantidadNumeros3]= useState(15);
 const [PacienteMarcado,setPacienteMarcado]= useState(0);
 
 const cargarPaisdeUso = async () => {
@@ -627,6 +918,10 @@ useEffect(() => {
       setSelectedCountry(selected || filtered[0]);
       setSelectedCountry2(selected || filtered[0]);
       setSelectedCountry3(selected || filtered[0]);
+
+      setSelectedCountryCode(pais.referencia_telefonica);
+      setSelectedCountryCode2(pais.referencia_telefonica);
+      setSelectedCountryCode3(pais.referencia_telefonica);
     } catch (error) {
       console.error('Error al cargar datos de países:', error);
     }
@@ -654,6 +949,7 @@ const countrySelector = (
     onChange={(value) => {
       const found = countries.find((c) => c.code === value);
       setSelectedCountry(found);
+      setSelectedCountryCode(selectedCountry?.code);
     }}
     optionLabelProp="label"
     
@@ -663,6 +959,8 @@ const countrySelector = (
         key={country.code}
         value={country.code}
         label={`${country.name} (${country.code})`}
+        setSelectedCountry={country.name}
+        setSelectedCountryCode={country.code}
         setreferenciaTelefonica= {country.code}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -691,9 +989,11 @@ const countrySelector2 = (
       //borderColor: "#d9d9d9",
     }}
     value={selectedCountry2?.code}
+    
     onChange={(value) => {
       const found = countries.find((c) => c.code === value);
       setSelectedCountry2(found);
+      setSelectedCountryCode2(selectedCountry2?.code);
     }}
     optionLabelProp="label"
     
@@ -703,6 +1003,8 @@ const countrySelector2 = (
         key={country.code}
         value={country.code}
         label={`${country.name} (${country.code})`}
+        setSelectedCountry2={country.name}
+        setSelectedCountryCode2={country.code}
         setreferenciaTelefonica2= {country.code}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -734,6 +1036,7 @@ const countrySelector3 = (
     onChange={(value) => {
       const found = countries.find((c) => c.code === value);
       setSelectedCountry3(found);
+      setSelectedCountryCode3(selectedCountry3?.code);
     }}
     optionLabelProp="label"
     
@@ -743,6 +1046,8 @@ const countrySelector3 = (
         key={country.code}
         value={country.code}
         label={`${country.name} (${country.code})`}
+        setSelectedCountry3={country.name}
+        setSelectedCountryCode3={country.code}
         setreferenciaTelefonica3= {country.code}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -1723,6 +2028,7 @@ const countrySelector3 = (
         }
         break;
 
+        
       case "dni_afiliado":
         if (previousValue !== null && value.length > previousValue.length) {
           if (/^\d{4}$/.test(value) || /^\d{4}-\d{4}$/.test(value)) {
@@ -1732,16 +2038,13 @@ const countrySelector3 = (
         break;
 
       case "telefono":
-        if (
-          previousValue !== null &&
-          value.length > previousValue.length &&
-          value.length === 4
-        ) {
-          if (/\d{4}/.test(value)) {
-            newValue = value + "-";
-          }
-        }
-        break;
+  console.log("Huesped...Pais: ", selectedCountry, ", code: ", selectedCountry.code);
+  if (selectedCountry && selectedCountry.code) {
+    const resultado = formatearNumeroDinamico(value, selectedCountry.code);
+    newValue = resultado.formateado;
+    console.log("Cantidad de dígitos: ", resultado.cantidad, ", Formato: ", resultado.formateado);
+  }
+  break;
 
       case "iglesia":
         if (value.length > 0) {
@@ -1813,6 +2116,7 @@ const validarFormatoConGuiones = (valor, formato) => {
           searchDni(newValue, 1);
         }}
 
+
         break;
 
       case "direccion":
@@ -1822,16 +2126,14 @@ const validarFormatoConGuiones = (valor, formato) => {
         break;
 
       case "telefono":
-        if (
-          previousValue !== null &&
-          value.length > previousValue.length &&
-          value.length === 4
-        ) {
-          if (/\d{4}/.test(value)) {
-            newValue = value + "-";
-          }
-        }
-        break;
+ case "telefono":
+  console.log("Paciente....Pais: ", selectedCountry3, ", code: ", selectedCountry3.code);
+  if (selectedCountry3 && selectedCountry3.code) {
+    const resultado = formatearNumeroDinamico(value, selectedCountry3.code);
+    newValue = resultado.formateado;
+    console.log("Cantidad de dígitos: ", resultado.cantidad, ", Formato: ", resultado.formateado);
+  }
+  break;
 
       case "id_hospital":
         setPaciente({
@@ -1923,15 +2225,12 @@ const validarFormatoConGuiones = (valor, formato) => {
         break;
 
       case "telefono":
-        if (
-          previousValue !== null &&
-          value.length > previousValue.length &&
-          value.length === 4
-        ) {
-          if (validarFormatoConGuiones(newValue, dniFormat)) {
-          searchDni(newValue, 1);
-          }
-        }
+        console.log("Acom....Pais: ", selectedCountry2, ", code: ", selectedCountry2.code);
+  if (selectedCountry2 && selectedCountry2.code) {
+    const resultado = formatearNumeroDinamico(value, selectedCountry2.code);
+    newValue = resultado.formateado;
+    console.log("Cantidad de dígitos: ", resultado.cantidad, ", Formato: ", resultado.formateado);
+  }
         break;
 
       case "iglesia":
@@ -1962,162 +2261,140 @@ const validarFormatoConGuiones = (valor, formato) => {
       return !prev;
     });
   };
+const validarCamposHospedado = () => {
+  for (const [key, value] of Object.entries(hospedado)) {
+    // Validación campos vacíos
+    if (
+      value === "" &&
+      key !== "segundo_nombre" &&
+      key !== "segundo_apellido" &&
+      key !== "telefono" &&
+      key !== "observacion_reservacion" &&
+      key !== "id_patrono" &&
+      key !== "dni_afiliado" &&
+      key !== "nombre_afiliado" &&
+      key !== "iglesia"
+    ) {
+      openNotification(2, "Campos Vacios en Huesped", "No puede dejar campos vacios");
+      return false;
+    }
 
-  const validarCamposHospedado = () => {
-    for (const [key, value] of Object.entries(hospedado)) {
-      if (
-        value === "" &&
-        key !== "segundo_nombre" &&
-        key !== "segundo_apellido" &&
-        key !== "telefono" &&
-        key !== "observacion_reservacion" &&
-        key !== "id_patrono" &&
-        key !== "dni_afiliado" &&
-        key !== "nombre_afiliado" &&
-        key !== "iglesia"
-      ) {
-        openNotification(
-          2,
-          "Campos Vacios en Huesped",
-          "No puede dejar campos vacios"
-        );
+    // Validación teléfono (corregida)
+    if (key === "telefono" && value.length > 0) {
+      if (!selectedCountry?.code) {
+        openNotification(2, "Teléfono del Huesped", "Debe seleccionar un país primero");
         return false;
       }
 
-      if (key === "telefono" && value.match(telFormat) === null) {
+      const resultado = formatearNumeroDinamico(value, selectedCountry.code);
+      const digitosRequeridos = formatosTelefono[selectedCountry.code]?.reduce((a, b) => a + b, 0);
+      
+      if (resultado.excedido || resultado.formateado.replace(/-/g, '').length < digitosRequeridos) {
         openNotification(
           2,
-          "Telefono del huesped",
-          "El formato del telefono no es valido"
-        );
-        return false;
-      }
-      if (
-        key === "dni" && selected==="DNI" &&
-        value.match(dniFormat) === null &&
-        dniFormat.length !=digitos
-      ) {
-        openNotification(
-          2,
-          "DNI del huesped",
-          "El formato del DNI no es valido"
+          "Teléfono del Huesped",
+          `Formato inválido. Use el formato para ${selectedCountry.name} (Ej: ${ejemploFormato(selectedCountry.code)})`
         );
         return false;
       }
     }
 
-    return true;
-  };
+    // Validación DNI
+    if (key === "dni" && selected === "DNI" && (value.match(dniFormat) === null || value.length !== digitos)) {
+      openNotification(2, "DNI del huesped", "El formato del DNI no es válido");
+      return false;
+    }
+  }
+  return true;
+};
 
-  const validarCamposPaciente = () => {
-    console.warn("Verificando paciente...");
-    console.log(paciente);
-    for (const [key, value] of Object.entries(paciente)) {
-      if (
-        value === "" &&
-        key !== "segundo_nombre" &&
-        key !== "segundo_apellido" &&
-        key !== "telefono" &&
-        key !== "observacion" &&
-        key !== "iglesia"
-      ) {
-        openNotification(
-          2,
-          "Campos Vacios en Paciente",
-          "No puede dejar campos vacios"
-        );
+const validarCamposPaciente = () => {
+  for (const [key, value] of Object.entries(paciente)) {
+    // Validación campos vacíos
+    if (
+      value === "" &&
+      key !== "segundo_nombre" &&
+      key !== "segundo_apellido" &&
+      key !== "telefono" &&
+      key !== "observacion" &&
+      key !== "iglesia"
+    ) {
+      openNotification(2, "Campos Vacios en Paciente", "No puede dejar campos vacios");
+      return false;
+    }
+
+    // Validación teléfono (corregida)
+    if (key === "telefono" && value.length > 0) {
+      if (!selectedCountry3?.code) {
+        openNotification(2, "Teléfono del Paciente", "Debe seleccionar un país primero");
         return false;
       }
 
-      if (
-        key === "telefono" &&
-        value.length > 0 &&
-        value.match(telFormat) === null
-      ) {
+      const resultado = formatearNumeroDinamico(value, selectedCountry3.code);
+      const digitosRequeridos = formatosTelefono[selectedCountry3.code]?.reduce((a, b) => a + b, 0);
+      
+      if (resultado.excedido || resultado.formateado.replace(/-/g, '').length < digitosRequeridos) {
         openNotification(
           2,
-          "Telefono del Paciente Invalido",
-          "El formato del telefono no es valido"
-        );
-        return false;
-      }
-      if (
-        key === "dni" && selected3==="DNI" &&
-        value.match(dniFormat) === null &&
-        dniFormat.length !=digitos
-      ) {
-        openNotification(
-          2,
-          "DNI del paciente",
-          "El formato del DNI no es valido"
+          "Teléfono del Paciente",
+          `Formato inválido. Use el formato para ${selectedCountry3.name} (Ej: ${ejemploFormato(selectedCountry3.code)})`
         );
         return false;
       }
     }
 
-    return true;
-  };
+    // Validación DNI
+    if (key === "dni" && selected3 === "DNI" && (value.match(dniFormat) === null || value.length !== digitos)) {
+      openNotification(2, "DNI del paciente", "El formato del DNI no es válido");
+      return false;
+    }
+  }
+  return true;
+};
 
-  const validarCamposAcompanante = () => {
-    for (const [key, value] of Object.entries(acompanante)) {
-      if (
-        value === "" &&
-        key !== "segundo_nombre" &&
-        key !== "segundo_apellido" &&
-        key !== "telefono" &&
-        key !== "iglesia"
-      ) {
-        openNotification(
-          2,
-          "Campos Vacios en Acompañante",
-          "No puede dejar campos vacios"
-        );
+const validarCamposAcompanante = () => {
+  for (const [key, value] of Object.entries(acompanante)) {
+    // Validación campos vacíos
+    if (
+      value === "" &&
+      key !== "segundo_nombre" &&
+      key !== "segundo_apellido" &&
+      key !== "telefono" &&
+      key !== "iglesia"
+    ) {
+      openNotification(2, "Campos Vacios en Acompañante", "No puede dejar campos vacios");
+      return false;
+    }
+
+    // Validación teléfono (corregida)
+    if (key === "telefono" && value.length > 0) {
+      if (!selectedCountry2?.code) {
+        openNotification(2, "Teléfono del Acompañante", "Debe seleccionar un país primero");
         return false;
       }
 
-      if (
-        key === "telefono" &&
-        value.length > 0 &&
-        value.match(telFormat) === null
-      ) {
+      const resultado = formatearNumeroDinamico(value, selectedCountry2.code);
+      const digitosRequeridos = formatosTelefono[selectedCountry2.code]?.reduce((a, b) => a + b, 0);
+      
+      if (resultado.excedido || resultado.formateado.replace(/-/g, '').length < digitosRequeridos) {
         openNotification(
           2,
-          "Telefono en Acompañante",
-          "El formato del telefono no es valido"
-        );
-        return false;
-      }
-      if (
-        
-        key === "dni" && selected2==="DNI" &&
-        value.match(dniFormat) === null &&
-        dniFormat.length !=digitos
-      ) {
-        openNotification(
-          2,
-          "DNI del Acompañante",
-          "El formato del DNI no es valido"
+          "Teléfono del Acompañante",
+          `Formato inválido. Use el formato para ${selectedCountry2.name} (Ej: ${ejemploFormato(selectedCountry2.code)})`
         );
         return false;
       }
     }
 
-    return true;
-  };
-
-  const validarCampos = async () => {
-    if (validarCamposHospedado() && validarCamposPaciente()) {
-      if (acompanante) {
-        if (validarCamposAcompanante()) {
-          return true;
-        } else return false;
-      }
-
-      return true;
+    // Validación DNI
+    if (key === "dni" && selected2 === "DNI" && (value.match(dniFormat) === null || value.length !== digitos)) {
+      openNotification(2, "DNI del Acompañante", "El formato del DNI no es válido");
+      return false;
     }
+  }
+  return true;
+};
 
-    return false;
-  };
 
   //agarra el submit aqui va a mandar
   const handleSubmit = async (event) => {
@@ -2561,11 +2838,11 @@ const validarFormatoConGuiones = (valor, formato) => {
       style={{ width: 270, height: 45, marginRight:20, marginLeft:370}}
       checked={acompanante.es_paciente}
       onChange={async (e) => {
-        const isChecked1 = e.target.checked;
-        setAcompanante({ ...acompanante, es_paciente: isChecked1 });
+        const isChecked = e.target.checked;
+        setAcompanante({ ...acompanante, es_paciente: isChecked });
         
 
-        if (isChecked1) {
+        if (isChecked) {
           setPacienteMarcado(1);
           setPaciente({
             ...paciente,
@@ -2603,8 +2880,6 @@ const validarFormatoConGuiones = (valor, formato) => {
     </Checkbox>
     )}
 </Row>
-
-
           <Row gutter={25} style={{ marginTop: 20 }}>
             <Col
               xs={{ flex: "100%" }}
@@ -2992,7 +3267,7 @@ const validarFormatoConGuiones = (valor, formato) => {
   //prefix={<PhoneOutlined style={styleIconInput} />}
   size="large"
   placeholder="Telefono"
-  maxLength={9}
+  //maxLength={9}
   type="text"
   style={{
     height: "100%",
@@ -3503,15 +3778,15 @@ const validarFormatoConGuiones = (valor, formato) => {
   //prefix={<PhoneOutlined style={styleIconInput} />}
   size="large"
   placeholder="Telefono"
-  maxLength={9}
+  //maxLength={9}
   type="text"
   style={{
     height: "100%",
     borderColor: emptyFieldsHuesped.telefono ? "#FF0A0A" : undefined,
   }}
-  value={hospedado.telefono}
+  value={acompanante.telefono}
   onChange={(e) => {
-    handleSetChangeHuesped(
+    handleSetChangeAcompanante(
       "telefono",
                         e.target.value,
                         acompanante.telefono
@@ -3926,18 +4201,18 @@ const validarFormatoConGuiones = (valor, formato) => {
   //prefix={<PhoneOutlined style={styleIconInput} />}
   size="large"
   placeholder="Telefono"
-  maxLength={9}
+  //maxLength={9}
   type="text"
   style={{
     height: "100%",
     borderColor: emptyFieldsHuesped.telefono ? "#FF0A0A" : undefined,
   }}
-  value={hospedado.telefono}
+  value={paciente.telefono}
   onChange={(e) => {
-    handleSetChangeHuesped(
+    handleSetChangePaciente(
       "telefono",
       e.target.value,
-      hospedado.telefono
+      paciente.telefono
     );
   }}
 />
