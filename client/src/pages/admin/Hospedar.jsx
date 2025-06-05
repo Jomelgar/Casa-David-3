@@ -87,6 +87,7 @@ const styleIconInput = { fontSize: 24, color: "#dedede", paddingRight: 10 };
 const dateFormat = "DD-MM-YYYY";
 const telFormat = /\d{4}-\d{4}/;
 
+
 const regexFecha = /^\d{4}-\d{2}-\d{2}$/;
 
 const generos = [
