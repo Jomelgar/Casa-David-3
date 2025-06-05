@@ -140,41 +140,69 @@ function InfoPaises() {
         <div className="flex flex-col md:flex-row justify-between items-center mb-4">
           <p className="text-[#049DBF] text-2xl font-bold">Departamentos y Municipios</p>
           <Space>
-            <Button icon={<PlusOutlined />} type="primary" className="bg-green-500" onClick={() => setDepAddView(true)}>Agregar</Button>
-            <Button icon={<DeleteOutlined />} danger onClick={() => setDepDeleteView(true)}>Eliminar</Button>
+            <Button
+              icon={<PlusOutlined />}
+              type="primary"
+              className="bg-green-500"
+              onClick={() => setDepAddView(true)}
+            >
+              Agregar
+            </Button>
+            <Button icon={<DeleteOutlined />} danger onClick={() => setDepDeleteView(true)}>
+              Eliminar
+            </Button>
           </Space>
         </div>
         <hr className="mb-4" />
-        <Tree
-          defaultExpandAll
-          className="custom-tree"
-          treeData={countryData.map((dept) => ({
-            ...dept,
-            title: (
-              <div className="bg-[#e6f4ff] border border-[#049DBF] rounded px-4 py-2 flex justify-between items-center">
-                <div className="flex items-center font-bold text-lg">
-                  <StarFilled className="text-green-500 mr-2" />
-                  {dept.nombre}
-                </div>
-                <div className="flex space-x-2">
-                  <Button type="text" icon={<PlusCircleFilled className="text-green-500 text-xl" />} onClick={() => setMunAddView(dept)} />
-                  <Button type="text" icon={<DeleteFilled className="text-red-500 text-xl" />} onClick={() => setMunDeleteView(dept)} />
-                </div>
-              </div>
-            ),
-            children: dept.Municipios.map((mun) => ({
-              ...mun,
+        
+        <div className="overflow-x-auto">
+          <Tree
+            defaultExpandAll
+            className="w-full min-w-[320px]"
+            treeData={countryData.map((dept) => ({
+              ...dept,
               title: (
-                <div className="ml-6 bg-[#f0faff] border border-[#049DBF] rounded px-4 py-1 flex items-center">
-                  <EnvironmentOutlined className="text-green-500 mr-2" />
-                  {mun.nombre}
+                <div
+                  className="flex justify-between items-center bg-[#e6f4ff] rounded border border-[#049DBF] px-4 py-3 m-1 font-bold text-lg w-full max-w-[60vw] min-w-[300px]"
+                >
+                  {/* IZQUIERDA */}
+                  <div className="flex items-center truncate">
+                    <StarFilled className="text-green-500 mr-2 text-2xl flex-shrink-0" />
+                    <span className="truncate">{dept.nombre}</span>
+                  </div>
+
+                  {/* DERECHA */}
+                  <div className="flex items-center space-x-2 flex-shrink-0">
+                    <Button
+                      type="text"
+                      icon={<PlusCircleFilled className="text-green-500 bg-white rounded text-2xl" />}
+                      className="p-0"
+                      onClick={() => setMunAddView(dept)}
+                    />
+                    <Button
+                      type="text"
+                      icon={<DeleteFilled className="text-red-500 text-2xl" />}
+                      className="p-0"
+                      onClick={() => setMunDeleteView(dept)}
+                    />
+                  </div>
                 </div>
               ),
-            })),
-          }))}
-        />
+              children: dept.Municipios.map((mun) => ({
+                ...mun,
+                title: (
+                  <div
+                    className="flex items-center bg-[#f0faff] rounded border border-[#049DBF] px-4 py-1 m-1 text-base w-full max-w-[55vw] min-w-[280px] cursor-pointer"
+                  >
+                    <EnvironmentOutlined className="text-green-500 mr-2 text-xl flex-shrink-0" />
+                    <span className="truncate">{mun.nombre}</span>
+                  </div>
+                ),
+              })),
+            }))}
+          />
+        </div>
       </Card>
-
       {/* Modales */}
       {depAddView && <AgregarDepartamento visible={depAddView} Name={paisData?.nombre || '...'} onLoad={cargarDatos} onClose={() => setDepAddView(false)} id_pais={pais.id_pais} />}
       {depDeleteView && <EliminarDepartamento visible={depDeleteView} onLoad={cargarDatos} onClose={() => setDepDeleteView(false)} id_pais={pais.id_pais} />}

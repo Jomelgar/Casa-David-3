@@ -17,9 +17,9 @@ function PopUpExport({ visible, onConfirm, onCancel }) {
     const userToken = getUserFromToken();
     const userProp = await UserApi.getUserRequest(userToken.userId);
     const personaId = userProp.data.id_persona;
-
     const paisResponse = await axiosInstance.get(`/personas/${personaId}/pais`);
-    const idPais = paisResponse.data.idPais;
+    console.log(paisResponse.data);
+    const idPais = paisResponse.data.id_pais;
     const res = await axiosInstance.get(`/pais/${idPais}/iso`);
     setMonedaLocal(res.data.codigo_iso);
   }
