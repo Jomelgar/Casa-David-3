@@ -916,6 +916,7 @@ useEffect(() => {
       setCountries(filtered);
 
       const pais = await cargarPaisdeUso();
+      console.log(pais);
       const selected = await filtered.find(c => c.code === pais.referencia_telefonica);
       setSelectedCountry(selected || filtered[0]);
       setSelectedCountry2(selected || filtered[0]);
@@ -1464,30 +1465,6 @@ const countrySelector3 = (
       }
     } catch (error) {
       // deberia lanzar una notificacion para el eerorr
-      console.error(error);
-    }
-  };
-
-  ////////////////////////////Cambios para municipio y departamento
-  const loadDepartamentos = async () => {
-    try {
-      
-      const response = await getDepartamentos();
-      
-      if (!response) {
-        // deberia lanzar un error
-        throw new Error("No se pudo cargar los departamentos");
-      }
-
-      if (response.status >= 200 && response.status < 300) {
-        setDepartamentos(
-          response.map((e) => ({
-            value: e.id_departamento,
-            label: e.nombre_departamento,
-          }))
-        );
-      }
-    } catch (error) {
       console.error(error);
     }
   };
@@ -2613,7 +2590,6 @@ const validarCamposAcompanante = () => {
     loadProcedencias();
     loadHospitales(); // Cargar los hospitales para que se puedan elegir en el select apenas se meta a la vista
     //////////////////////////Cambios para municipio y departamento de prueba
-    loadDepartamentos();
     loadMunicipiosHuesped();
     loadMunicipioAcompanantes();
     loadMunicipiosPaciente();
@@ -2634,7 +2610,8 @@ const validarCamposAcompanante = () => {
     console.log("SE CORRIO EL FETCH DEPARTAMENTOS");
     const fetchDepartamentos = async () => {
       try {
-        const departamentosData = await getDepartamentos();
+        const pais = await personaApi.getPaisByPersona(usuario.id_persona);
+        const departamentosData = await getDepartamentoByPais(pais.data.id_pais);
         setDepartamentos(departamentosData);
       } catch (error) {
         console.error("Error fetching departamentos:", error);

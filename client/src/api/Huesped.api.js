@@ -1,6 +1,6 @@
 import axiosInstance from './axiosInstance';
 // src/utils/api.js
-export const COUNTRIES_API = 'https://restcountries.com/v3.1/all';
+export const COUNTRIES_API = 'https://restcountries.com/v3.1/all?fields=name,idd,flags';
 
 const getHuespedRequest = async (id) => {
   try {
