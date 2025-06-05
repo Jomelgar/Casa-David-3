@@ -5,43 +5,53 @@ import customGeoJson from "../assets/custom.geo.json"; // Asegúrate que incluye
 
 const CountryMap = ({ countryName }) => {
   const geoJsonStyle = (feature) => {
-    const isSelected =
-      feature.properties?.name?.toLowerCase() === countryName.toLowerCase() ||
-      feature.properties?.NAME?.toLowerCase() === countryName.toLowerCase();
+    const featureName = feature.properties?.name || feature.properties?.NAME || "";
+    const isSelected = featureName.toLowerCase() === countryName.toLowerCase();
 
     return {
-      fillColor: isSelected ? "lightgreen" : "lightblue", // Azul para seleccionado, gris para otros
-      color: isSelected ? "black" : "lightblue",     // Bordes más oscuros para seleccionado
-      weight: isSelected ? 1 : 1,
-      fillOpacity: isSelected ? 1 : 1,
+      fillColor: isSelected ? "#66FF99" : "#9AD9B5",
+      color: isSelected ? "green" : "##9AD9B5",
+      weight: 1,
+      fillOpacity: isSelected ? 1 : 0.8,
       opacity: 1,
-      width: "100%",
-      height: "100%"
     };
   };
 
   const centerOfCentralAmerica = useMemo(() => [14.5, -85], []);
 
   return (
+    <div className="w-full h-full">
+      <style>{`
+        .leaflet-control-zoom {
+          transform: scale(0.75);
+          transform-origin: bottom right;
+        }
+        .leaflet-control-zoom a {
+          width: 26px;
+          height: 26px;
+          line-height: 26px;
+          font-size: 16px;
+        }
+      `}</style>
     <MapContainer
       center={centerOfCentralAmerica}
       zoom={4.2}
-      zoomControl={false}
-      dragging={false}
+      zoomControl={true}
+      dragging={true}
       scrollWheelZoom={false}
       doubleClickZoom={false}
       touchZoom={false}
       attributionControl={false}
       style={{
-        backgroundColor: "transparent",
+        backgroundColor: "#3BBFD9",
         width: '100%',
         height: '100%',
-        border: "1px solid #e5e7eb",
-        borderRadius: "8px",
+        border: "3px solid #3BBFD9s",
       }}
     >
       <GeoJSON data={customGeoJson} style={geoJsonStyle} />
     </MapContainer>
+    </div>
   );
 };
 

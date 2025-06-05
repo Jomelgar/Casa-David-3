@@ -145,7 +145,7 @@ function App() {
             }}
           >
             <div className="flex justify-between items-center">
-              <span className="text-4xl md:text-5xl">{camasDisponibles}/{numeroCamas}</span>
+              <span className="text-4xl  md:text-5xl">{camasDisponibles}/{numeroCamas}</span>
               <HomeOutlined className="text-5xl md:text-6xl" />
             </div>
           </Card>
