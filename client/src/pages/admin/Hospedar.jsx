@@ -23,6 +23,7 @@ import pacienteApi from "../../api/Paciente.api";
 import PaisApi from "../../api/Pais.api";
 import pacienteHuespedApi from "../../api/pacienteHuesped.api";
 import { getDepartamentos } from "../../api/departamentoApi";
+import {getDepartamentoByPais} from "../../api/departamentoApi";
 import { getMunicipiosByDepartamentoId } from "../../api/municipioApi";
 import { getMunicipioById } from "../../api/municipioApi";
 import PersonApi from "../../api/Persona.api";
@@ -1471,7 +1472,7 @@ const countrySelector3 = (
     try {
       
       const response = await getDepartamentos();
-
+      
       if (!response) {
         // deberia lanzar un error
         throw new Error("No se pudo cargar los departamentos");
@@ -1650,6 +1651,20 @@ const countrySelector3 = (
     } catch (error) {}
 
     setLoading(false);
+  };
+
+   const validarCampos = async () => {
+    if (validarCamposHospedado() && validarCamposPaciente()) {
+      if (acompanante) {
+        if (validarCamposAcompanante()) {
+          return true;
+        } else return false;
+      }
+
+      return true;
+    }
+
+    return false;
   };
 
   const ResetearAtributos = () => {
@@ -2028,15 +2043,15 @@ const countrySelector3 = (
         }
         break;
 
-        
+
       case "dni_afiliado":
-        if (previousValue !== null && value.length > previousValue.length) {
-          if (/^\d{4}$/.test(value) || /^\d{4}-\d{4}$/.test(value)) {
-            newValue = value + "-";
+        if (selected3=="DNI" && previousValue !== null && value.length > previousValue.length) {
+          newValue = aplicarFormatoDNI(value, dniFormat);
+          if (validarFormatoConGuiones(newValue, dniFormat)) {
+            searchDni(newValue, 1);
           }
         }
         break;
-
       case "telefono":
   console.log("Huesped...Pais: ", selectedCountry, ", code: ", selectedCountry.code);
   if (selectedCountry && selectedCountry.code) {
@@ -2293,7 +2308,7 @@ const validarCamposHospedado = () => {
         openNotification(
           2,
           "Teléfono del Huesped",
-          `Formato inválido. Use el formato para ${selectedCountry.name} (Ej: ${ejemploFormato(selectedCountry.code)})`
+          `Formato inválido. Use el formato para `
         );
         return false;
       }
@@ -2337,7 +2352,7 @@ const validarCamposPaciente = () => {
         openNotification(
           2,
           "Teléfono del Paciente",
-          `Formato inválido. Use el formato para ${selectedCountry3.name} (Ej: ${ejemploFormato(selectedCountry3.code)})`
+          `Formato inválido.)`
         );
         return false;
       }
@@ -2380,7 +2395,7 @@ const validarCamposAcompanante = () => {
         openNotification(
           2,
           "Teléfono del Acompañante",
-          `Formato inválido. Use el formato para ${selectedCountry2.name} (Ej: ${ejemploFormato(selectedCountry2.code)})`
+          `Formato inválido. `
         );
         return false;
       }
