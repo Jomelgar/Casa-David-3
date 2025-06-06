@@ -4,14 +4,14 @@ import { useLayout } from "../../../context/LayoutContext";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import OcupacionesApi from "../../../api/Ocupaciones.api";
-import { getDepartamentos } from "../../../api/departamentoApi";
+import { getDepartamentoByPais } from "../../../api/departamentoApi";
 import { getMunicipiosByDepartamentoId } from "../../../api/municipioApi";
-import lugarApi from "../../../api/Lugar.api";
 import { getMunicipioById } from "../../../api/municipioApi";
 import hospitalesApi from "../../../api/Hospitales.api";
 import usuarioApi from "../../../api/User.api";
 import UserApi from "../../../api/User.api";
 import personaApi from "../../../api/Persona.api";
+import lugarApi from "../../../api/Lugar.api";
 import { getUserFromToken } from "../../../utilities/auth.utils";
 
 import {
@@ -47,53 +47,54 @@ const dniFormat = /^\d{4}-\d{4}-\d{5}$/;
 
 const CaraEspecial = ["!", "@", "#", "$", "^", "&", "*"];
 
-const cargarlugares = async (id) => 
-  {
-    const lugares = await lugarApi.getLugarByPais(1);
-    return lugares;
-  };
-
 const generos = [
   { value: 1, label: "Femenino" },
   { value: 2, label: "Masculino" },
 ];
+const master_roles = [
+  { value: 1, label: "USUARIO" },
+  { value: 2, label: "ADMINISTRADOR" },
+  {value: 3, label: "MASTER"}
+];
+
 const roles = [
-  { value: 1, label: "Administrador" },
-  { value: 2, label: "Usuario" },
+  { value: 1, label: "USUARIO" },
+  { value: 2, label: "ADMINISTRADOR" }
 ];
 
 function CrearUsuarios() {
   //para dropbox & calendario de procedencia y ocupaciones
   const [ocupaciones, setOcupaciones] = useState([]);
   const [searchOcupacion, setSearchOcupacion] = useState("");
-
   const [departamentos, setDepartamentos] = useState([]);
   const [municipios, setMunicipios] = useState([]);
+  const [lugar,setLugar] = useState([]);
   const [selectedDepartamento, setSelectedDepartamento] = useState(null);
   const [selectedMunicipio, setSelectedMunicipio] = useState(null);
+  const [pais,setPais] = useState({});
 
-  const loadDepartamentos = async () => {
-    try {
-      const response = await getDepartamentos();
+  const userData = getUserFromToken();
+  const rolLog = userData.role;
 
-      if (!response) {
-        // deberia lanzar un error
-        throw new Error("No se pudo cargar los departamentos");
-      }
-
-      if (response.status >= 200 && response.status < 300) {
-        setDepartamentos(
-          response.map((e) => ({
-            value: e.id_departamento,
-            label: e.nombre_departamento,
+  const loadLugar = async() => 
+      {
+        const paisData = await personaApi.getPaisByPersona(userData.id_persona);
+        setPais({id_pais: paisData.data.id_pais, nombre: paisData.data.nombre});
+        console.log(pais);
+        const lugares = await lugarApi.getLugarByPais(paisData.data.id_pais);
+        setLugar(lugares.data.map((l)=>
+          ({
+            id_lugar: l.id_lugar,
+            codigo: l.codigo,
+            direccion: l.direccion
           }))
-        );
-      }
-    } catch (error) {
-      console.error(error);
+        ); 
+      };
+  useEffect(()=>
+    {
+      loadLugar();
     }
-  };
-
+  ,[]);
   const loadMunicipios = async () => {
     try {
       const response = await getMunicipiosByDepartamentoId(
@@ -147,19 +148,21 @@ function CrearUsuarios() {
   const loadHospitales = async () => {
     try {
       const response = await hospitalesApi.getHospitalRequest();
-
+      const paisData = await personaApi.getPaisByPersona(userData.id_persona);
       if (!response) {
         // deberia lanzar un error
         throw new Error("No se pudo cargar las Hospitales");
       }
 
       if (response.status >= 200 && response.status < 300) {
-        setHospitales(
-          response.data.map((e) => ({
+          setHospitales(
+          response.data
+          .filter((hospital) => hospital.id_pais === paisData.data.id_pais)
+          .map((e) => ({
             value: e.id_hospital,
             label: e.nombre + " , " + e.direccion,
           }))
-        );
+          );
       } else {
         // deberia lanzar un error
         throw new Error("No se pudo cargar los hospitales");
@@ -216,9 +219,6 @@ function CrearUsuarios() {
   //para dropbox hospital
   const [hospitales, setHospitales] = useState([]);
   const [searchHospital, setSearchHospital] = useState("");
-
-  const userData = getUserFromToken();
-  const rolLog = userData.role;
 
   const [loadind, setLoading] = useState(false);
 
@@ -326,7 +326,6 @@ function CrearUsuarios() {
   */
 
   const [user, setUser] = useState({});
-  const [lugares, setLugares] = useState([]);
 
   const ResetearAtributos = () => {
     const userVacio = {
@@ -359,7 +358,7 @@ function CrearUsuarios() {
     console.log("Buscando " + in_dni);
     cargarInformacion(in_dni);
   };
-  
+
   const cargarInformacion = async (in_dni) => {
     try {
       const response = await personaApi.getPersonaByDniRequest(in_dni);
@@ -611,7 +610,7 @@ function CrearUsuarios() {
       id_persona: user.id_persona,
       nickname: user.nickname,
       contrasena: user.contrasena,
-      rol: user.rol === 1 ? "admin" : "usuario",
+      rol: user.rol === 1 ? "admin" : user.rol === 2? "usuario" : "master",
       id_hospital: user.id_hospital,
     };
 
@@ -683,14 +682,10 @@ function CrearUsuarios() {
     setLoading(false);
   };
 
-  useEffect(async() => {
+  useEffect(() => {
     loadOcupaciones();
     loadHospitales();
-    loadDepartamentos();
     loadMunicipios();
-    const lugar = await cargarlugares(user.id_persona);
-    console.log(lugar);
-    setLugares(lugar?.data || []);
     ResetearAtributos();
     cargarInformacion();
     setCurrentPath("/ Mantenimiento / Usuarios / Crear Usuario");
@@ -700,7 +695,8 @@ function CrearUsuarios() {
     console.log("SE CORRIO EL FETCH DEPARTAMENTOS");
     const fetchDepartamentos = async () => {
       try {
-        const departamentosData = await getDepartamentos();
+        const paisData = await personaApi.getPaisByPersona(userData.id_persona);
+        const departamentosData = await getDepartamentoByPais(paisData.data.id_pais);
         setDepartamentos(departamentosData);
       } catch (error) {
         console.error("Error fetching departamentos:", error);
@@ -914,17 +910,17 @@ function CrearUsuarios() {
             >
               <Select
                 placeholder="Lugar"
-                size="large"  
+                size="large"
                 style={{ width: "100%", height: "100%" }}
                 value={user.id_lugar}
                 onChange={(e) => {
                   handleSetChangeUser("id_lugar", e);
                 }}
               >
-                 {lugares.map((lugar) => (
-                  <Select.Option key={lugar.id_lugar} value={lugar.id_lugar}>
-                    {`${lugar.codigo}`}
-                  </Select.Option>
+                {lugar.map((l) => (
+                  <option key={l.id_lugar} value={l.id_lugar}>
+                    {l.codigo}
+                  </option>
                 ))}
               </Select>
             </Col>
@@ -1053,7 +1049,6 @@ function CrearUsuarios() {
             </Col>
           </Row>
         </Card>
-
         <Card style={{ marginTop: 16 }} className="shadow-#1">
           <Meta title="Rol y Usuario" />
 
@@ -1084,7 +1079,7 @@ function CrearUsuarios() {
               <Select
                 placeholder="Rol"
                 size="large"
-                options={roles}
+                options={rolLog === "master" ? master_roles : roles}
                 style={{ width: "100%", height: "100%" }}
                 defaultValue={user.rol}
                 value={user.rol}
@@ -1141,7 +1136,6 @@ function CrearUsuarios() {
             </Col>
           </Row>
         </Card>
-
         <Card style={{ marginTop: 16 }} className="shadow-#1">
           <Meta title="Contraseña" />
           <Row gutter={25} style={{ marginTop: 20 }}>
