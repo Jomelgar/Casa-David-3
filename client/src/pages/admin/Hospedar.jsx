@@ -1067,52 +1067,6 @@ const countrySelector3 = (
 );
 
 
-const seleccionarAfiliado = (
- <Checkbox
-      style={{ width: 270, height: 45, marginRight:20, marginLeft:370}}
-      checked={acompanante.es_paciente}
-      onChange={async (e) => {
-        const isChecked = e.target.checked;
-        setAcompanante({ ...acompanante, es_paciente: isChecked });
-        
-
-        if (isChecked) {
-          setPacienteMarcado(1);
-          setPaciente({
-            ...paciente,
-            dni: hospedado.dni,
-            id_ocupacion: hospedado.id_ocupacion,
-            primer_nombre: hospedado.primer_nombre,
-            segundo_nombre: hospedado.segundo_nombre,
-            primer_apellido: hospedado.primer_apellido,
-            segundo_apellido: hospedado.segundo_apellido,
-            genero: hospedado.genero,
-            iglesia: hospedado.iglesia,
-            municipio_id: hospedado.municipio_id,
-            direccion: hospedado.direccion,
-            fecha_nacimiento: hospedado.fecha_nacimiento,
-            telefono: hospedado.telefono,
-          });
-
-          const municipioPaciente = await fetchMunicipioById(
-            hospedado.municipio_id
-          );
-          if (municipioPaciente) {
-            setSelectedDepartamentoPaciente(municipioPaciente.departamento_id);
-            setSelectedMunicipioPaciente(hospedado.municipio_id);
-          }
-
-          setIsInfoPacienteEditable(false);
-        } else {
-          setPacienteMarcado(0);
-          setIsInfoPacienteEditable(true);
-        }
-      }}
-      className="text-lg px-3 py-2 rounded-md shadow-sm hover:shadow-md transition-shadow border-2 border-gray-200 text-gray-800 font-semibold"
-    >
-      Marcar Huesped como afiliado
-    </Checkbox>
-);
 
 
   const usuario = getUserFromToken();
