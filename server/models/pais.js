@@ -41,7 +41,7 @@ const Pais = sequelize.define(
         },
         referencia_telefonica:
         {
-            type: Sequelize.STRING(4),
+            type: Sequelize.STRING(5),
             allowNull: false
         },
         formato_dni:

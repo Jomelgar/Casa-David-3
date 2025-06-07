@@ -88,6 +88,7 @@ exports.createUserAndPersona = async (userData, personaData) => {
   const probar = await sequelize.transaction();
 
   try {
+    console.log(personaData);
     const nuevaP = await Persona.create(personaData, { probar });
     userData.id_persona = nuevaP.id_persona;
     const nuevoU = await Usuario.create(userData, { probar });

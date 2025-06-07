@@ -30,6 +30,7 @@ exports.login = async (req, res) => {
         return priv.id_privilegio
       })
 
+      const id_pais = await personaService.getPais(user.id_persona);
       // Generate JWT token
       const token = jwt.sign(
         {
@@ -40,6 +41,8 @@ exports.login = async (req, res) => {
           id_hospital: user.id_hospital,
           id_lugar: persona.id_lugar,
           privilegios: privs,
+          id_pais: id_pais.Lugar.Pai.id_pais,
+          referencia_telefonica: id_pais.Lugar.Pai.referencia_telefonica
         },
         JWT_SECRET,
         { expiresIn: "2h" }

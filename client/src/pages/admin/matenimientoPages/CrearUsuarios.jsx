@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useLayout } from "../../../context/LayoutContext";
 
 import dayjs from "dayjs";
@@ -12,7 +12,11 @@ import usuarioApi from "../../../api/User.api";
 import UserApi from "../../../api/User.api";
 import personaApi from "../../../api/Persona.api";
 import lugarApi from "../../../api/Lugar.api";
+import paisApi from "../../../api/Pais.api";
 import { getUserFromToken } from "../../../utilities/auth.utils";
+import formatearValor from "../../../utilities/formato_dni";
+import axios from "axios";
+import {COUNTRIES_API} from "../../../api/Huesped.api";
 
 import {
   Card,
@@ -62,39 +66,84 @@ const roles = [
   { value: 2, label: "ADMINISTRADOR" }
 ];
 
+
+
 function CrearUsuarios() {
+  const userData = getUserFromToken();
   //para dropbox & calendario de procedencia y ocupaciones
   const [ocupaciones, setOcupaciones] = useState([]);
   const [searchOcupacion, setSearchOcupacion] = useState("");
   const [departamentos, setDepartamentos] = useState([]);
   const [municipios, setMunicipios] = useState([]);
   const [lugar,setLugar] = useState([]);
+  const [selectedLugar, setSelectedLugar] = useState(null);
+  const [selectedHospital, setSelectedHospital] = useState(null);
   const [selectedDepartamento, setSelectedDepartamento] = useState(null);
   const [selectedMunicipio, setSelectedMunicipio] = useState(null);
-  const [pais,setPais] = useState({});
+  const pais = useRef(userData.id_pais);
+  const [paises,setPaises] = useState([]);
+  const[countries,setCountries] = useState([]);
+  const selectedCountry = useRef();
+  const selectedCountryCode = useRef(userData.referencia_telefonica);
+  const [dummyState, setDummyState] = useState(false);
 
-  const userData = getUserFromToken();
   const rolLog = userData.role;
 
-  const loadLugar = async() => 
+
+  const loadPaises= async() => 
+  {
+    const paisData = await paisApi.getPaisForTable();
+    console.log(paisData.data);
+    setPaises(paisData.data.map((p) =>
+      ({
+        id_pais: p.id_pais,
+        nombre: p.nombre,
+        referencia_telefonica: p.referencia_telefonica,
+        formato_dni: p.formato_dni
+      }))
+    );
+  }
+
+  const loadRef_Tel=async()=>
+  {
+    const pa = paises.find((p) => p.id_pais === pais.current);
+    selectedCountryCode.current = (pa.referencia_telefonica);
+    const selected = countries.find(c => c.code === selectedCountryCode.current);
+    selectedCountry.current = selected;
+    console.log(selectedCountry.current);
+  };
+  const loadLugar = async(id_pais = null) => 
       {
-        const paisData = await personaApi.getPaisByPersona(userData.id_persona);
-        setPais({id_pais: paisData.data.id_pais, nombre: paisData.data.nombre});
-        console.log(pais);
-        const lugares = await lugarApi.getLugarByPais(paisData.data.id_pais);
-        setLugar(lugares.data.map((l)=>
-          ({
-            id_lugar: l.id_lugar,
-            codigo: l.codigo,
-            direccion: l.direccion
-          }))
-        ); 
+        if(id_pais == null){
+          const paisData = await personaApi.getPaisByPersona(userData.id_persona);
+          const lugares = await lugarApi.getLugarByPais(paisData.data.id_pais);
+          setLugar(lugares.data.map((l)=>
+            ({
+              id_lugar: l.id_lugar,
+              codigo: l.codigo,
+              direccion: l.direccion
+            }))
+          ); 
+        }
+        else
+        {
+          const lugares = await lugarApi.getLugarByPais(id_pais);
+          setLugar(lugares.data.map((l)=>
+            ({
+              id_lugar: l.id_lugar,
+              codigo: l.codigo,
+              direccion: l.direccion
+            }))
+          ); 
+        }
       };
+
   useEffect(()=>
     {
       loadLugar();
     }
   ,[]);
+
   const loadMunicipios = async () => {
     try {
       const response = await getMunicipiosByDepartamentoId(
@@ -145,28 +194,46 @@ function CrearUsuarios() {
     }
   };
 
-  const loadHospitales = async () => {
+  const loadHospitales = async (principio = true) => {
     try {
       const response = await hospitalesApi.getHospitalRequest();
-      const paisData = await personaApi.getPaisByPersona(userData.id_persona);
-      if (!response) {
-        // deberia lanzar un error
-        throw new Error("No se pudo cargar las Hospitales");
-      }
-
-      if (response.status >= 200 && response.status < 300) {
-          setHospitales(
-          response.data
-          .filter((hospital) => hospital.id_pais === paisData.data.id_pais)
-          .map((e) => ({
-            value: e.id_hospital,
-            label: e.nombre + " , " + e.direccion,
-          }))
-          );
-      } else {
+      if(principio)
+      {
+        const paisData = await personaApi.getPaisByPersona(userData.id_persona);
+        if (!response) {
+          // deberia lanzar un error
+          throw new Error("No se pudo cargar las Hospitales");
+        }  
+        if (response.status >= 200 && response.status < 300) {
+            setHospitales(
+            response.data
+            .filter((hospital) => hospital.id_pais === paisData.data.id_pais)
+            .map((e) => ({
+              value: e.id_hospital,
+              label: e.nombre + " , " + e.direccion,
+            }))
+            );
+        } else {
         // deberia lanzar un error
         throw new Error("No se pudo cargar los hospitales");
+        } 
       }
+      else
+      {
+        if (response.status >= 200 && response.status < 300) {
+            setHospitales(
+            response.data
+            .filter((hospital) => hospital.id_pais === pais.current)
+            .map((e) => ({
+              value: e.id_hospital,
+              label: e.nombre + " , " + e.direccion,
+            }))
+            );
+        } else {
+        // deberia lanzar un error
+        throw new Error("No se pudo cargar los hospitales");
+        } 
+      }   
     } catch (error) {
       // deberia lanzar una notificacion para el eerorr
       console.error(error);
@@ -220,7 +287,7 @@ function CrearUsuarios() {
   const [hospitales, setHospitales] = useState([]);
   const [searchHospital, setSearchHospital] = useState("");
 
-  const [loadind, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const validarFormatoHospital = () => {
     const hospitalFormat = searchHospital.split(",");
@@ -316,6 +383,7 @@ function CrearUsuarios() {
           primer_apellido,
           segundo_apellido,
           telefono,
+          referencia_telefonica
           nickname,
           rol, (este se debe formatear para que sea un numero que represente el valor en el select)
           contrasena,
@@ -459,15 +527,7 @@ function CrearUsuarios() {
 
     switch (key) {
       case "dni":
-        if (previousValue !== null && value.length > previousValue.length) {
-          if (/^\d{4}$/.test(value) || /^\d{4}-\d{4}$/.test(value)) {
-            newValue = value + "-";
-          }
-        }
-
-        if (/^\d{4}-\d{4}-\d{5}$/.test(newValue)) {
-          searchDni(newValue);
-        }
+        searchDni(newValue);
         break;
 
       case "telefono":
@@ -488,12 +548,22 @@ function CrearUsuarios() {
           setUser({ ...user, municipio_id: value });
         }
         break;
-
+      case "id_lugar":
+        if(value)
+          {
+            setSelectedLugar(newValue);
+          }
+        break;
+      case "id_hospital":
+        if(value)
+          {
+            setSelectedHospital(newValue);
+          }
       default:
         break;
     }
 
-    setUser({ ...user, [key]: newValue });
+  setUser({ ...user, [key]: newValue });
   };
 
   const validarNicknameExists = async (nickname) => {
@@ -567,11 +637,6 @@ function CrearUsuarios() {
           return false;
         }
       }
-
-      if (key === "dni" && value.match(dniFormat) === null) {
-        openNotification(2, "DNI", "El formato del DNI no es valido");
-        return false;
-      }
     }
 
     if (user.contrasena !== user.confirmContrasena) {
@@ -603,7 +668,8 @@ function CrearUsuarios() {
       telefono: user.telefono,
       direccion: user.direccion,
       municipio_id: user.municipio_id,
-      id_lugar: user.id_lugar,
+      id_lugar: selectedLugar,
+      referencia_telefonica: selectedCountryCode.current,
     };
 
     const usuario = {
@@ -611,9 +677,9 @@ function CrearUsuarios() {
       nickname: user.nickname,
       contrasena: user.contrasena,
       rol: user.rol === 1 ? "admin" : user.rol === 2? "usuario" : "master",
-      id_hospital: user.id_hospital,
+      id_hospital: selectedHospital,
     };
-
+    console.log("Momento de ingresar Persona", persona);
     if (await validarCampos()) {
       if (!existUser) {
         if (!existPerson) {
@@ -626,6 +692,7 @@ function CrearUsuarios() {
             if (!response || response.status !== 201) {
               ResetearAtributos();
               openNotification(3, "Error", "No se pudo crear el usuario");
+              setLoading(false);
               return;
             }
 
@@ -649,7 +716,7 @@ function CrearUsuarios() {
               id_persona: user.id_persona,
               nickname: user.nickname,
               contrasena: user.contrasena,
-              rol: user.rol === 1 ? "admin" : "usuario",
+              rol: user.rol === 1 ? "admin" : user.rol === 2? "usuario" : "master",
               id_hospital: user.id_hospital,
             };
 
@@ -668,6 +735,7 @@ function CrearUsuarios() {
             return;
           } catch (error) {
             openNotification(3, "Error", error);
+            setLoading(false);
           }
         }
       } else {
@@ -677,12 +745,14 @@ function CrearUsuarios() {
           "Ya Tiene un Usuario",
           "La persona que ingreso ya tiene un usuario."
         );
+        setLoading(false);
       }
     }
     setLoading(false);
   };
 
   useEffect(() => {
+    loadPaises();
     loadOcupaciones();
     loadHospitales();
     loadMunicipios();
@@ -691,18 +761,25 @@ function CrearUsuarios() {
     setCurrentPath("/ Mantenimiento / Usuarios / Crear Usuario");
   }, []);
 
-  useEffect(() => {
-    console.log("SE CORRIO EL FETCH DEPARTAMENTOS");
-    const fetchDepartamentos = async () => {
+  const fetchDepartamentos = async (id_pais = null) => {
       try {
-        const paisData = await personaApi.getPaisByPersona(userData.id_persona);
-        const departamentosData = await getDepartamentoByPais(paisData.data.id_pais);
-        setDepartamentos(departamentosData);
+        if(id_pais !== null)
+        {
+          const departamentosData =  await getDepartamentoByPais(id_pais);
+          setDepartamentos(departamentosData);
+        }else 
+        {
+          const paisData = await personaApi.getPaisByPersona(userData.id_persona);
+          const departamentosData = await getDepartamentoByPais(paisData.data.id_pais);
+          setDepartamentos(departamentosData);
+        }
       } catch (error) {
         console.error("Error fetching departamentos:", error);
       }
-    };
+  };
 
+  useEffect(() => {
+    console.log("SE CORRIO EL FETCH DEPARTAMENTOS");
     fetchDepartamentos();
   }, []);
 
@@ -729,6 +806,33 @@ function CrearUsuarios() {
   }, [selectedDepartamento]);
 
   const { isXS } = useLayout();
+
+
+useEffect(() => {
+  const fetchData = async () => {
+    try {
+      const res = await axios.get(COUNTRIES_API);
+      const filtered = res.data
+        .filter(c => c.idd?.root && c.idd?.suffixes && c.flags?.png)
+        .map(c => ({
+          name: c.name.common,
+          code: c.idd.root + (c.idd.suffixes[0] || ''),
+          flag: c.flags.png
+        }))
+        .sort((a, b) => a.name.localeCompare(b.name));
+
+      setCountries(filtered);
+
+      const selected = await filtered.find(c => c.code === selectedCountryCode.current);
+      selectedCountry.current = selected;
+      console.log(selectedCountry.current.code);
+    } catch (error) {
+      console.error('Error al cargar datos de países:', error);
+    }
+  };
+
+  fetchData();
+}, [])
 
   return (
     <Flex vertical>
@@ -766,12 +870,15 @@ function CrearUsuarios() {
                 prefix={<IdcardOutlined style={styleIconInput} />}
                 size="large"
                 placeholder="No. de Identidad"
-                maxLength={15}
                 type="text"
                 style={{ height: "100%" }}
                 value={user.dni}
                 onChange={(e) => {
-                  handleSetChangeUser("dni", e.target.value, user.dni);
+                  const value = e.target.value;
+                  const esBorrado = e.nativeEvent.inputType === "deleteContentBackward";
+                  const pa = paises.find((p) => p.id_pais === pais.current);
+                  const dni = formatearValor(value,pa.formato_dni,esBorrado);
+                  handleSetChangeUser("dni", dni, user.dni);
                 }}
               />
             </Col>
@@ -798,7 +905,7 @@ function CrearUsuarios() {
                 placeholder="Ocupacion"
                 size="large"
                 notFoundContent={
-                  <Button loading={loadind} onClick={handleCrearOcupacion}>
+                  <Button loading={loading} onClick={handleCrearOcupacion}>
                     Crear Ocupacion
                   </Button>
                 }
@@ -908,21 +1015,42 @@ function CrearUsuarios() {
               lg={{ flex: "50%" }}
               style={{ marginBottom: 25, height: 50 }}
             >
-              <Select
-                placeholder="Lugar"
-                size="large"
-                style={{ width: "100%", height: "100%" }}
-                value={user.id_lugar}
-                onChange={(e) => {
-                  handleSetChangeUser("id_lugar", e);
+            <Select
+                id="selectHospital"
+                showSearch
+                searchValue={searchHospital}
+                onSearch={(e) => {
+                  setSearchHospital(e);
                 }}
-              >
-                {lugar.map((l) => (
-                  <option key={l.id_lugar} value={l.id_lugar}>
-                    {l.codigo}
-                  </option>
-                ))}
-              </Select>
+                optionFilterProp="children"
+                filterOption={(input, option) =>
+                  option.label.toLowerCase().includes(input.toLowerCase())
+                }
+                filterSort={(optionA, optionB) =>
+                  (optionA?.label ?? "")
+                    .toLowerCase()
+                    .localeCompare((optionB?.label ?? "").toLowerCase())
+                }
+                notFoundContent={
+                  <Button
+                    loading={loading}
+                    onClick={(e) => {
+                      handleCrearHospital();
+                    }}
+                  >
+                    Crear Hospital
+                  </Button>
+                }
+                placeholder="Hospital"
+                disabled={isEditable ? false : true}
+                style={{ width: "100%", height: "100%" }}
+                options={hospitales}
+                size="large"
+                value={selectedHospital}
+                onChange={(e) => {
+                  handleSetChangeUser("id_hospital", e);
+                }}
+              />
             </Col>
           </Row>
           <Row gutter={25}>
@@ -1030,13 +1158,56 @@ function CrearUsuarios() {
               style={{ marginBottom: 25, height: 50 }}
             >
               <Input
-                prefix={<PhoneOutlined style={styleIconInput} />}
+                addonBefore=
+                {
+                  <Select
+                      suffixIcon={<PhoneOutlined style={{ color: "#8c8c8c", width:230}} />}
+                      disabled={false}
+                      placeholder="Referencia Telefonica"
+                      showSearch
+                      style={{
+                        width: 250,
+                        height: 48,
+                        
+                      }}
+                      value={selectedCountry.current?.code}
+                      onChange={(value) => {
+                        const found = countries.find((c) => c.code === value);
+                        selectedCountry.current = found;
+                        handleSetChangeUser("referencia_telefonica",selectedCountryCode.current);
+                      }}
+                      optionLabelProp="label"    
+                    >
+                      {countries.map((country) => (
+                        <Select.Option
+                          key={country.code}
+                          value={country.code}
+                          label={`${country.name} (${country.code})`}
+                          setSelectedCountry={country.name}
+                          setSelectedCountryCode={country.code}
+                          setreferenciaTelefonica= {country.code}
+                        >
+                          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                            <img
+                              src={country.flag}
+                              alt={country.name}
+                              style={{ width: 20, height: 15 }}
+                            />
+                            {country.name} ({country.code})
+                          </div>
+                        </Select.Option>
+                      ))}
+                    </Select>
+                }
                 size="large"
                 disabled={isEditable ? false : true}
                 placeholder="Telefono"
                 maxLength={9}
                 type="text"
-                style={{ height: "100%" }}
+                style={{
+                  height: "100%",
+                  borderColor: "#FF0A0A",
+                }}
                 value={user.telefono}
                 onChange={(e) => {
                   handleSetChangeUser(
@@ -1092,47 +1263,58 @@ function CrearUsuarios() {
           </Row>
 
           <Row gutter={25} style={{ marginTop: 20 }}>
+            {rolLog === "master" && 
+            (
+              <Col
+              xs={{ flex: "100%" }}
+              lg={{ flex: "50%" }}
+              style={{ marginBottom: 25, height: 50 }}
+              >
+              <Select
+                placeholder="Pais"
+                size="large"
+                style={{ width: "100%", height: "100%" }}
+                value={pais.current}
+                onChange={async(e) => {
+                  pais.current = e;
+                  setSelectedLugar(null);
+                  loadHospitales(false);
+                  setSelectedHospital(null);
+                  setSelectedDepartamento(null);
+                  fetchDepartamentos(e);
+                  loadRef_Tel();
+                  setUser({...user,"dni": ''});
+                  loadLugar(e);
+                }}
+              >
+                {paises.map((p) => (
+                  <option key={p.id_pais} value={p.id_pais}>
+                    {p.nombre}
+                  </option>
+                ))}
+              </Select>
+              </Col>
+            )}
             <Col
               xs={{ flex: "100%" }}
               lg={{ flex: "50%" }}
               style={{ marginBottom: 25, height: 50 }}
             >
               <Select
-                id="selectHospital"
-                showSearch
-                searchValue={searchHospital}
-                onSearch={(e) => {
-                  setSearchHospital(e);
-                }}
-                optionFilterProp="children"
-                filterOption={(input, option) =>
-                  option.label.toLowerCase().includes(input.toLowerCase())
-                }
-                filterSort={(optionA, optionB) =>
-                  (optionA?.label ?? "")
-                    .toLowerCase()
-                    .localeCompare((optionB?.label ?? "").toLowerCase())
-                }
-                notFoundContent={
-                  <Button
-                    loading={loadind}
-                    onClick={(e) => {
-                      handleCrearHospital();
-                    }}
-                  >
-                    Crear Hospital
-                  </Button>
-                }
-                placeholder="Hospital"
-                disabled={isEditable ? false : true}
-                style={{ width: "100%", height: "100%" }}
-                options={hospitales}
+                placeholder="Casa"
                 size="large"
-                value={user.id_hospital}
+                style={{ width: "100%", height: "100%" }}
+                value={selectedLugar}
                 onChange={(e) => {
-                  handleSetChangeUser("id_hospital", e);
+                  handleSetChangeUser("id_lugar", e);
                 }}
-              />
+              >
+                {lugar.map((l) => (
+                  <option key={l.id_lugar} value={l.id_lugar}>
+                    {l.codigo}
+                  </option>
+                ))}
+              </Select>
             </Col>
           </Row>
         </Card>
@@ -1206,7 +1388,7 @@ function CrearUsuarios() {
               }}
             >
               <Button
-                loading={loadind}
+                loading={loading}
                 type="primary"
                 size={"large"}
                 onClick={handleSubmit}

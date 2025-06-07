@@ -69,6 +69,7 @@ const postUserPersonaRequest = async (user, persona) => {
       return response;
     } catch (error) {
       if (error.response) {
+        console.log(error.response);
         return error.response;
       }
     }

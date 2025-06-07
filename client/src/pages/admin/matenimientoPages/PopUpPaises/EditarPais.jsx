@@ -96,7 +96,7 @@ function EditarPais({ visible, onClose, onLoad,dataN, id}) {
               value={telephone}
               onChange={(e) => {
                 const value = e.target.value.toUpperCase();
-                if (value.length <= 4) {
+                if (value.length <= 5) {
                   const filtered = value.replace(/[^0-9+]/g, '');
                   setTelephone(filtered);
                 }
