@@ -1067,6 +1067,53 @@ const countrySelector3 = (
 );
 
 
+const seleccionarAfiliado = (
+ <Checkbox
+      style={{ width: 270, height: 45, marginRight:20, marginLeft:370}}
+      checked={acompanante.es_paciente}
+      onChange={async (e) => {
+        const isChecked = e.target.checked;
+        setAcompanante({ ...acompanante, es_paciente: isChecked });
+        
+
+        if (isChecked) {
+          setPacienteMarcado(1);
+          setPaciente({
+            ...paciente,
+            dni: hospedado.dni,
+            id_ocupacion: hospedado.id_ocupacion,
+            primer_nombre: hospedado.primer_nombre,
+            segundo_nombre: hospedado.segundo_nombre,
+            primer_apellido: hospedado.primer_apellido,
+            segundo_apellido: hospedado.segundo_apellido,
+            genero: hospedado.genero,
+            iglesia: hospedado.iglesia,
+            municipio_id: hospedado.municipio_id,
+            direccion: hospedado.direccion,
+            fecha_nacimiento: hospedado.fecha_nacimiento,
+            telefono: hospedado.telefono,
+          });
+
+          const municipioPaciente = await fetchMunicipioById(
+            hospedado.municipio_id
+          );
+          if (municipioPaciente) {
+            setSelectedDepartamentoPaciente(municipioPaciente.departamento_id);
+            setSelectedMunicipioPaciente(hospedado.municipio_id);
+          }
+
+          setIsInfoPacienteEditable(false);
+        } else {
+          setPacienteMarcado(0);
+          setIsInfoPacienteEditable(true);
+        }
+      }}
+      className="text-lg px-3 py-2 rounded-md shadow-sm hover:shadow-md transition-shadow border-2 border-gray-200 text-gray-800 font-semibold"
+    >
+      Marcar Huesped como afiliado
+    </Checkbox>
+);
+
 
   const usuario = getUserFromToken();
 
@@ -2293,7 +2340,7 @@ const validarCamposHospedado = () => {
     }
 
     // Validación DNI
-    if (key === "dni" && selected === "DNI" && (value.match(dniFormat) === null || value.length !== digitos)) {
+    if (key === "dni" && selected === "DNI" && value.length !== digitos) {
       openNotification(2, "DNI del huesped", "El formato del DNI no es válido");
       return false;
     }
@@ -2337,7 +2384,7 @@ const validarCamposPaciente = () => {
     }
 
     // Validación DNI
-    if (key === "dni" && selected3 === "DNI" && (value.match(dniFormat) === null || value.length !== digitos)) {
+    if (key === "dni" && selected3 === "DNI" &&  value.length !== digitos) {
       openNotification(2, "DNI del paciente", "El formato del DNI no es válido");
       return false;
     }
@@ -2380,7 +2427,7 @@ const validarCamposAcompanante = () => {
     }
 
     // Validación DNI
-    if (key === "dni" && selected2 === "DNI" && (value.match(dniFormat) === null || value.length !== digitos)) {
+    if (key === "dni" && selected2 === "DNI" && value.length !== digitos) {
       openNotification(2, "DNI del Acompañante", "El formato del DNI no es válido");
       return false;
     }
@@ -4511,6 +4558,7 @@ const validarCamposAcompanante = () => {
         !hospitalesPatronos.includes(paciente.id_hospital) ? (
           <div></div>
         ) : (
+          
           <PatronoHuesped
             changeUser={hospedado}
             isEditable={true}
