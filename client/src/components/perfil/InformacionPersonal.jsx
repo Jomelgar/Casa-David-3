@@ -499,47 +499,56 @@ const InformacionPersonal = ({
             <Row gutter={0} style={{ width: '100%' }}>
               <Col span={12}>
                 <Select
-                  suffixIcon ={<PhoneOutlined style={{ color: "#8c8c8c" }} />}
-                  placeholder="Referencia Telefonica"
-                  disabled={!isEditable}
-                  showSearch
-                  value={selectedCountryCode.current}
-                  onChange={(value) => {
-                    const found = countries.find((c) => c.code === value);
-                    setSelectedCountry(found);
-                    selectedCountryCode.current = value;
-                    handleSetChangeUser("referencia_telefonica",selectedCountryCode.current);
-                  }}
-                  optionLabelProp="label"
-                  filterOption={(input, option) =>
-                    option.label.toLowerCase().includes(input.toLowerCase())
-                  }
-                  style={{
-                    width: "100%",
-                    height: 48,
-                    borderTopRightRadius: 0,
-                    borderBottomRightRadius: 0,
-                    borderRight: "none",
-                    boxShadow: "none",
-                  }}
-                >
-                  {countries.map(({ code, name, flag }) => (
-                    <Select.Option
-                      key={code}
-                      value={code}
-                      label={`${name} (${code})`}
-                    >
-                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                        <img
-                          src={flag}
-                          alt={name}
-                          style={{ width: 20, height: 15, borderRadius: 2, objectFit: "cover" }}
-                        />
+                placeholder="Referencia Telefónica"
+                disabled={!isEditable}
+                showSearch
+                value={selectedCountryCode.current}
+                onChange={(value) => {
+                  const found = countries.find((c) => c.code === value);
+                  setSelectedCountry(found);
+                  selectedCountryCode.current = value;
+                  handleSetChangeUser("referencia_telefonica", selectedCountryCode.current);
+                }}
+                optionLabelProp="label"
+                filterOption={(input, option) =>
+                  option.label.toLowerCase().includes(input.toLowerCase())
+                }
+                style={{
+                  width: "100%",
+                  height: 48,
+                  borderTopRightRadius: 0,
+                  borderBottomRightRadius: 0,
+                  borderRight: "none",
+                  boxShadow: "none",
+                }}
+              >
+                {countries.map(({ code, name, flag }) => (
+                  <Select.Option
+                    key={code}
+                    value={code}
+                    label={
+                      <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        <PhoneOutlined style={{ color: "#8c8c8c" , marginRight: '15px'}} />
                         {name} ({code})
-                      </div>
-                    </Select.Option>
-                  ))}
-                </Select>
+                      </span>
+                    }
+                  >
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <img
+                        src={flag}
+                        alt={name}
+                        style={{
+                          width: 20,
+                          height: 15,
+                          borderRadius: 2,
+                          objectFit: "cover",
+                        }}
+                      />
+                      {name} ({code})
+                    </div>
+                  </Select.Option>
+                ))}
+              </Select>
               </Col>
               <Col span={12}>
                 <Input
