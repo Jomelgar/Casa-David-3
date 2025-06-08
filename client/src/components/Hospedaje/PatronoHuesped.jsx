@@ -16,6 +16,7 @@ import {
 import { useLayout } from "../../context/LayoutContext";
 import PatronoApi from "../../api/Patrono.api";
 
+
 function PatronoHuesped({ isEditable, user, changeUser, handleSetChangeUser }) {
   const { openNotification } = useLayout();
   const { Meta } = Card;

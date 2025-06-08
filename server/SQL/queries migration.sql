@@ -231,9 +231,9 @@ VALUES
     (57, 103, 85, 23, true, '2024-10-18', '2024-10-19', false);
 
 --Afiliado
-INSERT INTO afiliado (id_afiliado, id_pais, dni, nombre, condicion)
+INSERT INTO afiliado (id_afiliado, dni, nombre, condicion)
 VALUES
-(9, 1, '0107-1976-01399', 'PATRICIA LIZZETH FUENTES PORTILLO', '');
+(9, '0107-1976-01399', 'PATRICIA LIZZETH FUENTES PORTILLO', '');
 
 
     -- Lista Solicitud

@@ -1,7 +1,7 @@
 const Sequelize = require('sequelize');
 const sequelize = require('../Db');
 const {Persona} = require('./persona');
-const {Pais} = require('./pais');
+//const {Pais} = require('./pais');
 
 const Afiliado = sequelize.define('Afiliado', {
     id_afiliado: {
@@ -19,12 +19,12 @@ const Afiliado = sequelize.define('Afiliado', {
     },
     condicion: {
       type: Sequelize.STRING(60),
-    },
+    }/*,
     id_pais:
     {
       type: Sequelize.INTEGER,
       allowNull: false
-    }
+    }*/
   }, {
     tableName: 'afiliado',
     timestamps: false
@@ -68,9 +68,9 @@ const Afiliado = sequelize.define('Afiliado', {
 
   PatronoAfiliado.belongsTo(Patrono, {foreignKey: 'id_patrono'});
   PatronoAfiliado.belongsTo(Afiliado,{foreignKey: 'id_afiliado'});
-  Afiliado.belongsTo(Pais, {foreignKey: 'id_pais'});
+  //Afiliado.belongsTo(Pais, {foreignKey: 'id_pais'});
 
   Patrono.hasMany(PatronoAfiliado, { foreignKey: 'id_patrono' });
   Afiliado.hasMany(PatronoAfiliado, { foreignKey: 'id_afiliado' });
-  Pais.hasMany(Afiliado,{foreignKey: 'id_pais'});
+ // Pais.hasMany(Afiliado,{foreignKey: 'id_pais'});
   module.exports = {Afiliado, Patrono, PatronoAfiliado};
