@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect,useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { Tabs, Table } from "antd";
@@ -39,18 +39,21 @@ import OfrendaApi from "../../../api/Ofrenda.api";
 import DormitorioCamaHuesped from "../../../components/Hospedaje/DormitorioCamaHuesped";
 import ReservacionesApi from "../../../api/Reservaciones.api";
 import ZonaPeligrosa from "../../../components/Hospedaje/ZonaPeligrosa";
+import PaisApi from "../../../api/Pais.api";
 
 import Reglamento from "../../../api/Reglas.api";
 import OfrendasHuesped from "../../../components/Hospedaje/OfrendasHuesped";
 import Modalito2 from "../../../components/huesped/infoModal";
 import PagarModal from "../../../components/huesped/dateModal";
 import PatronoHuesped from "../../../components/Hospedaje/PatronoHuesped";
+import { getUserFromToken } from "../../../utilities/auth.utils";
 
 const { TabPane } = Tabs;
 
 function Huesped() {
   // variables
   const navigate = useNavigate();
+  const userLog = getUserFromToken();
   const { idReservacion } = useParams();
   dayjs.extend(customParseFormat);
 
@@ -87,6 +90,7 @@ function Huesped() {
   // estados
   const [huesped, setHuesped] = useState(undefined);
   const [changeHuesped, setChangeHuesped] = useState({});
+  const pais = useRef(null);
 
   const [acompanante, setAcompanante] = useState(undefined);
   const [changeAcompanante, setChangeAcompanante] = useState({});
@@ -144,6 +148,7 @@ function Huesped() {
   };
 
   const loadInformacion = async () => {
+    //cargarPais
     // cargar informacion del huesped
 
     const resReservacion = await ReservacionesApi.getReservacionRequest(
@@ -230,12 +235,12 @@ function Huesped() {
     });
 
     setTotalOfrendas(total);
-
+    
     setOfrendas(
       resOfrendas.data.map((item) => ({
         ofrenda: item.id_ofrenda,
         key: item.id_ofrenda,
-        cantidad: "Lps. " + item.valor,
+        cantidad: pais.current?.divisa + " " + item.valor,
         fecha: dayjs(item.fecha).format("DD-MM-YYYY"), // Formatear la fecha aquí
         recibo: item.recibo,
         observacion: item.observacion,
@@ -287,6 +292,7 @@ function Huesped() {
         fecha: formattedDate,
         recibo: donacion.recibo,
         observacion: donacion.observacion ? donacion.observacion : null,
+        id_pais: userLog.id_pais
       });
     }
 
@@ -617,6 +623,8 @@ function Huesped() {
 
   useEffect(() => {
     const loadingData = async () => {
+      const p = await PaisApi.getPais(userLog.id_pais);
+      pais.current = p.data;
       await loadInformacion();
     };
 
@@ -830,6 +838,7 @@ function Huesped() {
   };
 
   const renderOfrendas = () => {
+    
     const columnsHistorial = [
       { title: "Semana", dataIndex: "semana", key: "semana" },
       { title: "Domingo", dataIndex: "domingo", key: "domingo" },
@@ -895,7 +904,7 @@ function Huesped() {
 
           // Sumar la cantidad donada al día correspondiente
           semanas[weekOfMonth][dias[diaSemana]] += parseFloat(
-            ofrenda.cantidad.replace("Lps. ", "")
+            ofrenda.cantidad.replace(pais.current?.divisa, "")
           );
         }
       });
@@ -904,7 +913,7 @@ function Huesped() {
       Object.values(semanas).forEach((semana) => {
         Object.keys(semana).forEach((clave) => {
           if (clave !== "semana" && semana[clave] !== "-") {
-            semana[clave] = `Lps. ${semana[clave].toFixed(2)}`;
+            semana[clave] = `${pais.current?.divisa} ${semana[clave].toFixed(2)}`;
           }
         });
       });
@@ -966,7 +975,7 @@ function Huesped() {
             Total de Donaciones
           </h1>
           <div className="bg-white-100 py-3 px-5 text-lg rounded-tr-md rounded-br-md text-green-500 border-t border-r border-b border-green-500">
-            Lps. {totalOfrendas}
+            {pais.current?.divisa} {totalOfrendas}
           </div>
         </Flex>
       </Flex>

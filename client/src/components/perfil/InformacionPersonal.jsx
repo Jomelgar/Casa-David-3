@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState,useRef } from "react";
 import {
   UserOutlined,
   IdcardOutlined,
@@ -19,18 +19,19 @@ import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import { useLayout } from "../../context/LayoutContext";
 import OcupacionesApi from "../../api/Ocupaciones.api";
-import { getDepartamentos } from "../../api/departamentoApi";
+import { getDepartamentos,getDepartamentoByPais } from "../../api/departamentoApi";
 import {
   getMunicipiosByDepartamentoId,
   getMunicipioById,
 } from "../../api/municipioApi";
 import { getUserFromToken } from "../../utilities/auth.utils";
-
+import formatearValor from "../../utilities/formato_dni";
 import axios from "axios";
 import axiosInstance from '../../api/axiosInstance';
 import { COUNTRIES_API } from "../../api/Huesped.api";
 import personaApi from "../../api/Persona.api";
-import PaisApi from "../../api/Pais.api";
+import paisApi from "../../api/Pais.api";
+
 
 const { Meta } = Card;
 const { TextArea } = Input;
@@ -46,18 +47,28 @@ const InformacionPersonal = ({
 }) => {
   const usuario = getUserFromToken();
   const rolLog = usuario.rol;
+  console.log(usuario);
   const [countries,setCountries] = useState([]);
   const [selected, setSelected] = useState(null);
   const [selectedCountry,setSelectedCountry] = useState(null);
+  const selectedCountryCode = useRef(user?.referencia_telefonica || usuario.referencia_telefonica);
+  const [paises,setPaises] = useState([]);
+  const pais = useRef(null);
 
-  const cargarPaisdeUso = async() => 
-{
-    const id_pais = await personaApi.getPaisByPersona(usuario.id_persona);
-    const paises = await PaisApi.getPaisForTable();
-    const pais = paises.data.find(p => p.id_pais === id_pais.data.idPais);
-    console.log(pais);
-    return pais;
-};
+  const loadPaises= async() => 
+    {
+      const paisData = await paisApi.getPaisForTable();
+      setPaises(paisData.data.map((p) =>
+        ({
+          id_pais: p.id_pais,
+          nombre: p.nombre,
+          referencia_telefonica: p.referencia_telefonica,
+          formato_dni: p.formato_dni
+        }))
+      );
+      pais.current = await personaApi.getPaisByPersona(user?.id_persona || usuario.id_persona);
+      pais.current = pais.current.data;
+    }
 
   useEffect(() => {
     const fetchData = async () => {
@@ -73,9 +84,10 @@ const InformacionPersonal = ({
           .sort((a, b) => a.name.localeCompare(b.name));
   
         setCountries(filtered);
-  
-        const pais = await cargarPaisdeUso();
-        const selected = await filtered.find(c => c.code === pais.referencia_telefonica);
+        await loadPaises();
+        const pais = await personaApi.getPaisByPersona(user?.id_persona || usuario.id_persona);
+        console.log(pais);
+        const selected = await filtered.find(c => c.code === pais.data.referencia_telefonica);
         setSelectedCountry(selected || filtered[0]);
       } catch (error) {
         console.error('Error al cargar datos de países:', error);
@@ -94,7 +106,7 @@ const InformacionPersonal = ({
   const [departamentos, setDepartamentos] = useState([]);
   const [municipios, setMunicipios] = useState([]);
   const [selectedDepartamento, setSelectedDepartamento] = useState(null);
-  const [selectedMunicipio, setSelectedMunicipio] = useState(null);
+  const [selectedMunicipio, setSelectedMunicipio] = useState(user.municipio_id);
   const [searchOcupacion, setSearchOcupacion] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -123,12 +135,17 @@ const InformacionPersonal = ({
       try {
         const municipioData = await getMunicipioById(user.municipio_id);
         setSelectedMunicipio(municipioData.municipio_id);
-        const departamentoData = await getDepartamentos();
-        const departamento = departamentoData.find(
+        const p = await personaApi.getPaisByPersona(user.id_persona);
+        const departamentoData = await getDepartamentoByPais(p.data.id_pais);
+        const departamentos = departamentoData.filter(
+          (d) => d.id_pais === p.data.id_pais
+        );
+        const departamento = departamentos.find
+        (
           (d) => d.departamento_id === municipioData.departamento_id
         );
-        setSelectedDepartamento(departamento?.departamento_id || null);
-        setDepartamentos(departamentoData);
+        setSelectedDepartamento(departamento.departamento_id || null);
+        setDepartamentos(departamentos);
         const municipios = await getMunicipiosByDepartamentoId(
           municipioData.departamento_id
         );
@@ -142,7 +159,7 @@ const InformacionPersonal = ({
   useEffect(() => {
     loadOcupaciones();
     loadMunicipioAndDepartamento();
-  }, []);
+  }, [user]);
 
   const handleCrearOcupacion = async () => {
     setLoading(true);
@@ -206,7 +223,10 @@ const InformacionPersonal = ({
               style={{ height: "100%" }}
               value={isEditable ? changeUser.dni : user.dni}
               onChange={(e) => {
-                handleSetChangeUser("dni", e.target.value, changeUser.dni);
+                const value = e.target.value;
+                const esBorrado = e.nativeEvent.inputType === "deleteContentBackward";
+                const dni = formatearValor(value,pais.current.formato_dni,esBorrado);
+                handleSetChangeUser("dni", dni, user.dni);
               }}
             />
           </Col>
@@ -477,18 +497,20 @@ const InformacionPersonal = ({
             style={{ marginBottom: 25, height: 50 }}
           >
             <Row gutter={0} style={{ width: '100%' }}>
-              <Col span={8}>
+              <Col span={12}>
                 <Select
                   suffixIcon ={<PhoneOutlined style={{ color: "#8c8c8c" }} />}
+                  placeholder="Referencia Telefonica"
                   disabled={!isEditable}
                   showSearch
-                  value={selectedCountry?.code}
+                  value={selectedCountryCode.current}
                   onChange={(value) => {
                     const found = countries.find((c) => c.code === value);
                     setSelectedCountry(found);
+                    selectedCountryCode.current = value;
+                    handleSetChangeUser("referencia_telefonica",selectedCountryCode.current);
                   }}
                   optionLabelProp="label"
-                  placeholder="País"
                   filterOption={(input, option) =>
                     option.label.toLowerCase().includes(input.toLowerCase())
                   }
@@ -519,7 +541,7 @@ const InformacionPersonal = ({
                   ))}
                 </Select>
               </Col>
-              <Col span={16}>
+              <Col span={12}>
                 <Input
                   size="large"
                   disabled={!isEditable}

@@ -1,3 +1,4 @@
+import axios from 'axios';
 import axiosInstance from './axiosInstance';
 
 const getPaisForTable = async() => {
@@ -49,10 +50,21 @@ const updatePais = async(id,data) =>
     }
 }
 
+const getPais = async(id) =>
+{
+    try {
+        const res = await axiosInstance.get(`/pais/${id}`);
+        return res;
+    } catch (error) {
+        return null;
+    }
+};
+
 export default {
     getPaisForTable,
     setPais,
     deletePais,
     getDepartamentoMunicipio,
-    updatePais
+    updatePais,
+    getPais
 };

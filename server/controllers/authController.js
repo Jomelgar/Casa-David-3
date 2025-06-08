@@ -42,7 +42,7 @@ exports.login = async (req, res) => {
           id_lugar: persona.id_lugar,
           privilegios: privs,
           id_pais: id_pais.Lugar.Pai.id_pais,
-          referencia_telefonica: id_pais.Lugar.Pai.referencia_telefonica
+          referencia_telefonica: persona.referencia_telefonica
         },
         JWT_SECRET,
         { expiresIn: "2h" }

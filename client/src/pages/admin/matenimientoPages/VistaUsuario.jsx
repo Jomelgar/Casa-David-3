@@ -91,10 +91,12 @@ function VistaUsuario() {
           primer_apellido,
           telefono,
           iglesia,
-          referencia_telefonica
+          referencia_telefonica,
+          id_persona
         } = userInformacionPersonal;
 
         const user = {
+          id_persona,
           dni,
           id_ocupacion,
           municipio_id,
@@ -185,53 +187,10 @@ useEffect(() => {
   fetchData();
 }, [user?.referencia_telefonica]);
 
-
-  const countrySelector = (
-    <Select
-    suffixIcon={<PhoneOutlined style={{ color: "#8c8c8c", width:230}} />}
-      disabled={isEditable}
-      showSearch
-      style={{
-        width: 250,
-        height: 48,
-      }}
-      value={selectedCountry?.code}
-      onChange={(value) => {
-        const found = countries.find((c) => c.code === value);
-        setSelectedCountry(found);
-      }}
-      optionLabelProp="label"
-      
-    >
-      {countries.map((country) => (
-        <Select.Option
-          key={country.code}
-          value={country.code}
-          label={`${country.name} (${country.code})`}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <img
-              src={country.flag}
-              alt={country.name}
-              style={{ width: 20, height: 15 }}
-            />
-            {country.name} ({country.code})
-          </div>
-        </Select.Option>
-      ))}
-    </Select>
-  );
-
   const handleSetChangeUser = (e, value, anterior = null) => {
     switch (e) {
       case "dni":
-        if (
-          value.length > anterior.length &&
-          (value.match(/^\d{4}$/) !== null ||
-            value.match(/^\d{4}-\d{4}$/) !== null)
-        )
-          value = value + "-";
-        setChangeUser({ ...changeUser, ...{ dni: value } });
+        setChangeUser({...changeUser,...{dni:value}});
         break;
       case "id_hospital":
         setChangeUser({ ...changeUser, ...{ id_hospital: value } });
@@ -298,10 +257,13 @@ useEffect(() => {
       case "municipio_id":
         setChangeUser({ ...changeUser, ...{ municipio_id: value } });
         break;
-
+      case "referencia_telefonica":
+        setChangeUser({...changeUser,...{referencia_telefonica: value}});
+        break;
       default:
         break;
     }
+    console.log(changeUser);
   };
 
   const items = [

@@ -9,6 +9,7 @@ import {
 import { useLayout } from "../../context/LayoutContext";
 import personaApi from "../../api/Persona.api";
 import usuarioApi from "../../api/User.api";
+import formatearValor from "../../utilities/formato_dni";
 
 const { Meta } = Card;
 function AccionesPerfil({
@@ -28,7 +29,6 @@ function AccionesPerfil({
   const [loading, setLoading] = useState(false);
 
   const telFormat = /\d{4}-\d{4}/;
-  const dniFormat = /^\d{4}-\d{4}-\d{5}$/;
 
   const validarNicknameExists = async (nickname) => {
     const response = await usuarioApi.getUserByNicknameRequest(nickname);
@@ -83,10 +83,6 @@ function AccionesPerfil({
           }
         }
 
-        if (key === "dni" && value.match(dniFormat) === null) {
-          openNotification(2, "DNI", "El formato del DNI no es valido");
-          return false;
-        }
       }
 
       return true;

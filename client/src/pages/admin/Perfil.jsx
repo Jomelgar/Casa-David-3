@@ -74,6 +74,7 @@ function Perfil() {
         const id_usuario = userProp.userId;
 
         const {
+          id_persona,
           dni,
           id_ocupacion,
           direccion,
@@ -87,9 +88,11 @@ function Perfil() {
           telefono,
           id_lugar,
           iglesia,
+          referencia_telefonica
         } = userInformacionPersonal;
 
         const user = {
+          id_persona,
           dni,
           id_ocupacion,
           id_hospital,
@@ -108,6 +111,7 @@ function Perfil() {
           id_lugar: id_lugar,
           iglesia: iglesia,
           id_usuario: id_usuario,
+          referencia_telefonica
         };
 
         if (user) {
@@ -192,26 +196,13 @@ function Perfil() {
     loadUser();
   }, []);
 
-  const handleSetChangeUser = (e, value, anterior = null) => {
+ const handleSetChangeUser = (e, value, anterior = null) => {
     switch (e) {
       case "dni":
-        if (
-          value.length > anterior.length &&
-          (value.match(/^\d{4}$/) !== null ||
-            value.match(/^\d{4}-\d{4}$/) !== null)
-        )
-          value = value + "-";
-        setChangeUser({ ...changeUser, ...{ dni: value } });
-        break;
-      case "id_procedencia":
-        setChangeUser({ ...changeUser, ...{ id_procedencia: value } });
+        setChangeUser({...changeUser,...{dni:value}});
         break;
       case "id_hospital":
         setChangeUser({ ...changeUser, ...{ id_hospital: value } });
-        break;
-
-      case "id_procedencia":
-        setChangeUser({ ...changeUser, ...{ id_procedencia: value } });
         break;
 
       case "direccion":
@@ -238,8 +229,12 @@ function Perfil() {
         setChangeUser({ ...changeUser, ...{ genero: value } });
         break;
       case "rol":
-        setChangeUser({ ...changeUser, ...{ rol: value } });
+        setChangeUser((prevState) => ({
+          ...prevState,
+          rol: value,
+        }));
         break;
+
 
       case "segundo_apellido":
         setChangeUser({ ...changeUser, ...{ segundo_apellido: value } });
@@ -264,18 +259,20 @@ function Perfil() {
       case "fecha_nacimiento":
         setChangeUser({ ...changeUser, ...{ fecha_nacimiento: value } });
         break;
-
-      case "municipio_id":
-        setChangeUser({ ...changeUser, ...{ municipio_id: value } });
-        break;
-
       case "iglesia":
         setChangeUser({ ...changeUser, ...{ iglesia: value } });
         break;
 
+      case "municipio_id":
+        setChangeUser({ ...changeUser, ...{ municipio_id: value } });
+        break;
+      case "referencia_telefonica":
+        setChangeUser({...changeUser,...{referencia_telefonica: value}});
+        break;
       default:
         break;
     }
+    console.log(changeUser);
   };
 
   const items = [
