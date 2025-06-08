@@ -2024,9 +2024,9 @@ const countrySelector3 = (
 
 
       case "dni_afiliado":
-        if (selected3=="DNI" && previousValue !== null && value.length > previousValue.length) {
+        if(newValue !==null ){
           newValue = aplicarFormatoDNI(value, dniFormat);
-          if (validarFormatoConGuiones(newValue, dniFormat)) {
+          if  (validarFormatoConGuiones(newValue, dniFormat)) {
             searchDni(newValue, 1);
           }
         }
@@ -2064,6 +2064,9 @@ const countrySelector3 = (
   };
 
   const aplicarFormatoDNI = (valor, formato) => {
+    if(valor===null || typeof valor !== 'string'){
+      return " ";
+    }
   const soloDigitos = valor.replace(/\D/g, ''); // Elimina guiones y otros no números
   let resultado = '';
   let i = 0;
@@ -4513,10 +4516,12 @@ const validarCamposAcompanante = () => {
           <div></div>
         ) : (
           
+
           <PatronoHuesped
             changeUser={hospedado}
             isEditable={true}
             handleSetChangeUser={handleSetChangeHuesped}
+            Segundapersona={acompanante}
           />
         )}
 

@@ -17,7 +17,9 @@ import { useLayout } from "../../context/LayoutContext";
 import PatronoApi from "../../api/Patrono.api";
 
 
-function PatronoHuesped({ isEditable, user, changeUser, handleSetChangeUser }) {
+function PatronoHuesped({ isEditable, user, changeUser, handleSetChangeUser, Segundapersona}) {
+  
+
   const { openNotification } = useLayout();
   const { Meta } = Card;
 
@@ -29,6 +31,7 @@ function PatronoHuesped({ isEditable, user, changeUser, handleSetChangeUser }) {
   const [huespedMarcado, setHuespedMarcado] = useState(false);
   const [acompananteMarcado, setAcompananteMarcado] = useState(false);
 
+  
   // carga inicial
   useEffect(() => {
     async function load() {
@@ -80,6 +83,9 @@ const handleHuespedChange = (e) => {
   setHuespedMarcado(checked);
   if (checked) {
     // si marcaste "Huésped", desmarca "Acompañante"
+    handleSetChangeUser("nombre_afiliado",  Segundapersona.primer_nombre);
+    handleSetChangeUser("dni_afiliado", Segundapersona.dni);
+    isEditable=true;
     setAcompananteMarcado(false);
   }
 };
@@ -89,6 +95,9 @@ const handleAcompananteChange = (e) => {
   setAcompananteMarcado(checked);
   if (checked) {
     // si marcaste "Acompañante", desmarca "Huésped"
+    handleSetChangeUser("nombre_afiliado", changeUser.primer_nombre)
+    handleSetChangeUser("dni_afiliado", changeUser.dni)
+    isEditable=true;
     setHuespedMarcado(false);
   }
 };
@@ -110,7 +119,7 @@ const handleAcompananteChange = (e) => {
         onChange={handleHuespedChange}
         className="text-lg px-3 py-2 rounded-md shadow-sm hover:shadow-md transition-shadow border-2 border-gray-200 text-gray-800 font-semibold"
       >
-        Marcar Huésped
+        Marcar Acompañante
       </Checkbox>
 
       <Checkbox
@@ -119,7 +128,7 @@ const handleAcompananteChange = (e) => {
         onChange={handleAcompananteChange}
         className="text-lg px-3 py-2 rounded-md shadow-sm hover:shadow-md transition-shadow border-2 border-gray-200 text-gray-800 font-semibold"
       >
-        Marcar Acompañante
+        Marcar Huésped
       </Checkbox>
     </div>
   );
@@ -171,9 +180,18 @@ const handleAcompananteChange = (e) => {
               size="large"
               disabled={!isEditable}
               placeholder="DNI Afiliado"
-              maxLength={15}
               style={{ height: "100%" }}
-              value={isEditable ? changeUser.dni_afiliado : user.dni_afiliado}
+              // en lugar de la ternaria:
+              
+              value={
+              // Si el checkbox Huésped está marcado, siempre uso Segundapersona.dni
+                huespedMarcado ? Segundapersona.dni :
+                // Si el checkbox Acompañante está marcado, uso changeUser.dni
+                acompananteMarcado ? changeUser.dni_afiliado :
+                // En cualquier otro caso, muestro el valor de user (lectura por defecto)
+                isEditable ? changeUser.dni_afiliado:
+                user.dni_afiliado
+              }
               onChange={e => handleSetChangeUser("dni_afiliado", e.target.value)}
             />
           </Col>
@@ -185,7 +203,18 @@ const handleAcompananteChange = (e) => {
               disabled={!isEditable}
               placeholder="Nombre Afiliado"
               style={{ height: "100%" }}
-              value={isEditable ? changeUser.nombre_afiliado : user.nombre_afiliado}
+              // en lugar de la ternaria:
+              //value={isEditable ? changeUser.nombre_afiliado : user.nombre_afiliado}
+              value={
+              // Si el checkbox Huésped está marcado, siempre uso Segundapersona.dni
+                huespedMarcado ? Segundapersona.primer_nombre :
+                // Si el checkbox Acompañante está marcado, uso changeUser.dni
+                acompananteMarcado ? changeUser.primer_nombre :
+                // En cualquier otro caso, muestro el valor de user (lectura por defecto)
+                isEditable ? changeUser.nombre_afiliado:
+                user.nombre_afiliado
+              }
+
               onChange={e =>
                 handleSetChangeUser("nombre_afiliado", e.target.value.toUpperCase())
               }
