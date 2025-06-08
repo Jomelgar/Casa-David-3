@@ -26,8 +26,19 @@ const deleteLugar = async (id) => {
         return error.response;
     }
 }
+
+const getLugarWithPais= async () => 
+{
+    try {
+        const response = await axiosInstance.get(`lugares/paises`);
+        return response;
+    } catch (error) {
+        return error.response;
+    }
+}
 export default {
     setLugar,
     getLugarByPais,
-    deleteLugar
+    deleteLugar,
+    getLugarWithPais
 };

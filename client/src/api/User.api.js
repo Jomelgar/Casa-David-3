@@ -92,7 +92,7 @@ const putUserRequest = async (id, data) => {
 
     return response;
   } catch (error) {
-    return null;
+    return error;
   }
 };
 

@@ -1,4 +1,5 @@
 const {Lugar}= require('../models/persona');
+const {Pais} = require('../models/pais');
 
 exports.crearLugar = async (data) => {
   try {
@@ -49,8 +50,16 @@ exports.getlugaresByPais = async (id_pais) => {
     return unaLugar  
   }
  
-  exports.eliminarlugar = async(req,res)=>{
-    const {id} = req.params;
-     await Lugar.update({activo: false},{where: {id_lugar: id}})
+exports.eliminarlugar = async(req,res)=>{
+   const {id} = req.params;
+   await Lugar.update({activo: false},{where: {id_lugar: id}})
  
-  }
+}
+
+exports.getLugarWithPais = async() =>
+{
+   const lugares = await Lugar.findAll({where: {activo: true},
+      include: [{model: Pais, 
+         where:{activo: true}}]});
+   return lugares;
+}

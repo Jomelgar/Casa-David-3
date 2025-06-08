@@ -78,6 +78,7 @@ router.get('/municipios/departamento/:id', municipioController.getAllMunicipiosB
 router.post('/lugares', lugarController.crearlugar);
 router.get('/lugares/pais/:id_pais', lugarController.getlugarByPais);
 router.delete('/lugares/:id', lugarController.eliminarlugar);
+router.get('/lugares/paises',lugarController.getLugarWithPais);
 
 //pais
 router.put('/pais/:id', paisController.updatePais);

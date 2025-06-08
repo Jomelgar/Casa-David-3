@@ -9,7 +9,6 @@ import {
 import { useLayout } from "../../context/LayoutContext";
 import personaApi from "../../api/Persona.api";
 import usuarioApi from "../../api/User.api";
-import formatearValor from "../../utilities/formato_dni";
 
 const { Meta } = Card;
 function AccionesPerfil({
@@ -136,17 +135,17 @@ function AccionesPerfil({
       const PersonaFormated = formatearPersona();
       console.log("Persona Formated", PersonaFormated);
 
+      console.log(PersonaFormated);
       const response = await personaApi.putPersonaRequest(
         idPersona,
         PersonaFormated
       );
-
       if (validarRespuesta(response)) {
         const responseUser = await usuarioApi.putUserRequest(
           idUser,
           userFormated
         );
-
+        console.log(responseUser);
         if (validarRespuesta(responseUser)) {
           setUser(changeUser);
           openNotification(0, "usuario", "Cambios guardados");

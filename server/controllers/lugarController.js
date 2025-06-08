@@ -62,6 +62,14 @@ exports.eliminarlugar = async (req,res) =>{
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
-  
-
 }
+
+exports.getLugarWithPais = async(req,res) =>
+{
+  try {
+    const lugares = await lugarService.getLugarWithPais(req);
+     res.status(200).json(lugares); 
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};

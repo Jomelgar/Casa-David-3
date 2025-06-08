@@ -66,7 +66,7 @@ const InformacionPersonal = ({
           formato_dni: p.formato_dni
         }))
       );
-      pais.current = await personaApi.getPaisByPersona(user?.id_persona || usuario.id_persona);
+      pais.current = await personaApi.getPaisByPersona(user.id_persona);
       pais.current = pais.current.data;
     }
 
@@ -95,7 +95,7 @@ const InformacionPersonal = ({
     };
   
     fetchData();
-  }, []);
+  }, [user]);
   
   const generos = [
     { value: "MASCULINO", label: "MASCULINO" },
@@ -226,6 +226,7 @@ const InformacionPersonal = ({
                 const value = e.target.value;
                 const esBorrado = e.nativeEvent.inputType === "deleteContentBackward";
                 const dni = formatearValor(value,pais.current.formato_dni,esBorrado);
+                console.log(pais.current.formato_dni);
                 handleSetChangeUser("dni", dni, user.dni);
               }}
             />
@@ -507,7 +508,7 @@ const InformacionPersonal = ({
                   const found = countries.find((c) => c.code === value);
                   setSelectedCountry(found);
                   selectedCountryCode.current = value;
-                  handleSetChangeUser("referencia_telefonica", selectedCountryCode.current);
+                  handleSetChangeUser("referencia_telefonica", value);
                 }}
                 optionLabelProp="label"
                 filterOption={(input, option) =>

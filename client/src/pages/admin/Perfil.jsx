@@ -198,6 +198,9 @@ function Perfil() {
 
  const handleSetChangeUser = (e, value, anterior = null) => {
     switch (e) {
+      case "id_lugar":
+        setChangeUser({...changeUser,...{id_lugar: value}});
+        break;
       case "dni":
         setChangeUser({...changeUser,...{dni:value}});
         break;

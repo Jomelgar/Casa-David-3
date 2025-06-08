@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Card, Col, Row, Input, Select, ConfigProvider, Button } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
 import hospitalesApi from '../../api/Hospitales.api';
+import lugarApi from '../../api/Lugar.api'
 import { useLayout } from '../../context/LayoutContext';
 import { getUserFromToken } from '../../utilities/auth.utils';
 
@@ -41,12 +42,19 @@ function InformacionPersonalForm({
 }) {
   const { openNotification } = useLayout();
   const [hospitales, setHospitales] = useState([]);
+  const [lugares, setLugares] = useState([]);
   const [searchHospital, setSearchHospital] = useState("");
   const [loading, setLoading] = useState(false);
 
   const usuario = getUserFromToken();
 
   const rolLog = usuario.role;
+
+  const loadLugares= async()=>
+  {
+    const response = await lugarApi.getLugarWithPais();
+    setLugares(response.data);
+  };
 
   const loadHospitales = async () => {
     try {
@@ -121,8 +129,7 @@ function InformacionPersonalForm({
           "Se creo el hospital correctamente"
         );
 
-        loadHospitales();
-
+        await loadHospitales();
         handleSetChangeUser("id_hospital", id_hospital_creado);
 
         document.getElementById("selectHospital").blur();
@@ -139,6 +146,7 @@ function InformacionPersonalForm({
 
   useEffect(() => {
     loadHospitales();
+    loadLugares();
   }, []);
 
   return (
@@ -237,6 +245,27 @@ function InformacionPersonalForm({
                 setSearchHospital(e);
               }}
             />
+          </Col>
+          <Col
+            xs={{ flex: "100%" }}
+            lg={{ flex: "50%" }}
+            style={{ marginBottom: 25, height: 50 }}
+          >
+            <Select
+              placeholder="Casa"
+              size="large"
+              style={{ width: "100%", height: "100%" }}
+              defaultValue={user.id_lugar}
+              value={isEditable ? changeUser.id_lugar : user.id_lugar}
+              disabled={isEditable ? (rolLog === "master" ? false : true) : true}
+              onChange={(value) => handleSetChangeUser("id_lugar", value)}
+            >
+              {lugares.map((lugar) => (
+                <Select.Option key={lugar.id_lugar} value={lugar.id_lugar}>
+                  {`${lugar.codigo} - ${lugar.direccion} (${lugar.Pai.nombre})`}
+                </Select.Option>
+              ))}
+            </Select>
           </Col>
         </Row>
       </Card>

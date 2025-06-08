@@ -458,16 +458,13 @@ function Personas() {
     },
   ];
 
-  const handleSetChangeUser = (e, value, anterior = null) => {
+   const handleSetChangeUser = (e, value, anterior = null) => {
     switch (e) {
       case "dni":
-        if (
-          value.length > anterior.length &&
-          (value.match(/^\d{4}$/) !== null ||
-            value.match(/^\d{4}-\d{4}$/) !== null)
-        )
-          value = value + "-";
-        setChangeUser({ ...changeUser, ...{ dni: value } });
+        setChangeUser({...changeUser,...{dni:value}});
+        break;
+      case "id_hospital":
+        setChangeUser({ ...changeUser, ...{ id_hospital: value } });
         break;
 
       case "direccion":
@@ -490,12 +487,16 @@ function Personas() {
         setChangeUser({ ...changeUser, ...{ primer_apellido: value } });
         break;
 
-        case "genero":
-          setChangeUser((prevState) => ({
-            ...prevState,
-            genero: value,
-          }));
-          break;
+      case "genero":
+        setChangeUser({ ...changeUser, ...{ genero: value } });
+        break;
+      case "rol":
+        setChangeUser((prevState) => ({
+          ...prevState,
+          rol: value,
+        }));
+        break;
+
 
       case "segundo_apellido":
         setChangeUser({ ...changeUser, ...{ segundo_apellido: value } });
@@ -514,10 +515,12 @@ function Personas() {
         setChangeUser({ ...changeUser, ...{ telefono: value } });
         break;
 
+      case "nickname":
+        setChangeUser({ ...changeUser, ...{ nickname: value } });
+        break;
       case "fecha_nacimiento":
         setChangeUser({ ...changeUser, ...{ fecha_nacimiento: value } });
         break;
-
       case "iglesia":
         setChangeUser({ ...changeUser, ...{ iglesia: value } });
         break;
@@ -525,10 +528,13 @@ function Personas() {
       case "municipio_id":
         setChangeUser({ ...changeUser, ...{ municipio_id: value } });
         break;
-
+      case "referencia_telefonica":
+        setChangeUser({...changeUser,...{referencia_telefonica: value}});
+        break;
       default:
         break;
     }
+    console.log(changeUser);
   };
 
   return (

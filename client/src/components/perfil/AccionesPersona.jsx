@@ -46,10 +46,6 @@ function AccionesPersona({
         return false;
       }
 
-      if (key === 'dni' && value.match(dniFormat) === null) {
-        openNotification(2, 'DNI', 'El formato del DNI no es valido');
-        return false;
-      }
     }
 
     return true;

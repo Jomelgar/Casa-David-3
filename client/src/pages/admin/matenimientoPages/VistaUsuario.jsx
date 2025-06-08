@@ -85,6 +85,7 @@ function VistaUsuario() {
           fecha_nacimiento,
           genero,
           municipio_id,
+          id_lugar,
           primer_nombre,
           segundo_nombre,
           segundo_apellido,
@@ -98,6 +99,7 @@ function VistaUsuario() {
         const user = {
           id_persona,
           dni,
+          id_lugar,
           id_ocupacion,
           municipio_id,
           id_hospital,
@@ -110,7 +112,7 @@ function VistaUsuario() {
           segundo_nombre,
           id_usuario,
           telefono,
-          rol: rol.toUpperCase(),
+          rol: rol,
           nickname,
           iglesia,
           referencia_telefonica
@@ -189,6 +191,9 @@ useEffect(() => {
 
   const handleSetChangeUser = (e, value, anterior = null) => {
     switch (e) {
+      case "id_lugar":
+        setChangeUser({...changeUser,...{id_lugar: value}});
+        break;
       case "dni":
         setChangeUser({...changeUser,...{dni:value}});
         break;
