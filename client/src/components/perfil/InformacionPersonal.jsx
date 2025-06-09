@@ -135,21 +135,35 @@ const InformacionPersonal = ({
       try {
         const municipioData = await getMunicipioById(user.municipio_id);
         setSelectedMunicipio(municipioData.municipio_id);
+
         const p = await personaApi.getPaisByPersona(user.id_persona);
-        const departamentoData = await getDepartamentoByPais(p.data.id_pais);
-        const departamentos = departamentoData.filter(
-          (d) => d.id_pais === p.data.id_pais
-        );
-        const departamento = departamentos.find
-        (
+        const paisId = p.data.id_pais;
+
+        let departamentosData = await getDepartamentoByPais(paisId);
+
+        let departamento = departamentosData.find(
           (d) => d.departamento_id === municipioData.departamento_id
         );
-        setSelectedDepartamento(departamento.departamento_id || null);
-        setDepartamentos(departamentos);
-        const municipios = await getMunicipiosByDepartamentoId(
-          municipioData.departamento_id
-        );
-        setMunicipios(municipios);
+
+        if (!departamento) {
+          // Si no pertenece, cargamos todos los departamentos del sistema
+          console.warn("El municipio no pertenece al país de la persona. Cargando todos los departamentos.");
+          departamentosData = await getDepartamentos(); 
+          departamento = departamentosData.find(
+            (d) => d.departamento_id === municipioData.departamento_id
+          );
+        }
+
+        setDepartamentos(departamentosData);
+        setSelectedDepartamento(departamento?.departamento_id || null);
+
+        // Cargar municipios del departamento correspondiente
+        if (departamento) {
+          const municipios = await getMunicipiosByDepartamentoId(departamento.departamento_id);
+          setMunicipios(municipios);
+        } else {
+          setMunicipios([]); // o podrías no hacer nada si prefieres dejarlo en espera
+        }
       } catch (error) {
         console.error("Error fetching data:", error);
       }
