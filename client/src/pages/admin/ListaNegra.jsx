@@ -83,7 +83,7 @@ function ListaNegra() {
         regla:
           item.Reglamento.id_regla + ". " + item.Reglamento.descripcion_regla,
         pais:
-          item.Persona.Lugar.Pais.nombre,
+          item.Persona.Lugar.Pai.nombre,
       }));
       setDatos(flattenedData);
     } catch (error) {

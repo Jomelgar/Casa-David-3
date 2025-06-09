@@ -5,7 +5,13 @@ const { Pais } = require("../models/pais")
 
 exports.getAllLista = async () => {
   const list = await ListaNegra.findAll({
-    include: [{ model: Persona }, { model: Reglamento }],
+    include: [{ model: Persona, include: [
+          {
+            model: Lugar,
+            include: [Pais],
+          }
+        ] 
+      }, { model: Reglamento }],
   });
   return list;
 };
@@ -23,14 +29,7 @@ exports.getPersonaInListByPersonaId = async (id) => {
       id_persona: id,
     },
     include: [
-      { model: Persona,
-      include: [
-          {
-            model: Lugar,
-            include: [Pais],
-          }
-        ] 
-      }, { model: Reglamento }],
+      { model: Persona}, { model: Reglamento }],
   });
   return person;
 };
