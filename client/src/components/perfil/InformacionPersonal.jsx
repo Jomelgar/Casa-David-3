@@ -140,29 +140,26 @@ const InformacionPersonal = ({
         const paisId = p.data.id_pais;
 
         let departamentosData = await getDepartamentoByPais(paisId);
-
+        departamentosData = departamentosData.filter(
+          (d) => d.id_pais === paisId
+        ); 
         let departamento = departamentosData.find(
           (d) => d.departamento_id === municipioData.departamento_id
         );
-
-        if (!departamento) {
-          // Si no pertenece, cargamos todos los departamentos del sistema
-          console.warn("El municipio no pertenece al país de la persona. Cargando todos los departamentos.");
-          departamentosData = await getDepartamentos(); 
-          departamento = departamentosData.find(
-            (d) => d.departamento_id === municipioData.departamento_id
-          );
-        }
-
-        setDepartamentos(departamentosData);
-        setSelectedDepartamento(departamento?.departamento_id || null);
-
-        // Cargar municipios del departamento correspondiente
+        console.log(departamento)
         if (departamento) {
+          setSelectedDepartamento(departamento.departamento_id);
+          setDepartamentos(departamentosData);
           const municipios = await getMunicipiosByDepartamentoId(departamento.departamento_id);
           setMunicipios(municipios);
         } else {
-          setMunicipios([]); // o podrías no hacer nada si prefieres dejarlo en espera
+          departamentosData = await getDepartamentoByPais(paisId); // sin let
+          console.log("Departamentos corregidos:", departamentosData);
+          setDepartamentos(departamentosData);
+          setSelectedDepartamento(null);
+          setSelectedMunicipio(null);
+          setMunicipios([]);
+          handleSetChangeUser("municipio_id", {});
         }
       } catch (error) {
         console.error("Error fetching data:", error);
