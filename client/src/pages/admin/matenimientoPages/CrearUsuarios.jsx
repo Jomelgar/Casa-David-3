@@ -430,7 +430,7 @@ function CrearUsuarios() {
   const cargarInformacion = async (in_dni) => {
     try {
       const response = await personaApi.getPersonaByDniRequest(in_dni);
-
+      console.log(response.data);
       if (!response) {
         // deberia lanzar un erro
         setExistPerson(false);
@@ -480,6 +480,7 @@ function CrearUsuarios() {
           primer_apellido,
           telefono,
           id_lugar,
+          referencia_telefonica
         } = response.data;
 
         const changeuser = {
@@ -496,7 +497,12 @@ function CrearUsuarios() {
           segundo_nombre,
           telefono,
           id_lugar,
+          referencia_telefonica
         };
+        setSelectedLugar(changeuser.id_lugar);
+        const found = countries.find((c) => c.code === changeuser.referencia_telefonica);
+        selectedCountry.current = found;   
+        handleSetChangeUser("referencia_telefonica",selectedCountryCode.current);
         const municipio = await fetchMunicipioById(municipio_id);
         if (municipio) {
           setSelectedDepartamento(municipio.departamento_id);

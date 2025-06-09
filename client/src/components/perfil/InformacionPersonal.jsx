@@ -51,7 +51,7 @@ const InformacionPersonal = ({
   const [countries,setCountries] = useState([]);
   const [selected, setSelected] = useState(null);
   const [selectedCountry,setSelectedCountry] = useState(null);
-  const selectedCountryCode = useRef(user?.referencia_telefonica || usuario.referencia_telefonica);
+  const selectedCountryCode = useRef(user.referencia_telefonica);
   const [paises,setPaises] = useState([]);
   const pais = useRef(null);
 
@@ -237,7 +237,6 @@ const InformacionPersonal = ({
                 const value = e.target.value;
                 const esBorrado = e.nativeEvent.inputType === "deleteContentBackward";
                 const dni = formatearValor(value,pais.current.formato_dni,esBorrado);
-                console.log(pais.current.formato_dni);
                 handleSetChangeUser("dni", dni, user.dni);
               }}
             />

@@ -1908,6 +1908,7 @@ const countrySelector3 = (
           segundo_apellido,
           primer_apellido,
           telefono,
+          referencia_telefonica,
           observacion,
           iglesia,
         } = response.data;
@@ -1926,6 +1927,7 @@ const countrySelector3 = (
           id_ocupacion,
           municipio_id,
           direccion,
+          referencia_telefonica,
           fecha_nacimiento: formattedDate, // cambia el formato
           genero: genero === "FEMENINO" ? 1 : 2,
           primer_apellido,
@@ -1933,10 +1935,10 @@ const countrySelector3 = (
           primer_nombre,
           segundo_nombre,
           telefono,
-          id_lugar: 1,
+          id_lugar: usuario.id_lugar,
           iglesia,
         };
-
+        
         switch (persona) {
           case 0:
             console.log("Entro a case 0 supuestamente hospedado");
