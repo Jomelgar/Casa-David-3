@@ -18,6 +18,8 @@ function PopUpExport({ visible, onConfirm, onCancel }) {
   const [divisaSel, setDivisaSel] = useState(null);
   const { openNotification } = useLayout();
 
+  const API_KEY = '44948c701865425a8109ae020dedea23';
+
   const fetchCurrencies = async() => {
     const userToken = getUserFromToken();
     const userProp = await UserApi.getUserRequest(userToken.userId);
@@ -76,10 +78,15 @@ function PopUpExport({ visible, onConfirm, onCancel }) {
 
     const [moneda, divisa] = monedaSel.split('|');
 
-    if (monedaLocal !== "USD"  && moneda === "USD") {
-      const response = await fetch(`https://api.exchangerate.host/convert?from=${monedaLocal}&to=${moneda}`);
+    if (monedaLocal !== moneda) {
+      const response = await fetch(`https://api.currencyfreaks.com/latest?apikey=${API_KEY}&symbols=${monedaLocal},${moneda}`);
       const data = await response.json();
-      tasa = data.result;
+
+      const tasaMonedaLocal = parseFloat(data.rates[monedaLocal]);
+      const tasaMonedaDestino = parseFloat(data.rates[moneda]);
+
+      // Calcular la tasa de conversión entre las dos monedas
+      tasa = tasaMonedaDestino / tasaMonedaLocal;
     }
 
 
