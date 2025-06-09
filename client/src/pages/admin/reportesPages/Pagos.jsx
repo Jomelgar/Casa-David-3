@@ -44,7 +44,7 @@ function Pagos() {
     setExportVisible(true); 
   };
 
-  const exportarExcel = async (tasa, moneda) => {
+  const exportarExcel = async (tasa, moneda, divisa) => {
     
     const donacionesConvertidas = totalDonacion * tasa;
     const becasConvertidas = totalBeca * tasa;
@@ -58,9 +58,8 @@ function Pagos() {
       cortesia: becasConvertidas.toFixed(2),
       datosPagos: pagosConvertidos,
       moneda: moneda,
+      divisa: divisa
     };
-    console.log(tasa, moneda);
-    console.log(data);
 
     const res = await axiosInstance.post("/excelPagosGenerales", data, { responseType: "arraybuffer" });
 

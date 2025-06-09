@@ -125,7 +125,14 @@ exports.updatePais = async(id,data) =>
 
 exports.getCodigoIso = async (id) =>
 {
-  const pais = await Pais.findByPk(id).codigo_iso;
+  const pais = await Pais.findByPk(id, {
+    attributes: ['codigo_iso', 'divisa']
+  });
+
   if (!pais) throw new Error(`País con id ${id} no encontrado`);
-  return pais.codigo_iso;
+
+  return {
+    codigo_iso: pais.codigo_iso,
+    divisa: pais.divisa
+  };
 }

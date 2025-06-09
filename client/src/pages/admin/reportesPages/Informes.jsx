@@ -947,7 +947,7 @@ const Informes = () => {
     setExportVisible(true); 
   };
 
-  const onExportClick = async (tasa, moneda) => {
+  const onExportClick = async (tasa, moneda, divisa) => {
     const donacionesConvertidas = parseFloat(totalDonacion) * tasa;
     const becasConvertidas = parseFloat(totalBeca) * tasa;
     
@@ -957,6 +957,7 @@ const Informes = () => {
       hombreInfo,
       mujerInfo,
       moneda,
+      divisa,
       donaciones: donacionesConvertidas + becasConvertidas,
       primeraVez,
       hospedadosDia,

@@ -78,7 +78,7 @@ exports.getCodigoIso = async(req, res) =>
 {
     const { id } = req.params;
     try {
-        const codigo_iso = await pService.getPaisById(id);
+        const codigo_iso = await pService.getCodigoIso(id);
         if (!codigo_iso) {
             return res.status(404).json({ message: 'Country not found' });
         }

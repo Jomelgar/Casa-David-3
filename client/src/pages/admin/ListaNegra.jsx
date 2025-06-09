@@ -6,6 +6,9 @@ import {
   Layout,
   ConfigProvider,
   Select,
+  Card,
+  Row,
+  Col
 } from "antd";
 import {
   DeleteOutlined,
@@ -25,6 +28,10 @@ import Reglamento from "../../api/Reglas.api";
 import { useLayout } from "../../context/LayoutContext";
 import personaApi from "../../api/Persona.api";
 import PersonaApi from "../../api/Persona.api";
+import PaisApi from "../../api/Pais.api";
+import { getUserFromToken } from "../../utilities/auth.utils";
+import { validarPrivilegio } from "../../utilities/validarUserLog";
+
 
 const { Content } = Layout;
 
@@ -33,6 +40,9 @@ const dniFormat = /^\d{4}-\d{4}-\d{5}$/;
 function ListaNegra() {
   const [datos, setDatos] = useState([]);
   const [reglas, setReglas] = useState([]);
+  const [paises, setPaises] = useState([]);
+  const [selectedPais, setSelectedPais] = useState(-1);
+  const [filtered, setFiltered] = useState([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
 
   const { openNotification, setCurrentPath } = useLayout();
@@ -47,7 +57,17 @@ function ListaNegra() {
     handleSetChangePersona();
     fetchData();
     fetchReglas();
+    fetchPaises();
   }, []);
+
+  useEffect(() => {
+    if (selectedPais === -1) {
+      setFiltered(datos); 
+    } else {
+      const selectedPaisFilter = paises.find((p) => p.value === selectedPais)?.label;
+      setFiltered(datos.filter((item) => item.pais === selectedPaisFilter));
+    }
+  }, [selectedPais, datos, paises]);
 
   const fetchData = async () => {
     try {
@@ -62,6 +82,8 @@ function ListaNegra() {
         observacion: item.observacion,
         regla:
           item.Reglamento.id_regla + ". " + item.Reglamento.descripcion_regla,
+        pais:
+          item.Persona.Lugar.Pais.nombre,
       }));
       setDatos(flattenedData);
     } catch (error) {
@@ -82,6 +104,23 @@ function ListaNegra() {
       console.error("Error al obtener las reglas!", error);
     }
   };
+
+  const fetchPaises = async () => {
+    try{
+      const response = await PaisApi.getPaisForTable();
+      const listaPaises = response.data.map((e) => ({
+        value: e.id_pais,
+        label: e.nombre,
+        }));
+      listaPaises.unshift({
+          value: -1,
+          label: "Todos los Paises",
+        });
+      setPaises(listaPaises);
+    }catch (error) {
+      console.error("Error al obtener los paises!", error)
+    }
+  }
 
   const containerLISTANEGRA = {
     textAlign: "left",
@@ -488,8 +527,52 @@ function ListaNegra() {
     setNuevapersona({ dni: null, id_regla: null, observaciones: "" });
   };
 
+  const renderFilter = () => {
+    if (!validarPrivilegio(getUserFromToken(), 11)) return null;
+    
+      return (
+      <ConfigProvider
+        input={{ className: "cursor-default" }}
+        theme={{
+          token: {
+            colorPrimaryHover: "#92e1b4",
+            colorPrimary: "#77d9a1",
+            colorText: "#626262",
+            colorBgContainerDisabled: "#fcfcfc",
+            colorTextDisabled: "#939393",
+          },
+          components: {
+            Input: {},
+          },
+        }}
+      >
+        <Card className="mt-10 rounded-xl" style={{ marginBottom: 25}}>
+          <Row>
+            <Col flex={"100%"} style={{ marginBottom: 25, height: 50 }}>
+              <Select
+                style={{ width: "100%", height: "100%", fontSize: "16px" }}
+                showSearch
+                value={selectedPais}
+                onChange={(value) => {
+                  setSelectedPais(value);
+                }}
+                placeholder="Pais"
+                size="large"
+                options={paises}
+                filterOption={(input, option) =>
+                  option.label.toLowerCase().includes(input.toLowerCase())
+                }
+              />
+            </Col>
+          </Row>
+        </Card>
+      </ConfigProvider>
+      );
+  }
+
   return (
     <>
+    {renderFilter()}
       <Button
         type="primary"
         icon={<DownloadOutlined />}
@@ -579,7 +662,7 @@ function ListaNegra() {
             )}
           </Modal>
           <Table
-            dataSource={datos}
+            dataSource={filtered}
             columns={columns}
             rowSelection={{
               selectedRowKeys,

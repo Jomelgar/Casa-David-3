@@ -119,7 +119,7 @@ exports.generateExcelAllTables = async (req, res) => {
 
 exports.getReportesGenerales = async (req, res) => {
   try {
-    const { fechaInicio, fechaFinal, hombreInfo, mujerInfo, moneda, donaciones, primeraVez, hospedadosDia, camasCortesia } = req.body;
+    const { fechaInicio, fechaFinal, hombreInfo, mujerInfo, moneda, divisa, donaciones, primeraVez, hospedadosDia, camasCortesia } = req.body;
     console.log(req.body);
 
     // Crear un nuevo libro de Excel
@@ -135,7 +135,7 @@ exports.getReportesGenerales = async (req, res) => {
     worksheet.getCell('F1').value = 'Primera Vez';
 
     worksheet.getCell('A2').value = hombreInfo.length + mujerInfo.length;
-    worksheet.getCell('B2').value = `${moneda} ${donaciones}`;
+    worksheet.getCell('B2').value = `${divisa} ${donaciones}`;
     worksheet.getCell('C2').value = hombreInfo.length + mujerInfo.length;
     worksheet.getCell('D2').value = camasCortesia;
     worksheet.getCell('E2').value = hospedadosDia;
@@ -290,7 +290,7 @@ exports.getDataExcel = async (req, res) => {
 
 exports.excelPagosGenerales = async (req, res) => {
   try {
-    const { donaciones, cortesia, datosPagos, moneda } = req.body;
+    const { donaciones, cortesia, datosPagos, moneda, divisa } = req.body;
 
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Pagos');
@@ -299,9 +299,9 @@ exports.excelPagosGenerales = async (req, res) => {
     worksheet.getCell("B1").value = "Cortesía";
     worksheet.getCell("C1").value = "Total";
 
-    worksheet.getCell("A2").value = `${moneda} ${donaciones}`;
-    worksheet.getCell("B2").value = `${moneda} ${cortesia}`;
-    worksheet.getCell("C2").value = `${moneda} ${donaciones + cortesia}`;
+    worksheet.getCell("A2").value = `${divisa} ${donaciones}`;
+    worksheet.getCell("B2").value = `${divisa} ${cortesia}`;
+    worksheet.getCell("C2").value = `${divisa} ${donaciones + cortesia}`;
 
     for (const header of ["A1", "B1", "C1"]) {
       worksheet.getCell(header).fill = {
@@ -349,7 +349,7 @@ exports.excelPagosGenerales = async (req, res) => {
         pago.dni,
         pago.fecha,
         pago.recibo,
-        pago.valor,
+        `${divisa} ${pago.valor}`,
         pago.observacion || 'N/A'
       ]);
     });

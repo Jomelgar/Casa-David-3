@@ -1,6 +1,7 @@
 const sequelize = require("../Db");
 const { ListaNegra, Reglamento } = require("../models/lista");
-const { Persona } = require("../models/persona");
+const { Persona, Lugar } = require("../models/persona");
+const { Pais } = require("../models/pais")
 
 exports.getAllLista = async () => {
   const list = await ListaNegra.findAll({
@@ -21,7 +22,15 @@ exports.getPersonaInListByPersonaId = async (id) => {
     where: {
       id_persona: id,
     },
-    include: [{ model: Persona }, { model: Reglamento }],
+    include: [
+      { model: Persona,
+      include: [
+          {
+            model: Lugar,
+            include: [Pais],
+          }
+        ] 
+      }, { model: Reglamento }],
   });
   return person;
 };
