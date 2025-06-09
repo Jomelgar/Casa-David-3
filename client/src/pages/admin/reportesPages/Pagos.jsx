@@ -28,6 +28,9 @@ import { getMunicipiosByDepartamentoId, getMunicipioById } from '../../../api/mu
 
 import { useLayout } from "../../../context/LayoutContext";
 import PopUpExport from "./PopUpsInformes/PopUpExport";
+import UserApi from "../../../api/User.api";
+import { getUserFromToken } from "../../../utilities/auth.utils";
+
 
 dayjs.extend(customParseFormat);
 
@@ -37,6 +40,7 @@ const { RangePicker } = DatePicker;
 
 function Pagos() {
   const[exportVisible, setExportVisible] = useState(false);
+  const[monedaLocal, setMonedaLocal] = useState(null);
   
   const { setCurrentPath } = useLayout();
 
@@ -50,7 +54,7 @@ function Pagos() {
     const becasConvertidas = totalBeca * tasa;
     const pagosConvertidos = dataSource.map(pago => ({
       ...pago,
-      monto: (parseFloat(pago.monto) * tasa).toFixed(2),
+      valor: (parseFloat(pago.valor) * tasa).toFixed(2),
     }));
     
     const data = {
@@ -247,7 +251,7 @@ function Pagos() {
       dataIndex: "valor",
       key: "valor",
       sorter: (a, b) => a.valor - b.valor,
-      render: (text) => <div>Lps: {text.toFixed(2)}</div>,
+      render: (text) => <div>{monedaLocal}: {text.toFixed(2)}</div>,
     },
     {
       title:"No. Recibo",
@@ -395,6 +399,14 @@ function Pagos() {
     setLoading(true);
   
     const data = [];
+
+    const userToken = getUserFromToken();
+    const userProp = await UserApi.getUserRequest(userToken.userId);
+    const personaId = userProp.data.id_persona;
+    const paisResponse = await axiosInstance.get(`/personas/${personaId}/pais`);
+    const idPais = paisResponse.data.id_pais;
+    const {codigo_iso,divisa} = (await axiosInstance.get(`/pais/${idPais}/iso`)).data;
+    setMonedaLocal( divisa );
   
     const reponseDonaciones = await OfrendasApi.getOfrendasDonaciones(
       fechaInicio,
@@ -775,9 +787,9 @@ function Pagos() {
                 headStyle={{ color: "white", fontSize: 30 }}
               >
                 {donacions.length > 0 ? (
-                  <div>Lps: {totalDonacion.toFixed(2)}</div>
+                  <div>{monedaLocal}: {totalDonacion.toFixed(2)}</div>
                 ) : (
-                  <p>Lps: 0.0</p>
+                  <p>{monedaLocal}: 0.0</p>
                 )}
               </Card>
             </Col>
@@ -798,9 +810,9 @@ function Pagos() {
                 headStyle={{ color: "white", fontSize: 30 }}
               >
                 {becados.length > 0 ? (
-                  <div>Lps: {totalBeca.toFixed(2)}</div>
+                  <div>{monedaLocal}: {totalBeca.toFixed(2)}</div>
                 ) : (
-                  <p>Lps: 0.0</p>
+                  <p>{monedaLocal}: 0.0</p>
                 )}
               </Card>
             </Col>

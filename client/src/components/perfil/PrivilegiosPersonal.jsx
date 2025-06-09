@@ -58,6 +58,11 @@ function PrivilegiosPersonal({ user }) {
       id_usuario_privilegio: null,
       text: "Administrar Reportes",
     },
+    {
+      id_privilegio:11,
+      id_usuario_privilegio:null,
+      text: "Administrar países",
+    },
   ];
 
   const [privilegios, setPrivilegios] = useState(iniciales);
