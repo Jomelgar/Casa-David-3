@@ -107,6 +107,12 @@ function ListaNegra() {
 
   const fetchPaises = async () => {
     try{
+      const userToken = getUserFromToken();
+      const userProp = await UserApi.getUserRequest(userToken.userId);
+      const personaId = userProp.data.id_persona;
+      const paisResponse = await axiosInstance.get(`/personas/${personaId}/pais`);
+      const idPais = paisResponse.data.id_pais;
+
       const response = await PaisApi.getPaisForTable();
       const listaPaises = response.data.map((e) => ({
         value: e.id_pais,
@@ -116,6 +122,7 @@ function ListaNegra() {
           value: -1,
           label: "Todos los Paises",
         });
+      setSelectedPais(idPais);
       setPaises(listaPaises);
     }catch (error) {
       console.error("Error al obtener los paises!", error)
