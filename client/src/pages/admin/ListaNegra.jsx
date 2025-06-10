@@ -8,7 +8,7 @@ import {
   Select,
   Card,
   Row,
-  Col
+  Col,
 } from "antd";
 import {
   DeleteOutlined,
@@ -43,6 +43,7 @@ function ListaNegra() {
   const [reglas, setReglas] = useState([]);
   const [paises, setPaises] = useState([]);
   const [selectedPais, setSelectedPais] = useState(-1);
+  const [selectedPaisDNI, setSelectedPaisDNI] = useState(null);
   const [filtered, setFiltered] = useState([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
 
@@ -62,12 +63,19 @@ function ListaNegra() {
   }, []);
 
   useEffect(() => {
-    if (selectedPais === -1) {
-      setFiltered(datos); 
-    } else {
-      const selectedPaisFilter = paises.find((p) => p.value === selectedPais)?.label;
-      setFiltered(datos.filter((item) => item.pais === selectedPaisFilter));
-    }
+    const actualizarDNI = async () => {
+      if (selectedPais !== -1) {
+        const res = await PaisApi.getPais(selectedPais);
+        setSelectedPaisDNI(res.data.formato_dni);
+
+        const selectedPaisFilter = paises.find((p) => p.value === selectedPais)?.label;
+        setFiltered(datos.filter((item) => item.pais === selectedPaisFilter));
+      } else {
+        setFiltered(datos);
+      }
+    };
+
+    actualizarDNI();
   }, [selectedPais, datos, paises]);
 
   const fetchData = async () => {
@@ -125,8 +133,24 @@ function ListaNegra() {
         });
       setSelectedPais(idPais);
       setPaises(listaPaises);
+      setSelectedPaisDNI(paisResponse.data.formato_dni);
     }catch (error) {
       console.error("Error al obtener los paises!", error)
+    }
+  }
+
+  const handleSelectedPaisDNIChange = async() => {
+    if(selectedPais !== -1){
+      const res = await PaisApi.getPais(selectedPais);
+      setSelectedPaisDNI(res.data.formato_dni);
+      //console.log(selectedPaisDNI);
+    } else {
+      const userToken = getUserFromToken();
+      const userProp = await UserApi.getUserRequest(userToken.userId);
+      const personaId = userProp.data.id_persona;
+      const paisResponse = await axiosInstance.get(`/personas/${personaId}/pais`);
+
+      setSelectedPaisDNI(paisResponse.data.formato_dni);
     }
   }
 
@@ -356,32 +380,42 @@ function ListaNegra() {
     },
   ];
 
+  const aplicarFormatoDNI = (valor, formato) => {
+    if (valor === null || typeof valor !== 'string') return '';
+    const soloDigitos = valor.replace(/\D/g, '');
+    let resultado = '';
+    let i = 0;
+    for (const char of formato) {
+      if (char === '#') {
+        if (i < soloDigitos.length) {
+          resultado += soloDigitos[i++];
+        } else {
+          break;
+        }
+      } else {
+        if (i < soloDigitos.length) {
+          resultado += char;
+        }
+      }
+    }
+    return resultado;
+  };
+
   const handleSetChangePersona = async (key, value, previousValue = null) => {
     let newValue = value;
 
     switch (key) {
       case "dni":
-        if (previousValue !== null && value.length > previousValue.length) {
-          if (/^\d{4}$/.test(value) || /^\d{4}-\d{4}$/.test(value)) {
-            newValue = value + "-";
-          }
-        }
-        if (/^\d{4}-\d{4}-\d{5}$/.test(newValue)) {
-          const response = await personaApi.getPersonaByDniRequest(value);
-          if (!response) {
-            openNotification(
-              2,
-              "Persona Inexistente",
-              "La persona no existe dentro de la base de datos"
-            );
-          }
+        if (selectedDNI === "DNI" && selectedPaisDNI) {
+          newValue = aplicarFormatoDNI(value, selectedPaisDNI);
         }
         break;
 
       default:
+        handleSelectedPaisDNIChange()
         break;
     }
-    console.log(newValue);
+    //console.log(newValue);
     setNuevapersona({ ...nuevapersona, [key]: newValue });
   };
 
@@ -554,9 +588,9 @@ function ListaNegra() {
           },
         }}
       >
-        <Card className="mt-10 rounded-xl" style={{ marginBottom: 25}}>
+        <Card className="rounded-xl" style={{ marginBottom: 25}}>
           <Row>
-            <Col flex={"100%"} style={{ marginBottom: 25, height: 50 }}>
+            <Col flex={"100%"} style={{ marginBottom: 25 }}>
               <Select
                 style={{ width: "100%", height: "100%", fontSize: "16px" }}
                 showSearch
@@ -577,6 +611,76 @@ function ListaNegra() {
       </ConfigProvider>
       );
   }
+
+  const CustomCheckboxButton = ({ label, selected, onClick }) => {
+    return (
+      <label
+        onClick={onClick}
+        style={{
+          display: "inline-flex",
+          alignItems: "center",
+          backgroundColor: "#71d9af",
+          borderRadius: "6px",
+          padding: "6px 12px",
+          color: "white",
+          width: "220px",
+          fontWeight: "bold",
+          cursor: "pointer",
+          userSelect: "none",
+          opacity: selected ? 1 : 0.6,
+          border: selected ? "2px solid #4ac2cd" : "2px solid transparent",
+        }}
+      >
+        <span
+          style={{
+            width: "16px",
+            height: "16px",
+            backgroundColor: selected ? "#4ac2cd" : "#ccc",
+            borderRadius: "3px",
+            marginRight: "8px",
+            position: "relative",
+          }}
+        >
+          {selected && (
+            <span
+              style={{
+                color: "white",
+                fontSize: "14px",
+                position: "absolute",
+                top: "3px",
+                left: "6px",
+              }}
+            >
+              ✔
+            </span>
+          )}
+        </span>
+        <span style={{ fontSize: "14px" }}>{label}</span>
+      </label>
+    );
+  };
+
+  const TipoDocumentoSelector = () => {
+    return (
+      <Row gutter={16} style={{ marginTop: 20,} }>
+        <Col>
+          <CustomCheckboxButton
+            label="Dni"
+            selected={selectedDNI === "DNI"}
+            onClick={() => setSelectedDNI("DNI")}
+          />
+        </Col>
+        <Col>
+          <CustomCheckboxButton
+            label="DNI Extranjero o Pasaporte"
+            selected={selectedDNI === "DNI Extranjero"}
+            onClick={() => setSelectedDNI("DNI Extranjero")}
+          />
+        </Col>
+      </Row>
+    );
+  };
+  const [selectedDNI, setSelectedDNI] = useState("DNI");
 
   return (
     <>
@@ -619,15 +723,16 @@ function ListaNegra() {
               resetAgregarUser();
             }}
           >
-            <Input
+            {TipoDocumentoSelector()}
+            <Input 
               value={nuevapersona.dni}
-              maxLength={15}
+              //maxLength={15}
               type="text"
               placeholder="No. de Identidad"
               onChange={(e) => {
                 handleSetChangePersona("dni", e.target.value, nuevapersona.dni);
               }}
-              style={{ marginBottom: "10px" }}
+              style={{ marginBottom: "10px", marginTop: "10px" }}
             />
 
             <Input

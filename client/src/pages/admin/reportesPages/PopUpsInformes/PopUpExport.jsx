@@ -102,6 +102,7 @@ function PopUpExport({ visible, onConfirm, onCancel }) {
       onOk={handleConfirm}
       okText="Exportar"
       cancelText="Cancelar"
+      okButtonProps={{ style: { backgroundColor: "#77D9A1", borderColor: "#77D9A1", color: "white" } }}
     >
       <Text>Selecciona la moneda de exportación:</Text>
       <Select
