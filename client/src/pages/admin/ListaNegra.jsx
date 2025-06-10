@@ -36,8 +36,6 @@ import { validarPrivilegio } from "../../utilities/validarUserLog";
 
 const { Content } = Layout;
 
-const dniFormat = /^\d{4}-\d{4}-\d{5}$/;
-
 function ListaNegra() {
   const [datos, setDatos] = useState([]);
   const [reglas, setReglas] = useState([]);
@@ -408,6 +406,8 @@ function ListaNegra() {
       case "dni":
         if (selectedDNI === "DNI" && selectedPaisDNI) {
           newValue = aplicarFormatoDNI(value, selectedPaisDNI);
+        } else if (selectedDNI === "DNI Extranjero"){
+          newValue = newValue.substring(0,15)
         }
         break;
 
@@ -488,8 +488,14 @@ function ListaNegra() {
         }
       }
 
-      if (key === "dni" && value.match(dniFormat) === null) {
-        openNotification(2, "DNI", "El formato del DNI no es valido");
+      const regexPattern = selectedPaisDNI
+        ?.replace(/#/g, "\\d")
+        .replace(/-/g, "\\-");
+
+      const regex = new RegExp(`^${regexPattern}$`);
+
+      if (key === "dni" && !regex.test(value) && selectedDNI === "DNI") {
+        openNotification(2, "DNI", "El formato del DNI no es válido");
         return false;
       }
     }
@@ -590,7 +596,7 @@ function ListaNegra() {
       >
         <Card className="rounded-xl" style={{ marginBottom: 25}}>
           <Row>
-            <Col flex={"100%"} style={{ marginBottom: 25 }}>
+            <Col flex={"100%"} >
               <Select
                 style={{ width: "100%", height: "100%", fontSize: "16px" }}
                 showSearch
@@ -665,14 +671,14 @@ function ListaNegra() {
       <Row gutter={16} style={{ marginTop: 20,} }>
         <Col>
           <CustomCheckboxButton
-            label="Dni"
+            label="DNI"
             selected={selectedDNI === "DNI"}
             onClick={() => setSelectedDNI("DNI")}
           />
         </Col>
         <Col>
           <CustomCheckboxButton
-            label="DNI Extranjero o Pasaporte"
+            label="DNI Extranjero"
             selected={selectedDNI === "DNI Extranjero"}
             onClick={() => setSelectedDNI("DNI Extranjero")}
           />

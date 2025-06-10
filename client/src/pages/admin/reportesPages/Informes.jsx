@@ -33,6 +33,8 @@ import ReservacionesApi from "../../../api/Reservaciones.api";
 import OfrendasApi from "../../../api/Ofrenda.api";
 import hospitalesApi from "../../../api/Hospitales.api";
 import PopUpExport from "./PopUpsInformes/PopUpExport";
+import UserApi from "../../../api/User.api";
+import { getUserFromToken } from "../../../utilities/auth.utils";
 
 dayjs.extend(customParseFormat);
 
@@ -47,6 +49,7 @@ const Informes = () => {
   const [fechaInicio, setFechaInicio] = useState(dayjs().format(dateFormat));
   const [fechaFinal, setFechaFinal] = useState(dayjs().format(dateFormat));
   const [loading, setLoading] = useState(false);
+  const [monedaLocal, setMonedaLocal] = useState(null);
 
   const [totalDonacion, setTotalDonacion] = useState(0);
   const [totalBeca, setTotalBeca] = useState(0);
@@ -239,6 +242,14 @@ const Informes = () => {
     loadHospitales();
     loadCausasVisita();
     loadOcupaciones();
+
+    const userToken = getUserFromToken();
+    const userProp = await UserApi.getUserRequest(userToken.userId);
+    const personaId = userProp.data.id_persona;
+    const paisResponse = await axiosInstance.get(`/personas/${personaId}/pais`);
+    const idPais = paisResponse.data.id_pais;
+    const {codigo_iso,divisa} = (await axiosInstance.get(`/pais/${idPais}/iso`)).data;
+    setMonedaLocal( divisa );
 
     const data = [];
 
@@ -1181,7 +1192,7 @@ const Informes = () => {
               Donaciones de Huespedes
             </div>
             <div className="text-xl font-bold">
-              L {totalBeca + totalDonacion}
+              {monedaLocal} {totalBeca + totalDonacion}
             </div>
           </div>
         </div>
