@@ -1,71 +1,67 @@
-import axiosInstance from './axiosInstance';
+import axiosInstance from "./axiosInstance";
 
-const getPacienteRequest = async (id) => {
+export const getAllPacientesWithPersona = async () => {
+  const res = await axiosInstance.get("/pacientes2");
+  return res.data; // Asegúrate que esto devuelve directamente el array de pacientes
+};
+
+
+
+// Obtener UN paciente por ID
+export const getPacienteRequest = async (id) => {
   try {
     const response = await axiosInstance.get(`paciente/${id}`);
-
     return response;
   } catch (error) {
     return null;
   }
 };
 
-const getPacientesRequest = async () => {
+// Obtener TODOS los pacientes
+export const getPacientesRequest = async () => {
   try {
     const response = await axiosInstance.get(`pacientes`);
-
     return response;
   } catch (error) {
     return null;
   }
 };
 
-const putPacienteRequest = async (id, data) => {
+export const putPacienteRequest = async (id, data) => {
   try {
-    const response = await axiosInstance.put(
-      `paciente/${id}`,
-      data
-    );
-
+    const response = await axiosInstance.put(`paciente/${id}`, data);
     return response;
   } catch (error) {
     return null;
   }
 };
 
-const postPacienteRequest = async (data) => {
+export const postPacienteRequest = async (data) => {
   try {
-    const response = await axiosInstance.post(
-      `paciente/create`,
-      data
-    );
-
+    const response = await axiosInstance.post(`paciente/create`, data);
     return response;
   } catch (error) {
     return null;
   }
 };
 
-const deletePacienteRequest = async (id) => {
+export const deletePacienteRequest = async (id) => {
   try {
     const response = await axiosInstance.delete(`paciente/${id}`);
-
     return response;
   } catch (error) {
     return null;
   }
 };
 
-const getPacienteAndPersonaForTabla = async () => {
+export const getPacienteAndPersonaForTabla = async () => {
   try {
     const response = await axiosInstance.get('pacientes2');
-
     const flattenedData = response.data.map((item) => ({
       causa: item.causa,
       nombre: item.Persona.nombre,
       id: item.Persona.id,
       genero: item.Persona.genero,
-      //   ocupacion: item.Persona.Ocupacion.ocupacion,
       apellido: item.Persona.apellido,
     }));
 
@@ -75,15 +71,3 @@ const getPacienteAndPersonaForTabla = async () => {
     return null;
   }
 };
-
-export default {
-  getPacientesRequest,
-  putPacienteRequest,
-  postPacienteRequest,
-  deletePacienteRequest,
-  getPacienteAndPersonaForTabla,
-};
-export {
-  getPacienteRequest,
-  getPacientesRequest,
-}

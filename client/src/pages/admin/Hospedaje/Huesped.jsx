@@ -34,7 +34,14 @@ import HuespedApi from "../../../api/Huesped.api";
 import CamaApi from "../../../api/Cama.api";
 import PersonaApi from "../../../api/Persona.api";
 import PacienteHuesped from "../../../api/pacienteHuesped.api";
-import PacienteApi from "../../../api/Paciente.api";
+import {
+  getPacienteRequest,
+  getPacientesRequest,
+  putPacienteRequest,
+  postPacienteRequest,
+  deletePacienteRequest,
+  getPacienteAndPersonaForTabla
+} from "../../../api/Paciente.api";
 import OfrendaApi from "../../../api/Ofrenda.api";
 import DormitorioCamaHuesped from "../../../components/Hospedaje/DormitorioCamaHuesped";
 import ReservacionesApi from "../../../api/Reservaciones.api";
@@ -424,42 +431,42 @@ function Huesped() {
   };
 
   // acompanante
-  const handleGuardarPaciente = async () => {
-    try {
-      if (!changePaciente || !changePaciente.id_paciente) {
-        openNotification(2, "Paciente", "No hay datos válidos para guardar.");
-        return;
-      }
+ const handleGuardarPaciente = async () => {
+  try {
+    if (!changePaciente || !changePaciente.id_paciente) {
+      openNotification(2, "Paciente", "No hay datos válidos para guardar.");
+      return;
+    }
 
-      const response = await PacienteApi.putPacienteRequest(
-        changePaciente.id_paciente,
-        changePaciente
-      );
+    const response = await putPacienteRequest(
+      changePaciente.id_paciente,
+      changePaciente
+    );
 
-      if (!response || response.status >= 400) {
-        openNotification(
-          1,
-          "Paciente",
-          "Error al guardar los cambios del paciente. Por favor, inténtelo de nuevo."
-        );
-        return;
-      }
-
-      openNotification(
-        0,
-        "Paciente",
-        "Los cambios se guardaron correctamente."
-      );
-      setPaciente(changePaciente);
-      setIsEditablePaciente(false);
-    } catch (error) {
+    if (!response || response.status >= 400) {
       openNotification(
         1,
         "Paciente",
-        "Ocurrió un error inesperado al guardar los cambios: " + error.message
+        "Error al guardar los cambios del paciente. Por favor, inténtelo de nuevo."
       );
+      return;
     }
-  };
+
+    openNotification(
+      0,
+      "Paciente",
+      "Los cambios se guardaron correctamente."
+    );
+    setPaciente(changePaciente);
+    setIsEditablePaciente(false);
+  } catch (error) {
+    openNotification(
+      1,
+      "Paciente",
+      "Ocurrió un error inesperado al guardar los cambios: " + error.message
+    );
+  }
+};
 
   const handleCancelarPaciente = () => {
     setChangePaciente(paciente);
