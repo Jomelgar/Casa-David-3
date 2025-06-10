@@ -899,6 +899,9 @@ useEffect(() => {
   fetchFormato();
 }, []);
 
+const [referenciaTelefonica,setreferenciaTelefonica]= useState('');
+const [referenciaTelefonica2,setreferenciaTelefonica2]= useState('');
+const [referenciaTelefonica3,setreferenciaTelefonica3]= useState('');
 
 useEffect(() => {
   const fetchData = async () => {
@@ -925,6 +928,11 @@ useEffect(() => {
       setSelectedCountryCode(pais.referencia_telefonica);
       setSelectedCountryCode2(pais.referencia_telefonica);
       setSelectedCountryCode3(pais.referencia_telefonica);
+
+      setreferenciaTelefonica(pais.referencia_telefonica);
+      setreferenciaTelefonica2(pais.referencia_telefonica);
+      setreferenciaTelefonica3(pais.referencia_telefonica);
+      
     } catch (error) {
       console.error('Error al cargar datos de países:', error);
     }
@@ -933,9 +941,7 @@ useEffect(() => {
   fetchData();
 }, []);
 
-const [referenciaTelefonica,setreferenciaTelefonica]= useState('');
-const [referenciaTelefonica2,setreferenciaTelefonica2]= useState('');
-const [referenciaTelefonica3,setreferenciaTelefonica3]= useState('');
+
 
 
 const countrySelector = (
@@ -1958,6 +1964,10 @@ const countrySelector3 = (
           case 1:
             console.log("Entro a case 1 supuestamente paciente");
             setPaciente({ ...changeuser, becada: false });
+            const found = countries.find((c) => c.code === changeuser.referencia_telefonica);
+            setSelectedCountry(found);
+            setSelectedCountryCode(changeuser.referencia_telefonica);
+            setreferenciaTelefonica(changeuser.referencia_telefonica);
             const municipioPaciente = await fetchMunicipioById(municipio_id);
             if (municipioPaciente) {
               setSelectedDepartamentoPaciente(
@@ -2426,7 +2436,7 @@ const validarCamposAcompanante = () => {
         fecha_salida: dayjs(hospedado.fecha_salida, "DD-MM-YYYY").format(
           "YYYY-MM-DD"
         ),
-        referencia_telefonica:referenciaTelefonica,
+        referencia_telefonica:selectedCountry.code,
         identidad_extrangero: selected === "DNI Extranjero"? true : false,
         pasaporte: selected === "Pasaporte"? true:false 
       };
@@ -2465,7 +2475,7 @@ const validarCamposAcompanante = () => {
         fecha_nacimiento: dayjs(paciente.fecha_nacimiento, "DD-MM-YYYY").format(
           "YYYY-MM-DD"
         ),
-        referencia_telefonica:referenciaTelefonica3,
+        referencia_telefonica:selectedCountry3.code,
         identidad_extrangero: selected3 === "DNI Extranjero"? true : false,
         pasaporte: selected3 === "Pasaporte"? true:false 
         //fecha_entrada: dayjs(paciente.fecha_entrada, 'DD-MM-YYYY').format('YYYY-MM-DD'),
@@ -2484,7 +2494,7 @@ const validarCamposAcompanante = () => {
               acompanante.fecha_nacimiento,
               "DD-MM-YYYY"
             ).format("YYYY-MM-DD"),
-            referencia_telefonica:referenciaTelefonica2,
+            referencia_telefonica:selectedCountry2.code,
             identidad_extrangero: selected2 === "DNI Extranjero"? true : false,
             pasaporte: selected2 === "Pasaporte"? true:false 
           };
