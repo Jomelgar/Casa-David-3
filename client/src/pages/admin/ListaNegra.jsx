@@ -20,7 +20,8 @@ import {
 import React from "react";
 
 import * as XLSX from "xlsx";
-
+import axiosInstance from '../../api/axiosInstance';
+import UserApi from "../../api/User.api";
 import "./Usuarios.css";
 import { useEffect, useState } from "react";
 import Lista_Negra from "../../api/ListaNegra.api";

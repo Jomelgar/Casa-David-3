@@ -165,7 +165,7 @@ function Hospedar() {
   const [observacionReservacion, setObservacionReservacion] = useState("");
 
   const [isChecked, setIsChecked] = useState(false); // Para el checkbox de que se marca que el acompanate es paciente
-
+  const [isChecked1, setIsChecked1] = useState(false);
   ////////////Cambios para municipio y departamento
   const [departamentos, setDepartamentos] = useState([]);
   const [municipios, setMunicipios] = useState([]);
@@ -2845,13 +2845,14 @@ const validarCamposAcompanante = () => {
     
     <Checkbox
       style={{ width: 270, height: 45, marginRight:20, marginLeft:370}}
-      checked={acompanante.es_paciente}
+      checked={isChecked1}
       onChange={async (e) => {
-        const isChecked = e.target.checked;
-        setAcompanante({ ...acompanante, es_paciente: isChecked });
-        
+        const isChecked12 = e.target.checked;
+        setIsChecked1(isChecked12);
+      //setAcompanante({ ...acompanante, es_paciente: isChecked1 });
+      //{acompanante, "Agregar acompañante"}
 
-        if (isChecked) {
+        if (isChecked12) {
           setPacienteMarcado(1);
           setPaciente({
             ...paciente,
@@ -2876,6 +2877,9 @@ const validarCamposAcompanante = () => {
             setSelectedDepartamentoPaciente(municipioPaciente.departamento_id);
             setSelectedMunicipioPaciente(hospedado.municipio_id);
           }
+          setSelectedCountry3(selectedCountry);
+          setSelectedCountryCode3(selectedCountryCode)
+          setSelected3(selected);
 
           setIsInfoPacienteEditable(false);
         } else {
@@ -3355,7 +3359,7 @@ const validarCamposAcompanante = () => {
 
                     //const formattedDate = dayjs(acompanante.fecha_nacimiento).format("DD-MM-YYYY");
                     if (isChecked) {
-                      setPacienteMarcado(0);
+                      setPacienteMarcado(2);
                       setPaciente({
                         ...paciente,
                         dni: acompanante.dni,
@@ -3380,9 +3384,14 @@ const validarCamposAcompanante = () => {
                         );
                         setSelectedMunicipioPaciente(acompanante.municipio_id);
                       }
+
+                      setSelectedCountry3(selectedCountry2);
+                      setSelectedCountryCode3(selectedCountryCode2)
+                      setSelected3(selected2);
+
                       setIsInfoPacienteEditable(false);
                     } else {
-                      setPacienteMarcado(2);
+                      setPacienteMarcado(0);
                       setIsInfoPacienteEditable(true);
                     }
                   }}
