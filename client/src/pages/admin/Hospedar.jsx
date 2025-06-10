@@ -1095,7 +1095,9 @@ const countrySelector3 = (
 
   const loadHospitales = async () => {
     try {
-      const response = await hospitalesApi.getHospitalRequest();
+      const pais = await cargarPaisdeUso(); // ← agregar await
+      const id_pais = pais.id_pais;
+      const response = await hospitalesApi.getHospitalByPais(id_pais);
 
       if (!response) {
         // deberia lanzar un error
