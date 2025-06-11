@@ -4,6 +4,7 @@ const CausaVisita    = require('../models/causaVisita');
 const { Persona, Ocupacion, Municipio } = require('../models/persona');
 const { Departamento } = require('../models/departamento');
 const { Hospital }    = require('../models/hospital');
+const { Pais } = require('../models/pais');
 const { Reservacion } = require('../models/reservaciones');
 
 exports.getAllPacientes = async () => {
@@ -37,7 +38,9 @@ exports.getAllPacientes = async () => {
           { model: Ocupacion, attributes: ['descripcion'] },
         ]
       },
-      { model: Hospital, attributes: ['nombre'] }
+      { model: Hospital, attributes: ['nombre', 'id_pais'],
+        include: [{ model: Pais, attributes: ['nombre'] }]
+      }
     ],
     order: [['id_paciente', 'ASC']]
   });
@@ -57,6 +60,8 @@ exports.getAllPacientes = async () => {
     return {
       id: pac.id_paciente,
       nombre,
+      id_pais: pac.Hospital.id_pais,
+      pais: pac.Hospital.Pai.nombre,
       departamento: p.Municipio.Departamento.nombre,
       municipio: p.Municipio.nombre,
       ocupacion: p.Ocupacion.descripcion,

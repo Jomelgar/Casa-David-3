@@ -38,8 +38,15 @@ function Pacientes() {
   // Filtros avanzados
   const [departamentos, setDepartamentos] = useState([]);
   const [municipios, setMunicipios] = useState([]);
+  const [ocupaciones, setOcupaciones] = useState([]);
+  const [causas, setCausas]           = useState([]);
+  const [hospitales, setHospitales]   = useState([]);
   const [selectedDepartamento, setSelectedDepartamento] = useState("all");
   const [selectedMunicipio, setSelectedMunicipio] = useState("all");
+  const [selectedOcupacion, setSelectedOcupacion] = useState("all");
+const [selectedCausa, setSelectedCausa]         = useState("all");
+const [selectedHospital, setSelectedHospital]   = useState("all");
+
   const [genero, setGenero] = useState("all");
   const [edadDesde, setEdadDesde] = useState("");
   const [edadHasta, setEdadHasta] = useState("");
@@ -72,57 +79,85 @@ const abrirModal = () => {
 };
 
   // Carga de datos desde backend
-  const loadData = async () => {
-    setLoading(true);
-    try {
-      const res = await getPacientesRequest();
-      const pacientes = res?.data || [];
+const loadData = async () => {
+  setLoading(true);
+  try {
+    const res = await getPacientesRequest();
+    const pacientes = res?.data || [];
 
-      // Opciones de filtro
-      const deps = [...new Set(pacientes.map(p => p.departamento).filter(Boolean))];
-      setDepartamentos([
-  { value: "all", label: "Todos los Departamentos" },
-  ...deps.map(d => ({ value: d, label: d })),
-]);
-      const muns = [...new Set(pacientes.map(p => p.municipio).filter(Boolean))];
-      setMunicipios([
-  { value: "all", label: "Todos los Municipios" },
-  ...muns.map(m => ({ value: m, label: m })),
-]);
+    // Departments y Municipios (ya tenías)
+    const deps = [...new Set(pacientes.map(p => p.departamento).filter(Boolean))];
+    setDepartamentos([
+      { value: "all", label: "Todos los Departamentos" },
+      ...deps.map(d => ({ value: d, label: d })),
+    ]);
+    const muns = [...new Set(pacientes.map(p => p.municipio).filter(Boolean))];
+    setMunicipios([
+      { value: "all", label: "Todos los Municipios" },
+      ...muns.map(m => ({ value: m, label: m })),
+    ]);
 
-      // Filtrado
-      const filtrado = pacientes.filter(p => {
-        if (selectedDepartamento !== "all" && p.departamento !== selectedDepartamento) return false;
-        if (selectedMunicipio !== "all" && p.municipio !== selectedMunicipio) return false;
-        if (genero !== "all" && p.genero !== genero) return false;
-        if (
-          fechas?.length === 2 &&
-          p.fechaEntrada &&
-          dayjs(p.fechaEntrada).isValid() &&
-          !dayjs(p.fechaEntrada).isBetween(
-            dayjs(fechas[0]).startOf("day"),
-            dayjs(fechas[1]).endOf("day"),
-            "day",
-            "[]"
-          )
-        ) {
-          return false;
-        }
-        if (edadDesde && p.edad < Number(edadDesde)) return false;
-        if (edadHasta && p.edad > Number(edadHasta)) return false;
-        return true;
-      });
+    // -------------------------------
+    // 1) Opciones de Ocupaciones
+    const occs = [...new Set(pacientes.map(p => p.ocupacion).filter(Boolean))];
+    setOcupaciones([
+      { value: "all", label: "Todas las Ocupaciones" },
+      ...occs.map(o => ({ value: o, label: o })),
+    ]);
 
-      // Asignar datasource y estadísticas
-      setDataSource(filtrado.map((p, idx) => ({ ...p, key: p.id ?? idx })));
-      setTotalFemeninos(filtrado.filter(p => p.genero === "FEMENINO").length);
-      setTotalMasculinos(filtrado.filter(p => p.genero === "MASCULINO").length);
-      setTotalPacientes(filtrado.length);
-    } catch (error) {
-      console.error("Error cargando pacientes:", error);
-    }
-    setLoading(false);
-  };
+    // 2) Opciones de Causas
+    const causasSet = [...new Set(pacientes.map(p => p.causa).filter(Boolean))];
+    setCausas([
+      { value: "all", label: "Todas las Causas" },
+      ...causasSet.map(c => ({ value: c, label: c })),
+    ]);
+
+    // 3) Opciones de Hospitales
+    const hospSet = [...new Set(pacientes.map(p => p.hospital).filter(Boolean))];
+    setHospitales([
+      { value: "all", label: "Todos los Hospitales" },
+      ...hospSet.map(h => ({ value: h, label: h })),
+    ]);
+    // -------------------------------
+
+    // Filtrado
+    const filtrado = pacientes.filter(p => {
+      if (selectedDepartamento !== "all" && p.departamento !== selectedDepartamento) return false;
+      if (selectedMunicipio  !== "all" && p.municipio   !== selectedMunicipio)  return false;
+      if (genero             !== "all" && p.genero      !== genero)             return false;
+
+      // Nuevo: filtro por ocupación, causa y hospital
+      if (selectedOcupacion !== "all" && p.ocupacion !== selectedOcupacion) return false;
+      if (selectedCausa      !== "all" && p.causa      !== selectedCausa)      return false;
+      if (selectedHospital   !== "all" && p.hospital   !== selectedHospital)   return false;
+
+      if (
+        fechas?.length === 2 &&
+        p.fechaEntrada &&
+        dayjs(p.fechaEntrada).isValid() &&
+        !dayjs(p.fechaEntrada).isBetween(
+          dayjs(fechas[0]).startOf("day"),
+          dayjs(fechas[1]).endOf("day"),
+          "day",
+          "[]"
+        )
+      ) {
+        return false;
+      }
+      if (edadDesde && p.edad < Number(edadDesde)) return false;
+      if (edadHasta && p.edad > Number(edadHasta)) return false;
+      return true;
+    });
+
+    setDataSource(filtrado.map((p, idx) => ({ ...p, key: p.id ?? idx })));
+    setTotalFemeninos(filtrado.filter(p => p.genero === "FEMENINO").length);
+    setTotalMasculinos(filtrado.filter(p => p.genero === "MASCULINO").length);
+    setTotalPacientes(filtrado.length);
+  } catch (error) {
+    console.error("Error cargando pacientes:", error);
+  }
+  setLoading(false);
+};
 
   // Efecto de carga
   useEffect(() => {
@@ -268,30 +303,42 @@ const abrirModal = () => {
 
           {/* Ocupación (placeholder, si luego agregas opciones reales) */}
           <Col span={12}>
-            <Select
-              style={{ width: "100%" }}
-              placeholder="Todas las Ocupaciones"
-              options={[{ value: -1, label: "Todas las Ocupaciones" }]}
-            />
-          </Col>
+  <Select
+    showSearch
+    optionFilterProp="label"
+    style={{ width: "100%" }}
+    value={selectedOcupacion}
+    onChange={setSelectedOcupacion}
+    options={ocupaciones}
+    placeholder="Todas las Ocupaciones"
+  />
+</Col>
 
           {/* Hospital (placeholder) */}
           <Col span={12}>
-            <Select
-              style={{ width: "100%" }}
-              placeholder="Todos los Hospitales"
-              options={[{ value: -1, label: "Todos los Hospitales" }]}
-            />
-          </Col>
+  <Select
+    showSearch
+    optionFilterProp="label"
+    style={{ width: "100%" }}
+    value={selectedHospital}
+    onChange={setSelectedHospital}
+    options={hospitales}
+    placeholder="Todos los Hospitales"
+  />
+</Col>
 
           {/* Causa (placeholder) */}
           <Col span={12}>
-            <Select
-              style={{ width: "100%" }}
-              placeholder="Todas las Causas"
-              options={[{ value: -1, label: "Todas las Causas" }]}
-            />
-          </Col>
+  <Select
+    showSearch
+    optionFilterProp="label"
+    style={{ width: "100%" }}
+    value={selectedCausa}
+    onChange={setSelectedCausa}
+    options={causas}
+    placeholder="Todas las Causas"
+  />
+</Col>
 
           {/* Edad desde */}
           <Col span={12}>
