@@ -21,6 +21,10 @@ import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import { getPacientesRequest } from "../../../api/Paciente.api";
 
+import PaisApi from "../../../api/Pais.api";
+import { getUserFromToken } from "../../../utilities/auth.utils";
+import { validarPrivilegio } from "../../../utilities/validarUserLog";
+
 dayjs.extend(customParseFormat);
 
 const { Header, Content } = Layout;
@@ -29,6 +33,7 @@ const { Panel } = Collapse;
 const dateFormat = "YYYY/MM/DD";
 
 function Pacientes() {
+
   // Estados principales
   const [dataSource, setDataSource] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -36,6 +41,8 @@ function Pacientes() {
   const [pageSize, setPageSize] = useState(10);
 
   // Filtros avanzados
+  const [paises, setPaises] = useState([]);
+  const [selectedPais, setSelectedPais] = useState("all");
   const [departamentos, setDepartamentos] = useState([]);
   const [municipios, setMunicipios] = useState([]);
   const [ocupaciones, setOcupaciones] = useState([]);
@@ -46,7 +53,7 @@ function Pacientes() {
   const [selectedOcupacion, setSelectedOcupacion] = useState("all");
 const [selectedCausa, setSelectedCausa]         = useState("all");
 const [selectedHospital, setSelectedHospital]   = useState("all");
-
+  
   const [genero, setGenero] = useState("all");
   const [edadDesde, setEdadDesde] = useState("");
   const [edadHasta, setEdadHasta] = useState("");
@@ -79,13 +86,25 @@ const abrirModal = () => {
 };
 
   // Carga de datos desde backend
-const loadData = async () => {
-  setLoading(true);
-  try {
-    const res = await getPacientesRequest();
-    const pacientes = res?.data || [];
+  const loadData = async () => {
+    setLoading(true);
+    try {
+      const res = await getPacientesRequest();
+      const pacientes = res?.data || [];
 
-    // Departments y Municipios (ya tenías)
+      // Opciones de filtro
+      const pais = await PaisApi.getPaisForTable();
+      const listaPaises = pais.data.map((e) => ({
+        value: e.nombre,
+        label: e.nombre,
+        }));
+      listaPaises.unshift({
+          value: "all",
+          label: "Todos los Paises",
+        });
+      setPaises(listaPaises);
+
+      // Departments y Municipios (ya tenías)
     const deps = [...new Set(pacientes.map(p => p.departamento).filter(Boolean))];
     setDepartamentos([
       { value: "all", label: "Todos los Departamentos" },
@@ -122,6 +141,7 @@ const loadData = async () => {
 
     // Filtrado
     const filtrado = pacientes.filter(p => {
+       if (selectedPais !== "all" && p.pais !== selectedPais) return false;
       if (selectedDepartamento !== "all" && p.departamento !== selectedDepartamento) return false;
       if (selectedMunicipio  !== "all" && p.municipio   !== selectedMunicipio)  return false;
       if (genero             !== "all" && p.genero      !== genero)             return false;
@@ -162,7 +182,7 @@ const loadData = async () => {
   // Efecto de carga
   useEffect(() => {
     loadData();
-  }, [selectedDepartamento, selectedMunicipio, genero, edadDesde, edadHasta, fechas]);
+  }, [selectedPais, selectedDepartamento, selectedMunicipio, genero, edadDesde, edadHasta, fechas]);
 
   // Columnas de tabla
  const columns = [
@@ -236,6 +256,29 @@ const loadData = async () => {
    },
  ];
 
+ const renderPaisFilter = () => {
+     if (!validarPrivilegio(getUserFromToken(), 11)) return null;
+     
+       return (
+        <Col flex={"100%"} >
+          <Select
+            style={{ width: "100%", height: "100%", fontSize: "16px" }}
+            showSearch
+            value={selectedPais}
+            onChange={(value) => {
+              setSelectedPais(value);
+            }}
+            placeholder="Pais"
+            size="large"
+            options={paises}
+            filterOption={(input, option) =>
+              option.label.toLowerCase().includes(input.toLowerCase())
+            }
+          />
+        </Col>
+       );
+   }
+
   // Filtros avanzados
  const renderFiltros = () => (
   <ConfigProvider
@@ -262,6 +305,7 @@ const loadData = async () => {
     >
       <Panel header="Filtros Avanzados" key="1">
         <Row gutter={[16, 16]}>
+          {renderPaisFilter()}
           {/* Departamento */}
           <Col span={12}>
             <Select
