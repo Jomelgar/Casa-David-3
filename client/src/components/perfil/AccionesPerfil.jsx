@@ -85,9 +85,16 @@ function AccionesPerfil({
             return false;
           }
         }
-
+        if(key === "municipio_id" && value === null)
+        {
+          openNotification(
+              2,
+              "Municipio vacio",
+              "Agregue un municipio para continuar"
+            );
+          return false;
+        }
       }
-
       return true;
     }
   };
@@ -160,10 +167,6 @@ function AccionesPerfil({
           if (responseUser.status === 201 && forUserLog) {
             localStorage.setItem("userData", JSON.stringify(responseUser.data));
           }
-
-          setIsEditable(false);
-          console.log("Usuario logged in: ",usuario)
-          console.log("usuario a cambiar: ", responseUser.data);
           if(usuario.userId === responseUser.data.id_usuario)
           {
             const response = await authApi.signInRequest(responseUser.data.nickname,responseUser.data.contrasena,true);
@@ -177,6 +180,7 @@ function AccionesPerfil({
                     openNotification(2,"Error", "No se actualizo su usuario, vuelva a iniciar sesión para que los cambios sean reflejados.");
             }
           }
+          setIsEditable(false);
         }
       }
     }

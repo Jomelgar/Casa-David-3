@@ -1571,11 +1571,11 @@ const countrySelector3 = (
   };
 
   const handleObtenerFechaNacimiento = () => {
-    if (isInfoPacienteEditable) {
+    //if (isInfoPacienteEditable) {
       return hospedado.fecha_nacimiento
         ? dayjs(hospedado.fecha_nacimiento, dateFormat)
         : "";
-    }
+    //}
   };
 
   const handleObtenerFechaPaciente = () => {

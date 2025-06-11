@@ -76,6 +76,7 @@ const InformacionPersonal = ({
       {
         try {
             setSelectedMunicipio(null);
+            handleSetChangeUser("municipio_id", null);
             setSelectedDepartamento(null);
             const response = await LugarApi.getPaisByLugar(changeUser.id_lugar);
             console.log(response);
@@ -194,7 +195,7 @@ const InformacionPersonal = ({
   }, [user]);
 
   useEffect(() => {
-  const fetchDepAndMun = async () => {
+  const fetchCancel = async () => {
     if (!isEditable && user.municipio_id) {
       const p = await personaApi.getPaisByPersona(user.id_persona);
       const paisId = p.data.id_pais;
@@ -207,13 +208,13 @@ const InformacionPersonal = ({
       setDepartamentos(departamentosData);
       setMunicipios(await getMunicipiosByDepartamentoId(departamento.departamento_id));
 
-      // Solo establece si no está seteado manualmente antes
+      selectedCountryCode.current = user.referencia_telefonica;
       setSelectedDepartamento(departamento.departamento_id);
       setSelectedMunicipio(user.municipio_id);
     }
   };
 
-  fetchDepAndMun();
+  fetchCancel();
 }, [isEditable]);
 
   const handleCrearOcupacion = async () => {
