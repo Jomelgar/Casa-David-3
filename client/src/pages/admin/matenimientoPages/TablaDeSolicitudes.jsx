@@ -377,6 +377,7 @@ function TablaDeSolicitudes() {
           </Select>
         </Modal>
         <Modal
+          width={"100%"}
           title={`Desea quitar a ${nombreDeLaPersona} de la lista?`}
           visible={deleteModal}
           onOk={handleRemoveHospedar}
@@ -388,6 +389,7 @@ function TablaDeSolicitudes() {
 
         <Modal
           title={``}
+          width={1000}
           onOk={handleInfoConfirm}
           footer={
             <Button key="Button" type="primary" onClick={handleInfoConfirm}>

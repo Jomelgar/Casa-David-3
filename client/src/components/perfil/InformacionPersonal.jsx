@@ -215,7 +215,7 @@ const InformacionPersonal = ({
         },
       }}
     >
-      <Card style={{ marginTop: 16 }} className="shadow-#1">
+      <Card style={{ marginTop: 16 }} className="shadow-#1 w-[100%]">
         <Meta title="Informacion Personal" />
 
         <Row gutter={25} style={{ marginTop: 20 }}>
@@ -503,7 +503,7 @@ const InformacionPersonal = ({
             />
           </Col>
           <Col
-            xs={{ flex: "100%" }}
+            xs={{ flex: "100%", width: "100%" }}
             lg={{ flex: "50%" }}
             style={{ marginBottom: 25, height: 50 }}
           >

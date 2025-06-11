@@ -14,7 +14,9 @@ exports.login = async (req, res) => {
     if (user) {
       const passwordCrypt = user.contrasena;
 
-      const compare = crypt.compare(passwordLogin, passwordCrypt);
+      let compare
+      if(!req.body.encrypt) compare = crypt.compare(passwordLogin, passwordCrypt);
+      else compare = passwordLogin === passwordCrypt;
 
       if (!compare) {
         return res.status(401).json({ message: "Contraseña Incorrecta" });

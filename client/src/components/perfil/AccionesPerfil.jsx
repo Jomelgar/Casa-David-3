@@ -9,6 +9,9 @@ import {
 import { useLayout } from "../../context/LayoutContext";
 import personaApi from "../../api/Persona.api";
 import usuarioApi from "../../api/User.api";
+import authApi from "../../api/Auth.api";
+import { getUserFromToken } from "../../utilities/auth.utils";
+import Cookies from 'js-cookie';
 
 const { Meta } = Card;
 function AccionesPerfil({
@@ -23,6 +26,7 @@ function AccionesPerfil({
   idPersona = null,
   forUserLog = true,
 }) {
+  const usuario = getUserFromToken();
   const { openNotification } = useLayout();
 
   const [loading, setLoading] = useState(false);
@@ -151,16 +155,28 @@ function AccionesPerfil({
           openNotification(0, "usuario", "Cambios guardados");
 
           const responseUser = await usuarioApi.getUserRequest(idUser);
-
+          console.log(responseUser);
           // Actualiza el usuario en el localstorage
           if (responseUser.status === 201 && forUserLog) {
             localStorage.setItem("userData", JSON.stringify(responseUser.data));
           }
 
           setIsEditable(false);
-
-          // Mostrar modal para cerrar sesión
-          openNotification(0, "Alerta", "Vuelve a iniciar sesión para que los cambios sean reflejados.");
+          console.log("Usuario logged in: ",usuario)
+          console.log("usuario a cambiar: ", responseUser.data);
+          if(usuario.userId === responseUser.data.id_usuario)
+          {
+            const response = await authApi.signInRequest(responseUser.data.nickname,responseUser.data.contrasena,true);
+            if (response.status === 201) {
+                    Cookies.set('token', response.data.token);
+                    window.location.href = '/Perfil';
+                    setTimeout(() => {
+                      window.location.reload(); 
+                    }, 100);
+            } else {
+                    openNotification(2,"Error", "No se actualizo su usuario, vuelva a iniciar sesión para que los cambios sean reflejados.");
+            }
+          }
         }
       }
     }

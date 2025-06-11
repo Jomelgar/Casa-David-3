@@ -111,6 +111,7 @@ function HuespedSolicitud({ListaSolicitud}) {
       dni: resHuespedData.dni,
       direccion: resHuespedData.direccion,
       telefono: resHuespedData.telefono,
+      referencia_telefonica: resHuespedData.referencia_telefonica,
       genero: resHuespedData.genero,
       fecha_nacimiento: resHuespedData.fecha_nacimiento,
       municipio_id: resHuespedData.municipio_id,
@@ -149,6 +150,7 @@ function HuespedSolicitud({ListaSolicitud}) {
       id_piso: PacienteData.id_piso,
       iglesia: resPacienteData.iglesia,
       observacion: PacienteData.observacion,
+      referencia_telefonica: resPacienteData.referencia_telefonica,
       id_causa_visita: PacienteData.id_causa_visita,
       parentesco_paciente: reshuespedPaciente.data.parentesco_paciente,
     };
@@ -381,7 +383,7 @@ function HuespedSolicitud({ListaSolicitud}) {
     handleCancelar
   ) => {
     return (
-      <Card style={{ marginTop: 10 }} className="shadow-#1">
+      <Card style={{ marginTop: 10 }} className="shadow-#1 ">
         <Meta title="" />
 
         <Flex gap="large" justify="center" align="center">
@@ -461,7 +463,7 @@ function HuespedSolicitud({ListaSolicitud}) {
 
   const renderHuesped = () => {
     return (
-      <Flex vertical>
+      <Flex vertical className="w-full">
         <Flex justify="space-between" align="center">
           <h1 className="text-xl font-bold text-white-800">Huesped</h1>
 
@@ -476,12 +478,13 @@ function HuespedSolicitud({ListaSolicitud}) {
         </Flex>
         {Object.keys(huesped).length > 0 && (
         <InformacionPersonal
+          className="w-full"
           user={huesped}
           changeUser={changeHuesped}
           isEditable={isEditableHuesped}
           handleSetChangeUser={handleSetChangeHuesped}
         />
-      )}
+        )}
         
       </Flex>
     );
@@ -582,7 +585,7 @@ function HuespedSolicitud({ListaSolicitud}) {
   };
 
   return (
-    <Flex gap={"large"} vertical>
+    <Flex className="w-full" gap={"large"} vertical>
       {renderHuesped()}
 
       

@@ -196,6 +196,9 @@ function Perfil() {
     loadUser();
   }, []);
 
+ const [hoveredUser, setHoveredUser] = useState(false);
+ const [hoveredPriv, setHoveredPriv] = useState(false);
+ const [hoveredPassW, setHoveredPassW] = useState(false);
  const handleSetChangeUser = (e, value, anterior = null) => {
     switch (e) {
       case "id_lugar":
@@ -281,18 +284,36 @@ function Perfil() {
   const items = [
     {
       key: 0,
-      label: "Cuenta",
-      icon: <UserOutlined style={{ fontSize: isXS ? 16 : 24 }} />,
+      label:  <span
+              style={{ color: hoveredUser ? "#77d9a1" : "#555", cursor: "pointer" }}
+              onMouseEnter={() => setHoveredUser(true)}
+              onMouseLeave={() => setHoveredUser(false)}
+            >
+              Cuenta
+            </span>,
+      icon: <UserOutlined style={{ fontSize: isXS ? 16 : 24, color: hoveredUser ? "#77d9a1" : "#555"}} />,
     },
     {
       key: 1,
-      label: "Privilegios", 
-      icon: <SettingOutlined style={{ fontSize: isXS ? 16 : 24 }} />,
+      label: <span
+                style={{ color: hoveredPriv ? "#77d9a1" : "#555", cursor: "pointer" }}
+                onMouseEnter={() => setHoveredPriv(true)}
+                onMouseLeave={() => setHoveredPriv(false)}
+              >
+                Privilegios
+              </span>, 
+      icon: <SettingOutlined style={{ fontSize: isXS ? 16 : 24, color: hoveredPriv ? "#77d9a1" : "#555" }} />,
     },
     {
       key: 2,
-      label: "Contraseña",
-      icon: <LockOutlined style={{ fontSize: isXS ? 16 : 24 }} />,
+      label: <span
+                style={{ color: hoveredPassW ? "#77d9a1" : "#555", cursor: "pointer" }}
+                onMouseEnter={() => setHoveredPassW(true)}
+                onMouseLeave={() => setHoveredPassW(false)}
+              >
+                  Contraseñas
+              </span>,
+      icon: <LockOutlined style={{ fontSize: isXS ? 16 : 24, color: hoveredPassW ? "#77d9a1" : "#555" }} />,
     },
   ];
 
