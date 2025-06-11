@@ -22,7 +22,7 @@ import {
   CloseCircleOutlined,
 } from "@ant-design/icons";
 import { useLayout } from "../../../context/LayoutContext";
-
+import { getUserFromToken } from "../../../utilities/auth.utils";
 import InformacionPersonal from "../../../components/perfil/InformacionPersonal";
 import AccionesPerfil from "../../../components/perfil/AccionesPerfil";
 
@@ -50,6 +50,7 @@ const { TabPane } = Tabs;
 
 function Huesped() {
   // variables
+  const usuario = getUserFromToken();
   const navigate = useNavigate();
   const { idReservacion } = useParams();
   dayjs.extend(customParseFormat);
@@ -280,8 +281,8 @@ function Huesped() {
       const formattedDate = dayjs(donacion.fecha, "DD-MM-YYYY").format(
         "YYYY-MM-DD"
       );
-
-      await OfrendaApi.postOfrendaRequest({
+      const response = await OfrendaApi.postOfrendaRequest({
+        id_pais: usuario.id_pais,
         id_reservacion: idReservacion,
         valor: donacion.monto,
         fecha: formattedDate,

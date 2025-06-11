@@ -154,34 +154,14 @@ const InformacionPersonal = ({
   const loadMunicipioAndDepartamento = async () => {
     if (user.municipio_id) {
       try {
-        const municipioData = await getMunicipioById(user.municipio_id);
-        setSelectedMunicipio(municipioData.municipio_id);
-
-        const p = await personaApi.getPaisByPersona(user.id_persona);
-        const paisId = p.data.id_pais;
-
-        let departamentosData = await getDepartamentoByPais(paisId);
-        departamentosData = departamentosData.filter(
-          (d) => d.id_pais === paisId
-        ); 
-        let departamento = departamentosData.find(
-          (d) => d.departamento_id === municipioData.departamento_id
-        );
-        console.log(departamento)
-        if (departamento) {
-          setSelectedDepartamento(departamento.departamento_id);
-          setDepartamentos(departamentosData);
-          const municipios = await getMunicipiosByDepartamentoId(departamento.departamento_id);
-          setMunicipios(municipios);
-        } else {
-          departamentosData = await getDepartamentoByPais(paisId); // sin let
-          console.log("Departamentos corregidos:", departamentosData);
-          setDepartamentos(departamentosData);
-          setSelectedDepartamento(null);
-          setSelectedMunicipio(null);
-          setMunicipios([]);
-          handleSetChangeUser("municipio_id", {});
-        }
+        setSelectedMunicipio(null);
+            handleSetChangeUser("municipio_id", null);
+            setSelectedDepartamento(null);
+            const response = await LugarApi.getPaisByLugar(changeUser.id_lugar);
+            console.log(response);
+            const p = response.data;
+            const departamentoData = await getDepartamentoByPais(p.id_pais); 
+            setDepartamentos(departamentoData);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -196,7 +176,7 @@ const InformacionPersonal = ({
 
   useEffect(() => {
   const fetchCancel = async () => {
-    if (!isEditable && user.municipio_id) {
+    if (!isEditable) {
       const p = await personaApi.getPaisByPersona(user.id_persona);
       const paisId = p.data.id_pais;
       const municipio = await getMunicipioById(user.municipio_id);
@@ -211,6 +191,7 @@ const InformacionPersonal = ({
       selectedCountryCode.current = user.referencia_telefonica;
       setSelectedDepartamento(departamento.departamento_id);
       setSelectedMunicipio(user.municipio_id);
+      handleSetChangeUser("municipio_id",selectedMunicipio);
     }
   };
 

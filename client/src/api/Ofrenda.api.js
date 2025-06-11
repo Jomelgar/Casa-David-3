@@ -51,7 +51,7 @@ const postOfrendaRequest = async (data) => {
 
     return response;
   } catch (error) {
-    return null;
+    throw error;
   }
 };
 

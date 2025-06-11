@@ -23,6 +23,7 @@ exports.createOfrenda = async (req, res) => {
     const nuevaOfrenda = await ofrendaServ.createOfrenda(req.body);
     res.json(nuevaOfrenda);
   } catch (error) {
+    console.log(error);
     res.status(500).json({ message: error.message });
   }
 };

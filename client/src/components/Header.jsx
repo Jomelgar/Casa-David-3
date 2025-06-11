@@ -14,15 +14,22 @@ import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
 } from "@ant-design/icons";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect,useRef } from "react";
 import axios from "axios";
 import { useLayout } from "../context/LayoutContext";
 import "../App.css";
 import { Link } from "react-router-dom";
-
+import { getUserFromToken } from "../utilities/auth.utils";
+import LugarApi from "../api/Lugar.api";
+import PaisApi from "../api/Pais.api";
 const { Meta } = Card;
 
 const CustomHeader = () => {
+  const usuario = getUserFromToken();
+  const [pais,setPais] = useState({
+          nombre_lugar: "",
+          nombre_pais: ""
+        });
   const [notificationOpen, setNotificationOpen] = useState(false);
 
   const {
@@ -41,6 +48,24 @@ const CustomHeader = () => {
     currentPath
   } = useLayout();
 
+  const fetchPais= async() =>
+    {
+        const pai = await PaisApi.getPais(usuario.id_pais);
+        const lugares = await LugarApi.getLugarByPais(usuario.id_pais);
+        const lugar = lugares.data.find((l)=> l.id_lugar === usuario.id_lugar);
+        console.log("Lugar:", lugar)
+        setPais( 
+        {
+          nombre_lugar: lugar.codigo,
+          nombre_pais: pai.data.nombre 
+        });
+        console.log("Pais",pais.current);  
+    }
+
+  useEffect(()=>
+    {
+      fetchPais();
+    },[])
   useEffect(() => {
     loadNotificaciones();
   }, []);
@@ -208,6 +233,9 @@ const CustomHeader = () => {
           <span>{currentPath}</span>
         </div>
       </Flex>
+      <Flex className="items-center justify-center text-white-700 text-xl font-semibold">
+        {pais.nombre_pais} - {pais.nombre_lugar}
+      </Flex>
       <Flex align="center" gap="20px">
         <Badge
           count={
@@ -222,7 +250,6 @@ const CustomHeader = () => {
             className="bg-green-500 p-2 rounded text-xl text-white-100 cursor-pointer"
           />
         </Badge>
-        <Avatar icon={<UserAddOutlined />} />
         <Drawer
           title="Notificaciones"
           open={notificationOpen}
