@@ -186,7 +186,6 @@ function AccionesPerfil({
 
   const handleCancelar = () => {
     setChangeUser(user);
-
     setIsEditable(false);
   };
 

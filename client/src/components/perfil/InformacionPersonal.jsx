@@ -19,6 +19,7 @@ import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import { useLayout } from "../../context/LayoutContext";
 import OcupacionesApi from "../../api/Ocupaciones.api";
+import LugarApi from "../../api/Lugar.api";
 import { getDepartamentos,getDepartamentoByPais } from "../../api/departamentoApi";
 import {
   getMunicipiosByDepartamentoId,
@@ -69,6 +70,25 @@ const InformacionPersonal = ({
       pais.current = await personaApi.getPaisByPersona(user.id_persona);
       pais.current = pais.current.data;
     }
+
+  useEffect(() => {
+    const fetchLugar= async()=>
+      {
+        try {
+            setSelectedMunicipio(null);
+            setSelectedDepartamento(null);
+            const response = await LugarApi.getPaisByLugar(changeUser.id_lugar);
+            console.log(response);
+            const p = response.data;
+            const departamentoData = await getDepartamentoByPais(p.id_pais); 
+            setDepartamentos(departamentoData);
+        } catch (error) {
+          console.error('Error al cargar datos de países:', error);
+        }
+      }
+    fetchLugar();
+  }
+  ,[changeUser.id_lugar])
 
   useEffect(() => {
     const fetchData = async () => {

@@ -63,3 +63,10 @@ exports.getLugarWithPais = async() =>
          where:{activo: true}}]});
    return lugares;
 }
+
+exports.getPaisByLugar = async(id) => 
+   {
+      const lugar = await Lugar.findByPk(id);
+      const pais = await Pais.findOne({where:{id_pais: lugar.id_pais}});
+      return pais;
+   }

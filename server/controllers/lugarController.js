@@ -73,3 +73,13 @@ exports.getLugarWithPais = async(req,res) =>
     res.status(500).json({ error: error.message });
   }
 };
+
+exports.getPaisByLugar = async(req,res) =>
+  {
+    try {
+      const pais = await lugarService.getPaisByLugar(req.params.id);
+      res.status(200).json(pais);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
