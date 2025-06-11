@@ -190,7 +190,31 @@ const InformacionPersonal = ({
   useEffect(() => {
     loadOcupaciones();
     loadMunicipioAndDepartamento();
+
   }, [user]);
+
+  useEffect(() => {
+  const fetchDepAndMun = async () => {
+    if (!isEditable && user.municipio_id) {
+      const p = await personaApi.getPaisByPersona(user.id_persona);
+      const paisId = p.data.id_pais;
+      const municipio = await getMunicipioById(user.municipio_id);
+      const departamentosData = await getDepartamentoByPais(paisId);
+      const departamento = departamentosData.find(
+        (d) => d.departamento_id === municipio.departamento_id
+      );
+
+      setDepartamentos(departamentosData);
+      setMunicipios(await getMunicipiosByDepartamentoId(departamento.departamento_id));
+
+      // Solo establece si no está seteado manualmente antes
+      setSelectedDepartamento(departamento.departamento_id);
+      setSelectedMunicipio(user.municipio_id);
+    }
+  };
+
+  fetchDepAndMun();
+}, [isEditable]);
 
   const handleCrearOcupacion = async () => {
     setLoading(true);
