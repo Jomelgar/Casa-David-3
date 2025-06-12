@@ -193,49 +193,56 @@ const CustomHeader = () => {
 
   return (
     <Flex align="center" justify="space-between">
-      <Flex align="center" gap="middle">
-        <ConfigProvider
-          theme={{
-            components: {
-              Button: {
-                colorPrimary: "#77d9a1",
-                colorPrimaryHover: "#5eaf81",
-                colorPrimaryActive: "#92e1b4",
-                defaultHoverColor: "#fafafa",
-              },
-            },
-          }}
-        >
-          <Button
-            className="bg-green-500 hover:bg-green-600"
-            type="primary"
-            icon={
-              collapsed ? (
-                <MenuUnfoldOutlined className="text-green-100" />
-              ) : (
-                <MenuFoldOutlined className="text-green-100" />
-              )
-            }
-            onClick={() => {
-              setIsBroken(!isBroken);
-              if (isBroken) {
-                setVisibleDrawerSideMenu(visibleDrawerSideMenu);
-                setMarginContent(0);
-              } else {
-                setCollapsed(!collapsed);
-                if (collapsed) setMarginContent(230);
-                else setMarginContent(90);
-              }
-            }}
-          />
-        </ConfigProvider>
-        <div className="m-0 text-xl text-white-700">
-          <span>{currentPath}</span>
-        </div>
-      </Flex>
-      <Flex className="items-center justify-center text-white-700 text-xl font-semibold">
-        {pais.nombre_pais} - {pais.nombre_lugar}
-      </Flex>
+      <Flex align="center" className="w-full">
+  {/* Izquierda */}
+  <div className="flex items-center min-w-[50px]">
+    <ConfigProvider
+      theme={{
+        components: {
+          Button: {
+            colorPrimary: "#77d9a1",
+            colorPrimaryHover: "#5eaf81",
+            colorPrimaryActive: "#92e1b4",
+            defaultHoverColor: "#fafafa",
+          },
+        },
+      }}
+    >
+      <Button
+        className="bg-green-500 hover:bg-green-600"
+        type="primary"
+        icon={
+          collapsed ? (
+            <MenuUnfoldOutlined className="text-green-100" />
+          ) : (
+            <MenuFoldOutlined className="text-green-100" />
+          )
+        }
+        onClick={() => {
+          setIsBroken(!isBroken);
+          if (isBroken) {
+            setVisibleDrawerSideMenu(visibleDrawerSideMenu);
+            setMarginContent(0);
+          } else {
+            setCollapsed(!collapsed);
+            if (collapsed) setMarginContent(230);
+            else setMarginContent(90);
+          }
+        }}
+      />
+    </ConfigProvider>
+  </div>
+
+  <div className="flex-grow text-xl text-white-700   truncate">
+    {currentPath}
+  </div>
+
+  {/* Derecha (país y lugar) */}
+  <div className="flex text-center justify-center min-w-[220px] text-white-700 text-xl font-semibold">
+    {pais.nombre_pais} - {pais.nombre_lugar}
+  </div>
+</Flex>
+
       <Flex align="center" gap="20px">
         <Badge
           count={

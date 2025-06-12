@@ -27,7 +27,7 @@ function AccionesPerfil({
   forUserLog = true,
 }) {
   const usuario = getUserFromToken();
-  const { openNotification } = useLayout();
+  const { openNotification, setCurrentPath} = useLayout();
 
   const [loading, setLoading] = useState(false);
 
@@ -172,7 +172,8 @@ function AccionesPerfil({
             const response = await authApi.signInRequest(responseUser.data.nickname,responseUser.data.contrasena,true);
             if (response.status === 201) {
                     Cookies.set('token', response.data.token);
-                    window.location.href = '/Perfil';
+                    window.location.href = '/perfil';
+                    setCurrentPath('Mi Perfil');
                     setTimeout(() => {
                       window.location.reload(); 
                     }, 100);

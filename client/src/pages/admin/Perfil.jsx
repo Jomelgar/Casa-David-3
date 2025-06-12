@@ -15,7 +15,7 @@ import { getUserFromToken } from "../../utilities/auth.utils";
 import { getMunicipioById } from "../../api/municipioApi";
 
 function Perfil() {
-  const { setCurrentPath, isXS, openNotification } = useLayout();
+  const { setCurrentPath, isXS, openNotification} = useLayout();
 
   const [tab, setTab] = useState(0);
   const [isEditable, setIsEditable] = useState(false);
@@ -184,7 +184,6 @@ function Perfil() {
       } else {
         // Obtiene el usuario logeado
         const userProp = usuario;
-
         setUserProp(userProp);
         cargarInformacion(userProp);
 

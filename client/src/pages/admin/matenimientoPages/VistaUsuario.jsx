@@ -20,9 +20,7 @@ import { COUNTRIES_API } from "../../../api/Huesped.api";
 
 function VistaUsuario() {
   const { setCurrentPath, isXS } = useLayout();
-
   const [tab, setTab] = useState(0);
-
   const [isEditable, setIsEditable] = useState(false);
 
   const params = useParams();

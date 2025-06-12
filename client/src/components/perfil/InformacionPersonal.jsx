@@ -547,9 +547,6 @@ const InformacionPersonal = ({
                   handleSetChangeUser("referencia_telefonica", value);
                 }}
                 optionLabelProp="label"
-                filterOption={(input, option) =>
-                  option.label.toLowerCase().includes(input.toLowerCase())
-                }
                 style={{
                   width: "100%",
                   height: 48,
