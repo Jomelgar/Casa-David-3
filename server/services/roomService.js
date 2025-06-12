@@ -281,44 +281,53 @@ exports.getBecados = async (fechaInicio, fechaFinal) => {
 };
 
 exports.getDonaciones = async (fechaInicio, fechaFinal) => {
-  const donacion = await Ofrenda.findAll({
-    where: {
-      fecha: {
-        [Sequelize.Op.gte]: fechaInicio,
-        [Sequelize.Op.lte]: fechaFinal,
-      },
-    },
-    include: [
-      {
-        model: Reservacion,
-        where: {
-          becado: false,
+try {
+    const donaciones = await Ofrenda.findAll({
+      where: {
+        fecha: {
+          [Sequelize.Op.gte]: fechaInicio,
+          [Sequelize.Op.lte]: fechaFinal,
         },
-        include: [
-          {
-            model: PacienteHuesped,
-            include: { model: Huesped, include: Persona },
+      },
+      include: [
+        {
+          model: Reservacion,
+          where: {
+            becado: false,
           },
-          {
-            model: AfiliadoReservacion,
-            include: {
-              model: Afiliado,
+          include: [
+            {
+              model: PacienteHuesped,
+              include: [
+                {
+                  model: Huesped,
+                  include: Persona,
+                },
+              ],
+            },
+            {
+              model: AfiliadoReservacion,
               include: {
-                model: PatronoAfiliado,
-                include: { model: Patrono },
+                model: Afiliado,
+                include: {
+                  model: PatronoAfiliado,
+                  include: { model: Patrono },
+                },
               },
             },
-          },
-          {
-            model: Cama,
-            include: Habitacion,
-          },
-        ],
-      },
-    ],
-  });
+            {
+              model: Cama,
+              include: Habitacion,
+            },
+          ],
+        },
+      ],
+    });
 
-  return donacion;
+    return donaciones;
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 exports.getHombres = async (fechaInicio, fechaFinal) => {

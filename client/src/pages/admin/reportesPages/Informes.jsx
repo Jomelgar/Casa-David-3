@@ -21,7 +21,7 @@ import {
 } from "antd";
 import axiosInstance from "../../../api/axiosInstance";
 import { useLayout } from "../../../context/LayoutContext";
-import { getDepartamentos } from "../../../api/departamentoApi";
+import { getDepartamentos, getDepartamentoByPais } from "../../../api/departamentoApi";
 import { getMunicipiosByDepartamentoId } from "../../../api/municipioApi";
 import { getMunicipioById } from "../../../api/municipioApi";
 import { getDepartamentoById } from "../../../api/departamentoApi";
@@ -31,10 +31,12 @@ import { getPacienteRequest } from "../../../api/Paciente.api";
 import OcupacionesApi from "../../../api/Ocupaciones.api";
 import ReservacionesApi from "../../../api/Reservaciones.api";
 import OfrendasApi from "../../../api/Ofrenda.api";
+import LugarApi from "../../../api/Lugar.api"
 import hospitalesApi from "../../../api/Hospitales.api";
 import PopUpExport from "./PopUpsInformes/PopUpExport";
 import UserApi from "../../../api/User.api";
 import { getUserFromToken } from "../../../utilities/auth.utils";
+import PaisApi from "../../../api/Pais.api";
 
 dayjs.extend(customParseFormat);
 
@@ -44,7 +46,7 @@ const { RangePicker } = DatePicker;
 
 const Informes = () => {
   const { setCurrentPath } = useLayout();
-  const { userLog } = useLayout();
+  const userLog  = getUserFromToken();
 
   const [fechaInicio, setFechaInicio] = useState(dayjs().format(dateFormat));
   const [fechaFinal, setFechaFinal] = useState(dayjs().format(dateFormat));
@@ -70,7 +72,11 @@ const Informes = () => {
   const [mujerInfo, setMujeresInfo] = useState([]);
 
   // Variables de los filtros
+  const [paises, setPaises] = useState([]);
+  const [lugares,setLugares] = useState([]);
   const [departamentos, setDepartamentos] = useState([]);
+  const [selectedPais, setSelectedPais] = useState(userLog.role === "master"? -1 : userLog.id_pais);
+  const [selectedLugar, setSelectedLugar] = useState(userLog.role === "master"? -1 : userLog.id_lugar);
   const [selectedDepartamento, setSelectedDepartamento] = useState(-1);
   const [municipios, setMunicipios] = useState([]);
   const [selectedMunicipio, setSelectedMunicipio] = useState(-1);
@@ -95,6 +101,8 @@ const Informes = () => {
   }, [
     fechaInicio,
     fechaFinal,
+    selectedPais,
+    selectedLugar,
     selectedDepartamento,
     selectedMunicipio,
     genero,
@@ -107,11 +115,12 @@ const Informes = () => {
   useEffect(() => {
     const fetchDepartamentos = async () => {
       try {
-        const departamentosData = await getDepartamentos();
+        const departamentosData = await getDepartamentoByPais(selectedPais);
         departamentosData.unshift({
-          departamento_id: -1,
-          nombre: "Todos los Departamentos",
-        });
+            departamento_id: -1,
+            nombre: "Todos los Departamentos",
+          });
+        console.log(departamentosData);
         setDepartamentos(departamentosData);
       } catch (error) {
         console.error("Error fetching departamentos:", error);
@@ -119,7 +128,7 @@ const Informes = () => {
     };
 
     fetchDepartamentos();
-  }, []);
+  }, [selectedPais]);
 
   useEffect(() => {
     const fetchMunicipios = async () => {
@@ -144,6 +153,31 @@ const Informes = () => {
     fetchMunicipios();
   }, [selectedDepartamento]);
 
+  const loadPaises = async() =>
+  {
+    const paisData = await PaisApi.getPaisForTable();
+    paisData.data.unshift({
+        id_pais: -1,
+        nombre: "Todas los Paises",
+      })
+    setPaises(paisData.data);
+  };
+
+  useEffect(
+    () => {
+      const fetchLugar =async () =>
+        {
+          const lugarData = await LugarApi.getLugarByPais(selectedPais);
+          console.log(lugarData.data); 
+          lugarData.data.unshift({
+            id_lugar: -1,
+            codigo: "Todas las Casas"
+          })
+          setLugares( lugarData.data || [])
+        }
+        fetchLugar();
+    },[selectedPais]);
+    
   const loadHospitales = async () => {
     try {
       const response = await hospitalesApi.getHospitalRequest();
@@ -239,12 +273,12 @@ const Informes = () => {
 
   const loadData = async () => {
     setLoading(true);
+    loadPaises();
     loadHospitales();
     loadCausasVisita();
     loadOcupaciones();
 
-    const userToken = getUserFromToken();
-    const userProp = await UserApi.getUserRequest(userToken.userId);
+    const userProp = await UserApi.getUserRequest(userLog.userId);
     const personaId = userProp.data.id_persona;
     const paisResponse = await axiosInstance.get(`/personas/${personaId}/pais`);
     const idPais = paisResponse.data.id_pais;
@@ -504,7 +538,6 @@ const Informes = () => {
         fechaInicio,
         fechaFinal
       );
-
       if (
         !responseDonaciones ||
         responseDonaciones.status < 200 ||
@@ -514,11 +547,23 @@ const Informes = () => {
       }
 
       let donaciones =
-        responseDonaciones.data.donacion.filter(
-          (ofrenda) =>
-            ofrenda.Reservacion.Cama.Habitacion.id_lugar === userLog.id_lugar
-        ) || [];
+        responseDonaciones.data.donacion;
+      //Filtrar donacion por pais
+      if(selectedPais !== -1)
+      {
+         donaciones = donaciones.filter((ofrenda)=>
+            ofrenda.id_pais === selectedPais
+          ); 
+      }
 
+      if(selectedLugar !== -1)
+        {
+          donaciones = donaciones.filter((ofrenda) => ofrenda.Reservacion.Cama
+            ? ofrenda.Reservacion.Cama.Habitacion.id_lugar === selectedLugar
+            : false
+          ) || [];
+        }
+      
       // Filtrar donacion por genero
       if (genero !== -1) {
         donaciones = donaciones.filter(
@@ -686,12 +731,22 @@ const Informes = () => {
       }
 
       let becados =
-        responseBecados.data.becados.filter((ofrenda) =>
-          ofrenda.Reservacion.Cama
-            ? ofrenda.Reservacion.Cama.Habitacion.id_lugar === userLog.id_lugar
-            : false
-        ) || [];
+        responseBecados.data.becados;
 
+      if(selectedPais !== -1)
+      {
+        becados = becados.filter((ofrenda) => 
+            ofrenda.id_pais === selectedPais
+          )
+      }
+      if(selectedLugar !== -1)
+        {
+          becados = becados.filter((ofrenda) =>
+          ofrenda.Reservacion.Cama
+            ? ofrenda.Reservacion.Cama.Habitacion.id_lugar === selectedLugar
+            : false
+          ) || []
+        }
       // Filtrar donaciones por genero
       if (genero !== -1) {
         becados = becados.filter(
@@ -1010,30 +1065,85 @@ const Informes = () => {
         }}
       >
         <Card className="mt-10 rounded-xl">
-          <Row>
             <Col flex={"100%"} style={{ marginBottom: 25, height: 50 }}>
-              {/* Select de departamentos*/}
-              <Select
-                style={{ width: "100%", height: "100%", fontSize: "16px" }}
-                showSearch
-                value={selectedDepartamento}
-                onChange={(value) => {
-                  setSelectedDepartamento(value);
-                  setSelectedMunicipio(null); // Resetear municipio al cambiar departamento
-                }}
-                placeholder="Departamento"
-                size="large"
-                options={departamentos.map((d) => ({
-                  value: d.departamento_id,
-                  label: d.nombre,
-                }))}
-                filterOption={(input, option) =>
-                  option.label.toLowerCase().includes(input.toLowerCase())
-                }
-              />
+              <Row gutter={25}>
+                <Col xs={{ flex: "100%" }}
+                    lg={{ flex: "50%" }}
+                    style={{ marginBottom: 25, height: 50 }}
+                >
+                  <Select
+                    style={{ width: "100%", height: "100%", fontSize: "16px"}}
+                    showSearch
+                    value={selectedPais}
+                    disabled={userLog.role !== "master"}
+                    onChange={(value) => {
+                      setSelectedPais(value);
+                      setSelectedDepartamento(-1); // Resetear departamento al cambiar de Pais
+                      setSelectedMunicipio(-1); // Resetear municipio al cambiar departamento
+                      setSelectedLugar(-1); //Resetear Lugar al cambiar de pais
+                    }}
+                    placeholder="País"
+                    size="large"
+                    options={paises.map((d) => ({
+                      value: d.id_pais,
+                      label: d.nombre,
+                    }))}
+                    filterOption={(input, option) =>
+                      option.label.toLowerCase().includes(input.toLowerCase())
+                    }
+                  />
+                </Col>
+                <Col xs={{ flex: "100%" }}
+                    lg={{ flex: "50%" }}
+                    style={{ marginBottom: 25, height: 50 }}
+                >
+                  <Select
+                    style={{ width: "100%", height: "100%", fontSize: "16px"}}
+                    showSearch
+                    placeholder="Casa"
+                    size="large"
+                    value={selectedLugar}
+                    disabled ={selectedPais === -1 || userLog.role !== "master"}
+                    onChange={(value) => setSelectedLugar(value)}
+                    options={lugares?.map((lugar)=> ({
+                      value : lugar.id_lugar,
+                      label: lugar.codigo
+                    }))}
+                  />
+                </Col>
+              </Row>
             </Col>
-            <Col flex={"100%"} style={{ marginBottom: 25, height: 50 }}>
+          <Row gutter={25}>
+              <Col xs={{ flex: "100%" }}
+                    lg={{ flex: "50%" }}
+                    style={{ marginBottom: 25, height: 50 }}
+                >
+                  <Select
+                  style={{ width: "100%", height: "100%", fontSize: "16px" }}
+                  showSearch
+                  value={selectedDepartamento}
+                  onChange={(value) => {
+                    setSelectedDepartamento(value);
+                    setSelectedMunicipio(-1); // Resetear municipio al cambiar departamento
+                  }}
+                  placeholder="Departamento"
+                  disabled={selectedPais === -1}
+                  size="large"
+                  options={departamentos?.map((d) => ({
+                    value: d.departamento_id,
+                    label: d.nombre,
+                  }))}
+                  filterOption={(input, option) =>
+                    option.label.toLowerCase().includes(input.toLowerCase())
+                  }
+                />
+                </Col>
               {/* Select de municipios*/}
+              <Col
+                xs={{ flex: "100%" }}
+                    lg={{ flex: "50%" }}
+                    style={{ marginBottom: 25, height: 50 }}
+              >
               <Select
                 style={{ width: "100%", height: "100%", fontSize: "16px" }}
                 showSearch
@@ -1043,7 +1153,7 @@ const Informes = () => {
                 }}
                 placeholder="Municipio"
                 size="large"
-                //disabled={selectedDepartamento === -1} // Deshabilitar si no hay departamento seleccionado
+                disabled={selectedDepartamento === -1}
                 options={municipios.map((m) => ({
                   value: m.municipio_id,
                   label: m.nombre,
@@ -1054,7 +1164,6 @@ const Informes = () => {
               />
             </Col>
           </Row>
-
           <Row gutter={25}>
             <Col
               xs={{ flex: "100%" }}
