@@ -37,33 +37,33 @@ VALUES
 
 
 -- Ocupacion
-INSERT INTO ocupacion (id_ocupacion, descripcion)
+INSERT INTO ocupacion (descripcion)
 VALUES
-    (1, 'INGENIERO'),
-    (2, 'MÉDICO'),
-    (3, 'ABOGADO'),
-    (4, 'ARQUITECTO'),
-    (5, 'PROGRAMADOR'),
-    (6, 'PROFESOR'),
-    (7, 'CIENTÍFICO'),
-    (8, 'CONTADOR'),
-    (9, 'DISEÑADOR GRÁFICO'),
-    (10, 'PSICÓLOGO'),
-    (12, 'LICENCIADO'),
-    (13, 'PIONERO'),
-    (14, 'OBRERO'),
-    (15, 'CARPINTERO'),
-    (16, 'ZAPATERO'),
-    (17, 'ALBAÑIL'),
-    (18, 'NINGUNA'),
-    (19, 'FLORERO'),
-    (37, 'AGRICULTOR'),
-    (38, 'ESTUDIANTE'),
-    (39, 'AMA DE CASA'),
-    (40, 'ENFERMERA INSTRUMENTISTA'),
-    (41, 'BARBERO'),
-    (42, 'RECIEN NACIDO'),
-    (69, 'LICENCIADA');
+    ('INGENIERO'),
+    ('MÉDICO'),
+    ('ABOGADO'),
+    ('ARQUITECTO'),
+    ('PROGRAMADOR'),
+    ('PROFESOR'),
+    ('CIENTÍFICO'),
+    ('CONTADOR'),
+    ('DISEÑADOR GRÁFICO'),
+    ('PSICÓLOGO'),
+    ('LICENCIADO'),
+    ('PIONERO'),
+    ('OBRERO'),
+    ('CARPINTERO'),
+    ('ZAPATERO'),
+    ('ALBAÑIL'),
+    ('NINGUNA'),
+    ('FLORERO'),
+    ('AGRICULTOR'),
+    ('ESTUDIANTE'),
+    ('AMA DE CASA'),
+    ('ENFERMERA INSTRUMENTISTA'),
+    ('BARBERO'),
+    ('RECIEN NACIDO'),
+    ('LICENCIADA');
 
 
 --Persona

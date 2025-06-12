@@ -578,24 +578,29 @@ const formatosTelefono = {
 
 
  const [selected, setSelected] = useState("DNI");
- 
   const TipoDocumentoSelector = () => {
-  
-
   return (
-    <Row gutter={16} style={{ marginTop: 20,} }>
+    <Row gutter={16} style={{
+  marginTop: 20,
+  width: "1000px", 
+  whiteSpace: "nowrap", // <- evita salto de línea
+ 
+}
+ }>
       <Col>
         <CustomCheckboxButton
-          label="Dni"
+          label="Identidad NA"
           selected={selected === "DNI"}
           onClick={() => setSelected("DNI")}
+          size="large"
         />
       </Col>
       <Col>
         <CustomCheckboxButton
-          label="DNI Extranjero"
+          label="Identidad EX"
           selected={selected === "DNI Extranjero"}
           onClick={() => setSelected("DNI Extranjero")}
+          size="large"
         />
       </Col>
       <Col>
@@ -603,6 +608,7 @@ const formatosTelefono = {
           label="Pasaporte"
           selected={selected === "Pasaporte"}
           onClick={() => setSelected("Pasaporte")}
+          size="large"
         />
       </Col>
     </Row>
@@ -614,19 +620,28 @@ const [selected2, setSelected2] = useState("DNI");
   
 
   return (
-    <Row gutter={16} style={{ marginTop: 5,justify:"start"} }>
+    //<Row gutter={16} style={{ marginTop: 5,justify:"start",width:"40%", height} }>
+    <Row gutter={16} style={{
+  marginTop: 20,
+  width: "1000px", 
+  whiteSpace: "nowrap", // <- evita salto de línea
+ 
+}
+ }>
       <Col>
         <CustomCheckboxButton
-          label="DNI"
+          label="Identidad NA"
           selected={selected2 === "DNI"}
           onClick={() => setSelected2("DNI")}
+           size="large"
         />
       </Col>
       <Col>
         <CustomCheckboxButton
-          label="DNI Extranjero"
+          label="Identidad EX"
           selected={selected2 === "DNI Extranjero"}
           onClick={() => setSelected2("DNI Extranjero")}
+           size="large"
         />
       </Col>
       <Col>
@@ -634,6 +649,7 @@ const [selected2, setSelected2] = useState("DNI");
           label="Pasaporte"
           selected={selected2 === "Pasaporte"}
           onClick={() => setSelected2("Pasaporte")}
+           size="large"
         />
       </Col>
     </Row>
@@ -644,26 +660,35 @@ const [selected3, setSelected3] = useState("DNI");
  
   const TipoDocumentoSelectorTerceraPersona = () => {
   return (
-    <Row gutter={16} style={{ marginTop: 20,justify:"start"} }>
+    <Row gutter={16} style={{
+  marginTop: 20,
+  width: "1000px", 
+  whiteSpace: "nowrap", // <- evita salto de línea
+ 
+}
+ }>
       <Col>
         <CustomCheckboxButton
-          label="DNI"
+          label="Identidad NA"
           selected={selected3 === "DNI"}
           onClick={() => setSelected3("DNI")}
+          size="large"
         />
       </Col>
       <Col>
         <CustomCheckboxButton
-          label="Dni Extranjero"
+          label="Identidad EX"
           selected={selected3 === "DNI Extranjero"}
           onClick={() => setSelected3("DNI Extranjero")}
+          size="large"
         />
       </Col>
       <Col>
-        <CustomCheckboxButton
-          label="Pasaporte"
+        <CustomCheckboxButton        
+          label="Pasaporte"        
           selected={selected3 === "Pasaporte"}
           onClick={() => setSelected3("Pasaporte")}
+          size="large"
         />
       </Col>
     </Row>
@@ -1601,6 +1626,7 @@ const countrySelector3 = (
 
     setLoading(true);
     try {
+      console.log("Ocupacion: "+searchOcupacion+", ");
       const response = await OcupacionesApi.postOcupacionRequest({
         descripcion: searchOcupacion,
       });
@@ -2767,14 +2793,15 @@ const validarCamposAcompanante = () => {
               align="center"
               style={{ width: "100%", height: "100%" }}
             >
+              
               <div className="w-max mr-3 text-[16px] font-bold text-white-700 text-nowrap">
                 Fecha De Salida
               </div>
               <DatePicker
                 minDate={
-                  hospedado.fecha_entrada
-                    ? dayjs(hospedado.fecha_entrada).add(1, "day")
-                    : dayjs().add(1, "day")
+                  hospedado.fecha_entrada            
+                  ? dayjs(hospedado.fecha_entrada, dateFormat).add(1, "day") 
+                  : dayjs()
                 }
                 style={{
                   height: "100%",
@@ -2841,7 +2868,7 @@ const validarCamposAcompanante = () => {
 <Card style={{ marginTop: 16 }} className="shadow-#1">
   <Meta title="Informacion Personal Huesped" />
         <TipoDocumentoSelector />
-  <Row gutter={16} style={{ marginTop: 5 } }justify="end">
+  <Row gutter={16} style={{ marginTop: 10 } }justify="end">
     {/* Selector de tipo de documento */}
     {PacienteMarcado !== 2 && (
     
@@ -2904,7 +2931,7 @@ const validarCamposAcompanante = () => {
               <Input
                 prefix={<IdcardOutlined style={styleIconInput} />}
                 size="large"
-                placeholder={selected}
+                placeholder={selected==="DNI"? "Identidad Nacional": selected==="DNI Extranjero"? "Identidad Extrajera":  selected}
                 maxLength={obtenerDigitos(selected)}
                 type="text"
                 style={{
@@ -3337,18 +3364,20 @@ const validarCamposAcompanante = () => {
             <div></div>
           ) : (
 
-            <Card style={{ marginTop: 5 }} className="shadow-#1">
+            <Card style={{ marginTop: 16 }} className="shadow-#1">
               <Meta title="Informacion del Acompañante" />
+              <TipoDocumentoSelectorSegundaPersona />
               <div className="flex items-center justify-between mb-6">
                 
-                <Row>
-                <TipoDocumentoSelectorSegundaPersona />
-                </Row>
-                <Row gutter={16} style={{ marginTop: 70 } }justify="end">
+                <Row style={{marginTop:16}}>
+                  
                 
+                </Row>
+                
+                <Row gutter={16} style={{ marginTop: 10 } }justify="end">
                 {PacienteMarcado !== 1 && (
                 <Checkbox
-                  style={{ width: 270, height: 45, marginRight:20, marginLeft:370}}
+                  style={{  justifyContent: "flex-end" }}
 
                   checked={acompanante.es_paciente}
                   onChange={async (e) => {
@@ -3416,7 +3445,8 @@ const validarCamposAcompanante = () => {
                   <Input
                     prefix={<IdcardOutlined style={styleIconInput} />}
                     size="large"
-                    placeholder={selected2}
+                    placeholder={selected2==="DNI"? "Identidad Nacional": selected2==="DNI Extranjero"? "Identidad Extrajera":  selected2}
+                    //placeholder={selected2==="DNI"? "Identidad Nacional": selected2}
                     maxLength={obtenerDigitos(selected2)}
                     type="text"
                     style={{
@@ -3832,7 +3862,8 @@ const validarCamposAcompanante = () => {
               <Input
                 prefix={<IdcardOutlined style={styleIconInput} />}
                 size="large"
-                placeholder={selected3}
+                placeholder={selected3==="DNI"? "Identidad Nacional": selected3==="DNI Extranjero"? "Identidad Extrajera":  selected3}
+                //placeholder={selected3==="DNI"? "Identidad Nacional": selected3}
                 maxLength={obtenerDigitos(selected3)}
                 disabled={
                   acompanante.es_paciente

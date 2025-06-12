@@ -16,6 +16,7 @@ exports.crearOcupacion = async (req,res) =>{
     console.log ("creando ocupacion")
      res.status(201).json(ocupacion);
     } catch (error){
+      console.log("Estoy en crear Ocupacion  cuando ay un error");
       res.status(500).json({ error: error.message });
     }
     

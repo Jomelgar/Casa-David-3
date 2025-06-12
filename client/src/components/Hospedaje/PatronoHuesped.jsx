@@ -179,7 +179,7 @@ const handleAcompananteChange = (e) => {
               prefix={<UserOutlined style={{ fontSize: 24, color: "#dedede", paddingRight: 10 }} />}
               size="large"
               disabled={!isEditable}
-              placeholder="DNI Afiliado"
+              placeholder="Identidad del Afiliado"
               style={{ height: "100%" }}
               // en lugar de la ternaria:
               
