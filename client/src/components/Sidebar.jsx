@@ -2,7 +2,7 @@ import { Flex, Menu, Layout, Drawer, Button, ConfigProvider } from "antd";
 import React, { useState, useEffect } from "react";
 import "../App.css";
 import logo from "../assets/logoCasaDavid2.png";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useLayout } from "../context/LayoutContext";
 import Cookies from "js-cookie";
 
@@ -34,6 +34,14 @@ const Sidebar = () => {
   });
 
   const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    const path = location.pathname;
+    setSelectedKey([path]);
+    sessionStorage.setItem("selectedKeys", path);
+  }, [location]);
+
 
   const menuTopic = (onOpenCh, statekeys) => {
     return (

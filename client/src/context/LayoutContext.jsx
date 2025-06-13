@@ -76,7 +76,9 @@ export const LayoutContextProvider = ({ children }) => {
 
       if (response.status === 403) navigate("/auth/login");
 
-      const reservaciones = response.data;
+      const reservaciones = response.data.filter((reserva) =>
+        reserva.PacienteHuesped.Paciente.Persona.id_lugar === userLog.id_lugar);
+      console.log(reservaciones);
 
       const hoy = new Date().getDate() - 1;
       const manana = new Date().getDate();
