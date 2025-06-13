@@ -372,6 +372,16 @@ exports.getHombres = async (fechaInicio, fechaFinal) => {
                       model: Departamento,
                       required: true,
                     }]
+                  },
+                  {
+                    model: Lugar,
+                    required: true,
+                    include: [
+                      {
+                        model: Pais,
+                        required: true,
+                      }
+                    ]
                   }
                 ],
                 where: {
@@ -429,6 +439,16 @@ exports.getMujeres = async (fechaInicio, fechaFinal) => {
                       model: Departamento,
                       required: true,
                     }]
+                  },
+                  {
+                    model: Lugar,
+                    required: true,
+                    include: [
+                      {
+                        model: Pais,
+                        required: true,
+                      }
+                    ]
                   }
                 ],
                 where: {
