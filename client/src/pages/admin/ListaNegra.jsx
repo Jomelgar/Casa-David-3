@@ -16,6 +16,7 @@ import {
   PlusCircleOutlined,
   InfoCircleOutlined,
   DownloadOutlined,
+  GlobalOutlined,
 } from "@ant-design/icons";
 import React from "react";
 
@@ -597,20 +598,22 @@ function ListaNegra() {
         <Card className="rounded-xl" style={{ marginBottom: 25}}>
           <Row>
             <Col flex={"100%"} >
-              <Select
-                style={{ width: "100%", height: "100%", fontSize: "16px" }}
-                showSearch
-                value={selectedPais}
-                onChange={(value) => {
-                  setSelectedPais(value);
-                }}
-                placeholder="Pais"
-                size="large"
-                options={paises}
-                filterOption={(input, option) =>
-                  option.label.toLowerCase().includes(input.toLowerCase())
-                }
-              />
+              <div style={{ display: "flex", alignItems: "center", border: "1px solid #d9d9d9", borderRadius: 4, padding: "4px 11px", height: "40px" }}>
+                <GlobalOutlined style={{ marginRight: 8, fontSize: 16, color: "#8c8c8c" }} />
+                <Select
+                  style={{ flex: 1, fontSize: "16px", border: "none" }}
+                  showSearch
+                  value={selectedPais}
+                  onChange={(value) => setSelectedPais(value)}
+                  placeholder="País"
+                  size="large"
+                  options={paises}
+                  bordered={false} // importante para que combine visualmente con el contenedor externo
+                  filterOption={(input, option) =>
+                    option.label.toLowerCase().includes(input.toLowerCase())
+                  }
+                />
+              </div>
             </Col>
           </Row>
         </Card>

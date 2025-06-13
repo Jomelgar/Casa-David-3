@@ -182,15 +182,15 @@ const Informes = () => {
     
   const loadHospitales = async () => {
     try {
-      const response = await hospitalesApi.getHospitalRequest();
-
-      if (!response) {
-        // deberia lanzar un error
-        throw new Error("No se pudo cargar las Hospitales");
+      let response;
+      if (selectedPais === -1) {
+        response = await hospitalesApi.getHospitalRequest();
+      } else {
+        response = await hospitalesApi.getHospitalByPais(selectedPais);
       }
+      const hospitales = response?.data?.length ? response.data : [];
 
-      if (response.status >= 200 && response.status < 300) {
-        const listaDeHospitales = response.data.map((e) => ({
+        const listaDeHospitales = hospitales.map((e) => ({
           value: e.id_hospital,
           label: e.nombre + " , " + e.direccion,
         }));
@@ -199,10 +199,6 @@ const Informes = () => {
           label: "Todos los Hospitales",
         });
         setListaHospitales(listaDeHospitales);
-      } else {
-        // deberia lanzar un error
-        throw new Error("No se pudo cargar los hospitales");
-      }
     } catch (error) {
       // deberia lanzar una notificacion para el eerorr
       console.error(error);
@@ -275,7 +271,7 @@ const Informes = () => {
 
   const loadData = async () => {
     setLoading(true);
-    loadPaises();
+    await loadPaises();
     loadHospitales();
     loadCausasVisita();
     loadOcupaciones();
@@ -1143,6 +1139,7 @@ const Informes = () => {
                           disabled={userLog.role !== "master"}
                           onChange={(value) => {
                             setSelectedPais(value);
+                            setHospitalSeleccionado(-1);
                             setSelectedDepartamento(-1);
                             setSelectedMunicipio(-1);
                             setSelectedLugar(-1);
@@ -1245,6 +1242,7 @@ const Informes = () => {
                       <Select
                         style={{ width: "100%", height: "100%", fontSize: "16px" }}
                         placeholder="Hospital"
+                        disabled={selectedPais === -1}
                         options={listaHospitales}
                         value={hospitalSeleccionado}
                         onChange={(value) => setHospitalSeleccionado(value)}
