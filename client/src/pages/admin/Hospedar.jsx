@@ -2052,7 +2052,10 @@ const countrySelector3 = (
             console.log("Eseta en reservacion");
             return;
           } else searchDni(newValue, 0);
-        }}
+        }}else
+        {
+          newValue = newValue.toUpperCase().replace(/[^A-Z0-9-]/g, '');
+        }
         break;
 
       case "fecha_nacimiento":
@@ -2066,7 +2069,7 @@ const countrySelector3 = (
 
       case "dni_afiliado":
         if(newValue !==null ){
-          newValue = aplicarFormatoDNI(value, dniFormat);
+          newValue = aplicarFormatoDNI(value.toUpperCase(), dniFormat);
           if  (validarFormatoConGuiones(newValue, dniFormat)) {
             searchDni(newValue, 1);
           }
@@ -2152,7 +2155,10 @@ const validarFormatoConGuiones = (valor, formato) => {
         newValue = aplicarFormatoDNI(value, dniFormat);
         if (validarFormatoConGuiones(newValue, dniFormat)) {
           searchDni(newValue, 1);
-        }}
+        }}else
+        {
+          newValue = newValue.toUpperCase().replace(/[^A-Z0-9-]/g, '');
+        }
 
 
         break;
@@ -2245,6 +2251,9 @@ const validarFormatoConGuiones = (valor, formato) => {
         newValue = aplicarFormatoDNI(value, dniFormat);
         if (validarFormatoConGuiones(newValue, dniFormat)) {
           searchDni(newValue, 1);
+        }else 
+        {
+          newValue = newValue.toUpperCase().replace(/[^A-Z0-9-]/g, '');
         }
 
         if (validarFormatoConGuiones(newValue, dniFormat)) {
@@ -2932,7 +2941,7 @@ const validarCamposAcompanante = () => {
               <Input
                 prefix={<IdcardOutlined style={styleIconInput} />}
                 size="large"
-                placeholder={selected==="DNI"? "Identidad Nacional": selected==="DNI Extranjero"? "Identidad Extrajera":  selected}
+                placeholder={selected==="DNI"? "Identidad Nacional": selected==="DNI Extranjero"? "Identidad Extrajera":  "Pasaporte"}
                 maxLength={obtenerDigitos(selected)}
                 type="text"
                 style={{
