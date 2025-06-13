@@ -1186,6 +1186,7 @@ const countrySelector3 = (
         const response = await hospitalesApi.postHospitalesRequest({
           nombre: hospitalFormat[0],
           direccion: hospitalFormat[1],
+          id_pais : userLog.id_pais
         });
 
         if (!response || response.status < 200 || response.status >= 300) {

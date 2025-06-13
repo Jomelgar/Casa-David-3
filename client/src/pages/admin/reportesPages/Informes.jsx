@@ -122,7 +122,6 @@ const Informes = () => {
             departamento_id: -1,
             nombre: "Todos los Departamentos",
           });
-        console.log(departamentosData);
         setDepartamentos(departamentosData);
       } catch (error) {
         console.error("Error fetching departamentos:", error);
