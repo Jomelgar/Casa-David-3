@@ -140,7 +140,7 @@ const Lugar = sequelize.define('Lugar', {
     autoIncrement: true
   },
   codigo: {
-    type: Sequelize.STRING(10),
+    type: Sequelize.STRING(100),
     allowNull: false
   },
   id_pais:

@@ -95,6 +95,7 @@ function PopUpAddLocal({ visible, onClose, pais, onLoad }) {
 
       <Input
         value={name}
+        maxLength={100}
         placeholder="Nombre del Local"
         onChange={(e) => setName(e.target.value)}
         style={{ marginBottom: 24 }}

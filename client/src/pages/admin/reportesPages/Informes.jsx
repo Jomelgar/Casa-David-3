@@ -298,7 +298,7 @@ const Informes = () => {
       }
 
       let hombresData = responseHombres.data.hombres.rows;
-
+      console.log(hombresData)
       // Filtrar por genero
       if (genero !== -1) {
         hombresData = hombresData.filter(
@@ -308,6 +308,19 @@ const Informes = () => {
         );
       }
 
+      //Filtro por Pais
+      if(selectedPais !== -1)
+      {
+        hombresData = await hombresData.filter((persona)=>
+              persona.PacienteHuesped.Huesped.Persona.Municipio.Departamento.id_pais === selectedPais);
+      }
+      //Filtro por Lugar
+      if(selectedLugar !== -1)
+      {
+        hombresData = await hombresData.filter((persona)=>
+          persona.PacienteHuesped.Huesped.Persona.id_lugar === selectedLugar
+        )
+      }
       // Filtrar por departamento
       if (selectedDepartamento !== -1) {
         const filteredHombres = await Promise.all(
@@ -432,6 +445,20 @@ const Informes = () => {
         );
       }
 
+      //Filtrar por pais
+      if(selectedPais !== -1)
+        {
+          mujeresData = mujeresData.filter((persona)=>
+            persona.PacienteHuesped.Huesped.Persona.Municipio.Departamento.id_pais === selectedPais
+          );
+        }
+      //Filtrar por Lugar
+      if(selectedLugar !== -1)
+        { 
+          mujeresData = mujeresData.filter((persona)=>
+          persona.PacienteHuesped.Huesped.Persona.id_lugar === selectedLugar
+          );
+        }
       // Filtrar por departamento
       if (selectedDepartamento !== -1) {
         const filteredMujeres = await Promise.all(
@@ -1104,9 +1131,8 @@ const Informes = () => {
             }}
           >
             <Card className="mt-10 rounded-xl mb-5">
-              <Collapse accordion defaultActiveKey={["1"]}>
-                <Panel header="Filtros Avanzado" key="1">
-                  {/* Todo el contenido original dentro del Panel */}
+              <Collapse accordion className="bg-white rounded shadow-sm" defaultActiveKey={["1"]}>
+                <Panel header={<span className="text-gray-700 font-medium">Filtros Avanzados</span>} key="1">
                   <Col flex={"100%"} style={{ marginBottom: 25, height: 50 }}>
                     <Row gutter={25}>
                       <Col xs={{ flex: "100%" }} lg={{ flex: "50%" }} style={{ marginBottom: 25, height: 50 }}>

@@ -238,7 +238,7 @@ const CustomHeader = () => {
   </div>
 
   {/* Derecha (país y lugar) */}
-  <div className="flex text-center justify-center min-w-[220px] text-white-700 text-xl font-semibold">
+  <div className="flex text-center justify-center min-w-[220px] text-white-700 text-xl font-semibold mr-10">
     {pais.nombre_pais} - {pais.nombre_lugar}
   </div>
 </Flex>

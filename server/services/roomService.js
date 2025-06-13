@@ -14,6 +14,7 @@ const { Sequelize } = require("../Db");
 const { Afiliado, Patrono, PatronoAfiliado } = require("../models/afiliado");
 const { where } = require("sequelize");
 const { Pais } = require("../models/pais");
+const {Departamento} = require("../models/departamento");
 //const Municipio = require("../models/municipio");
 
 exports.createHabitacion = async (habitacionData) => {
@@ -359,6 +360,17 @@ exports.getHombres = async (fechaInicio, fechaFinal) => {
               {
                 model: Persona,
                 required: true,
+                include:
+                [
+                  {model: Municipio,
+                    required: true,
+                    include:
+                    [{
+                      model: Departamento,
+                      required: true,
+                    }]
+                  }
+                ],
                 where: {
                   genero: "MASCULINO",
                 },
@@ -405,6 +417,17 @@ exports.getMujeres = async (fechaInicio, fechaFinal) => {
               {
                 model: Persona,
                 required: true,
+                include:
+                [
+                  {model: Municipio,
+                    required: true,
+                    include:
+                    [{
+                      model: Departamento,
+                      required: true,
+                    }]
+                  }
+                ],
                 where: {
                   genero: "FEMENINO",
                 },
