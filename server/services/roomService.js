@@ -13,6 +13,7 @@ const { Sequelize } = require("../Db");
 
 const { Afiliado, Patrono, PatronoAfiliado } = require("../models/afiliado");
 const { where } = require("sequelize");
+const { Pais } = require("../models/pais");
 //const Municipio = require("../models/municipio");
 
 exports.createHabitacion = async (habitacionData) => {
@@ -271,6 +272,9 @@ exports.getBecados = async (fechaInicio, fechaFinal) => {
             },
           ],
         },
+        {
+          model:Pais
+        }
       ],
     });
 
@@ -321,6 +325,9 @@ try {
             },
           ],
         },
+        {
+              model: Pais
+        }
       ],
     });
 

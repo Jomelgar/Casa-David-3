@@ -18,6 +18,7 @@ import {
   Select,
   Spin,
   Divider,
+  Collapse
 } from "antd";
 import axiosInstance from "../../../api/axiosInstance";
 import { useLayout } from "../../../context/LayoutContext";
@@ -37,6 +38,7 @@ import PopUpExport from "./PopUpsInformes/PopUpExport";
 import UserApi from "../../../api/User.api";
 import { getUserFromToken } from "../../../utilities/auth.utils";
 import PaisApi from "../../../api/Pais.api";
+const{ Panel } = Collapse;
 
 dayjs.extend(customParseFormat);
 
@@ -158,7 +160,7 @@ const Informes = () => {
     const paisData = await PaisApi.getPaisForTable();
     paisData.data.unshift({
         id_pais: -1,
-        nombre: "Todas los Paises",
+        nombre: "Todos los Paises",
       })
     setPaises(paisData.data);
   };
@@ -277,13 +279,6 @@ const Informes = () => {
     loadHospitales();
     loadCausasVisita();
     loadOcupaciones();
-
-    const userProp = await UserApi.getUserRequest(userLog.userId);
-    const personaId = userProp.data.id_persona;
-    const paisResponse = await axiosInstance.get(`/personas/${personaId}/pais`);
-    const idPais = paisResponse.data.id_pais;
-    const {codigo_iso,divisa} = (await axiosInstance.get(`/pais/${idPais}/iso`)).data;
-    setMonedaLocal( divisa );
 
     const data = [];
 
@@ -993,6 +988,48 @@ const Informes = () => {
       }
       setPrimeraVez(hombresPrimeraVez + mujeresPrimeraVez);
 
+       //TODO: Poner que obtenga moneda local o usd etc.
+      console.log(donaciones);
+      if(selectedPais === -1)
+      {
+        setMonedaLocal('$');
+        const API_KEY = '44948c701865425a8109ae020dedea23';
+
+        // BECADOS
+        let totalBecados = 0;
+        for (const becado of becados) {
+          const response = await fetch(`https://api.currencyfreaks.com/latest?apikey=${API_KEY}&symbols=${becado.Pai.codigo_iso},USD`);
+          const data = await response.json();
+
+          const tasaMonedaLocal = parseFloat(data.rates[becado.Pai.codigo_iso]);
+          const tasaMonedaDestino = parseFloat(data.rates['USD']);
+
+          becado.valor = tasaMonedaDestino / tasaMonedaLocal;
+          totalBecados += becado.valor;
+        }
+        setTotalBeca(Number(totalBecados.toFixed(2)));
+
+        // DONACIONES
+        let totalDonacionCalculada = 0;
+        for (const donacion of donaciones) {
+          const response = await fetch(`https://api.currencyfreaks.com/latest?apikey=${API_KEY}&symbols=${donacion.Pai.codigo_iso},USD`);
+          const data = await response.json();
+
+          const tasaMonedaLocal = parseFloat(data.rates[donacion.Pai.codigo_iso]);
+          const tasaMonedaDestino = parseFloat(data.rates['USD']);
+
+          donacion.valor = donacion.valor * tasaMonedaDestino / tasaMonedaLocal;
+          totalDonacionCalculada += donacion.valor;
+        }
+        setTotalDonacion(Number(totalDonacionCalculada.toFixed(2)));
+        console.log(donaciones);
+
+      }else
+      {
+        const {codigo_iso,divisa} = (await axiosInstance.get(`/pais/${selectedPais}/iso`)).data;
+        setMonedaLocal(divisa);
+      }
+
       setLoading(false);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -1048,204 +1085,170 @@ const Informes = () => {
   };
 
   const renderFiltros = () => {
-    return (
-      <ConfigProvider
-        input={{ className: "cursor-default" }}
-        theme={{
-          token: {
-            colorPrimaryHover: "#92e1b4",
-            colorPrimary: "#77d9a1",
-            colorText: "#626262",
-            colorBgContainerDisabled: "#fcfcfc",
-            colorTextDisabled: "#939393",
-          },
-          components: {
-            Input: {},
-          },
-        }}
-      >
-        <Card className="mt-10 rounded-xl">
-            <Col flex={"100%"} style={{ marginBottom: 25, height: 50 }}>
-              <Row gutter={25}>
-                <Col xs={{ flex: "100%" }}
-                    lg={{ flex: "50%" }}
-                    style={{ marginBottom: 25, height: 50 }}
-                >
-                  <Select
-                    style={{ width: "100%", height: "100%", fontSize: "16px"}}
-                    showSearch
-                    value={selectedPais}
-                    disabled={userLog.role !== "master"}
-                    onChange={(value) => {
-                      setSelectedPais(value);
-                      setSelectedDepartamento(-1); // Resetear departamento al cambiar de Pais
-                      setSelectedMunicipio(-1); // Resetear municipio al cambiar departamento
-                      setSelectedLugar(-1); //Resetear Lugar al cambiar de pais
-                    }}
-                    placeholder="País"
-                    size="large"
-                    options={paises.map((d) => ({
-                      value: d.id_pais,
-                      label: d.nombre,
-                    }))}
-                    filterOption={(input, option) =>
-                      option.label.toLowerCase().includes(input.toLowerCase())
-                    }
-                  />
-                </Col>
-                <Col xs={{ flex: "100%" }}
-                    lg={{ flex: "50%" }}
-                    style={{ marginBottom: 25, height: 50 }}
-                >
-                  <Select
-                    style={{ width: "100%", height: "100%", fontSize: "16px"}}
-                    showSearch
-                    placeholder="Casa"
-                    size="large"
-                    value={selectedLugar}
-                    disabled ={selectedPais === -1 || userLog.role !== "master"}
-                    onChange={(value) => setSelectedLugar(value)}
-                    options={lugares?.map((lugar)=> ({
-                      value : lugar.id_lugar,
-                      label: lugar.codigo
-                    }))}
-                  />
-                </Col>
-              </Row>
-            </Col>
-          <Row gutter={25}>
-              <Col xs={{ flex: "100%" }}
-                    lg={{ flex: "50%" }}
-                    style={{ marginBottom: 25, height: 50 }}
-                >
-                  <Select
-                  style={{ width: "100%", height: "100%", fontSize: "16px" }}
-                  showSearch
-                  value={selectedDepartamento}
-                  onChange={(value) => {
-                    setSelectedDepartamento(value);
-                    setSelectedMunicipio(-1); // Resetear municipio al cambiar departamento
-                  }}
-                  placeholder="Departamento"
-                  disabled={selectedPais === -1}
-                  size="large"
-                  options={departamentos?.map((d) => ({
-                    value: d.departamento_id,
-                    label: d.nombre,
-                  }))}
-                  filterOption={(input, option) =>
-                    option.label.toLowerCase().includes(input.toLowerCase())
-                  }
-                />
-                </Col>
-              {/* Select de municipios*/}
-              <Col
-                xs={{ flex: "100%" }}
-                    lg={{ flex: "50%" }}
-                    style={{ marginBottom: 25, height: 50 }}
-              >
-              <Select
-                style={{ width: "100%", height: "100%", fontSize: "16px" }}
-                showSearch
-                value={selectedMunicipio}
-                onChange={(value) => {
-                  setSelectedMunicipio(value);
-                }}
-                placeholder="Municipio"
-                size="large"
-                disabled={selectedDepartamento === -1}
-                options={municipios.map((m) => ({
-                  value: m.municipio_id,
-                  label: m.nombre,
-                }))}
-                filterOption={(input, option) =>
-                  option.label.toUpperCase().includes(input.toUpperCase())
-                }
-              />
-            </Col>
-          </Row>
-          <Row gutter={25}>
-            <Col
-              xs={{ flex: "100%" }}
-              lg={{ flex: "50%" }}
-              style={{ marginBottom: 25, height: 50 }}
-            >
-              <Select
-                style={{ width: "100%", height: "100%", fontSize: "16px" }}
-                placeholder="Genero"
-                options={generos}
-                value={genero}
-                onChange={(e) => {
-                  setGenero(e);
-                }}
-              />
-            </Col>
-            <Col
-              xs={{ flex: "100%" }}
-              lg={{ flex: "50%" }}
-              style={{ marginBottom: 25, height: 50 }}
-            >
-              <Input
-                style={{ width: "100%", height: "100%", fontSize: "16px" }}
-                placeholder="Todas las edades"
-                type="number"
-                min={0}
-                value={edadEscrita}
-                onChange={(e) => {
-                  setEdadEscrita(e.target.value);
-                }}
-              />
-            </Col>
-          </Row>
+        return (
+          <ConfigProvider
+            input={{ className: "cursor-default" }}
+            theme={{
+              token: {
+                colorPrimaryHover: "#92e1b4",
+                colorPrimary: "#77d9a1",
+                colorText: "#626262",
+                colorBgContainerDisabled: "#fcfcfc",
+                colorTextDisabled: "#939393",
+              },
+              components: {
+                Input: {},
+              },
+            }}
+          >
+            <Card className="mt-10 rounded-xl mb-5">
+              <Collapse accordion defaultActiveKey={["1"]}>
+                <Panel header="Filtros Avanzado" key="1">
+                  {/* Todo el contenido original dentro del Panel */}
+                  <Col flex={"100%"} style={{ marginBottom: 25, height: 50 }}>
+                    <Row gutter={25}>
+                      <Col xs={{ flex: "100%" }} lg={{ flex: "50%" }} style={{ marginBottom: 25, height: 50 }}>
+                        <Select
+                          style={{ width: "100%", height: "100%", fontSize: "16px" }}
+                          showSearch
+                          value={selectedPais}
+                          disabled={userLog.role !== "master"}
+                          onChange={(value) => {
+                            setSelectedPais(value);
+                            setSelectedDepartamento(-1);
+                            setSelectedMunicipio(-1);
+                            setSelectedLugar(-1);
+                          }}
+                          placeholder="País"
+                          size="large"
+                          options={paises.map((d) => ({
+                            value: d.id_pais,
+                            label: d.nombre,
+                          }))}
+                          filterOption={(input, option) =>
+                            option.label.toLowerCase().includes(input.toLowerCase())
+                          }
+                        />
+                      </Col>
+                      <Col xs={{ flex: "100%" }} lg={{ flex: "50%" }} style={{ marginBottom: 25, height: 50 }}>
+                        <Select
+                          style={{ width: "100%", height: "100%", fontSize: "16px" }}
+                          showSearch
+                          placeholder="Casa"
+                          size="large"
+                          value={selectedLugar}
+                          disabled={selectedPais === -1 || userLog.role !== "master"}
+                          onChange={(value) => setSelectedLugar(value)}
+                          options={lugares?.map((lugar) => ({
+                            value: lugar.id_lugar,
+                            label: lugar.codigo,
+                          }))}
+                        />
+                      </Col>
+                    </Row>
+                  </Col>
 
-          <Row gutter={25}>
-            <Col
-              xs={{ flex: "100%" }}
-              lg={{ flex: "50%" }}
-              style={{ marginBottom: 25, height: 50 }}
-            >
-              <Select
-                style={{ width: "100%", height: "100%", fontSize: "16px" }}
-                placeholder="Hospital"
-                options={listaHospitales}
-                value={hospitalSeleccionado}
-                onChange={(value) => {
-                  setHospitalSeleccionado(value);
-                }}
-              />
-            </Col>
-            <Col
-              xs={{ flex: "100%" }}
-              lg={{ flex: "50%" }}
-              style={{ marginBottom: 25, height: 50 }}
-            >
-              <Select
-                style={{ width: "100%", height: "100%", fontSize: "16px" }}
-                placeholder="Causa de visita"
-                options={listaCausasVisita}
-                value={causaVisitaSeleccionada}
-                onChange={(value) => {
-                  setCausaVisitaSeleccionada(value);
-                }}
-              />
-            </Col>
-          </Row>
-          <Row gutter={25}>
-            <Col flex={"100%"} style={{ marginBottom: 25, height: 50 }}>
-              <Select
-                style={{ width: "100%", height: "100%", fontSize: "16px" }}
-                placeholder="Ocupación"
-                options={listaOcupaciones}
-                value={ocupacionSeleccionada}
-                onChange={(value) => {
-                  setOcupacionSeleccionada(value);
-                }}
-              />
-            </Col>
-          </Row>
-        </Card>
-      </ConfigProvider>
-    );
+                  <Row gutter={25}>
+                    <Col xs={{ flex: "100%" }} lg={{ flex: "50%" }} style={{ marginBottom: 25, height: 50 }}>
+                      <Select
+                        style={{ width: "100%", height: "100%", fontSize: "16px" }}
+                        showSearch
+                        value={selectedDepartamento}
+                        onChange={(value) => {
+                          setSelectedDepartamento(value);
+                          setSelectedMunicipio(-1);
+                        }}
+                        placeholder="Departamento"
+                        disabled={selectedPais === -1}
+                        size="large"
+                        options={departamentos?.map((d) => ({
+                          value: d.departamento_id,
+                          label: d.nombre,
+                        }))}
+                        filterOption={(input, option) =>
+                          option.label.toLowerCase().includes(input.toLowerCase())
+                        }
+                      />
+                    </Col>
+                    <Col xs={{ flex: "100%" }} lg={{ flex: "50%" }} style={{ marginBottom: 25, height: 50 }}>
+                      <Select
+                        style={{ width: "100%", height: "100%", fontSize: "16px" }}
+                        showSearch
+                        value={selectedMunicipio}
+                        onChange={(value) => setSelectedMunicipio(value)}
+                        placeholder="Municipio"
+                        size="large"
+                        disabled={selectedDepartamento === -1}
+                        options={municipios.map((m) => ({
+                          value: m.municipio_id,
+                          label: m.nombre,
+                        }))}
+                        filterOption={(input, option) =>
+                          option.label.toUpperCase().includes(input.toUpperCase())
+                        }
+                      />
+                    </Col>
+                  </Row>
+
+                  <Row gutter={25}>
+                    <Col xs={{ flex: "100%" }} lg={{ flex: "50%" }} style={{ marginBottom: 25, height: 50 }}>
+                      <Select
+                        style={{ width: "100%", height: "100%", fontSize: "16px" }}
+                        placeholder="Género"
+                        options={generos}
+                        value={genero}
+                        onChange={(e) => setGenero(e)}
+                      />
+                    </Col>
+                    <Col xs={{ flex: "100%" }} lg={{ flex: "50%" }} style={{ marginBottom: 25, height: 50 }}>
+                      <Input
+                        style={{ width: "100%", height: "100%", fontSize: "16px" }}
+                        placeholder="Todas las edades"
+                        type="number"
+                        min={0}
+                        value={edadEscrita}
+                        onChange={(e) => setEdadEscrita(e.target.value)}
+                      />
+                    </Col>
+                  </Row>
+
+                  <Row gutter={25}>
+                    <Col xs={{ flex: "100%" }} lg={{ flex: "50%" }} style={{ marginBottom: 25, height: 50 }}>
+                      <Select
+                        style={{ width: "100%", height: "100%", fontSize: "16px" }}
+                        placeholder="Hospital"
+                        options={listaHospitales}
+                        value={hospitalSeleccionado}
+                        onChange={(value) => setHospitalSeleccionado(value)}
+                      />
+                    </Col>
+                    <Col xs={{ flex: "100%" }} lg={{ flex: "50%" }} style={{ marginBottom: 25, height: 50 }}>
+                      <Select
+                        style={{ width: "100%", height: "100%", fontSize: "16px" }}
+                        placeholder="Causa de visita"
+                        options={listaCausasVisita}
+                        value={causaVisitaSeleccionada}
+                        onChange={(value) => setCausaVisitaSeleccionada(value)}
+                      />
+                    </Col>
+                  </Row>
+
+                  <Row gutter={25}>
+                    <Col flex={"100%"} style={{ marginBottom: 25, height: 50 }}>
+                      <Select
+                        style={{ width: "100%", height: "100%", fontSize: "16px" }}
+                        placeholder="Ocupación"
+                        options={listaOcupaciones}
+                        value={ocupacionSeleccionada}
+                        onChange={(value) => setOcupacionSeleccionada(value)}
+                      />
+                    </Col>
+                  </Row>
+                </Panel>
+              </Collapse>
+            </Card>
+          </ConfigProvider>
+        );
   };
 
   return (
