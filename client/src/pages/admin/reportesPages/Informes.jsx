@@ -708,7 +708,8 @@ const Informes = () => {
         0
       );
 
-      setTotalDonacion(totalDonaciones);
+      if(selectedPais !== -1)setTotalDonacion(totalDonaciones);
+      else setTotalDonacion(0);
 
       // * Donaciones de becados
       const responseBecados = await OfrendasApi.getOfrendasBecados(
@@ -891,7 +892,8 @@ const Informes = () => {
         0
       );
 
-      setTotalBeca(totalBecados);
+      if(-1 === selectedPais)setTotalBeca(totalBecados);
+      else setTotalBeca(0);
 
       // Camas ocupadas por becados
       let becadosHombres = 0;
