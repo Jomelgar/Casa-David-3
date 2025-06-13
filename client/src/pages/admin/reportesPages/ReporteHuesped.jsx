@@ -13,6 +13,7 @@ import {
   Select,
   Spin,
   Divider,
+  Collapse,
 } from "antd";
 import dayjs from "dayjs";
 import axiosInstance from "../../../api/axiosInstance";
@@ -29,13 +30,33 @@ import { getMunicipioById } from "../../../api/municipioApi";
 import { getDepartamentoById } from "../../../api/departamentoApi";
 import { getDepartamentoByMunicipioId } from "../../../api/departamentoApi";
 
+import {getDepartamentoByPais} from "../../../api/departamentoApi";
+import personaApi from "../../../api/Persona.api";
+import { getUserFromToken } from "../../../utilities/auth.utils";
+
+import PaisApi from "../../../api/Pais.api";
+import { DownOutlined, UpOutlined } from "@ant-design/icons";
+import LugarApi from "../../../api/Lugar.api"
+const userLog  = getUserFromToken();
+const { Panel } = Collapse;
+const { Option } = Select;
+
 dayjs.extend(customParseFormat);
 
 const dateFormat = "YYYY/MM/DD";
 const { Header, Content } = Layout;
 const { RangePicker } = DatePicker;
-
+const usuario = getUserFromToken();
 function ReporteHuesped() {
+  
+  const [selectedPais, setSelectedPais] = useState(userLog.role === "master"? -1 : userLog.id_pais);
+  const [selectedLugar, setSelectedLugar] = useState(userLog.role === "master"? -1 : userLog.id_lugar);
+   // Variables de los filtros
+    const [paises, setPaises] = useState([]);
+    const [lugares,setLugares] = useState([]);
+
+  const [isOpen, setIsOpen] = useState(false);
+
   const { setCurrentPath } = useLayout();
 
   const [procedencia, setProcedencia] = useState(-1);
@@ -61,6 +82,8 @@ function ReporteHuesped() {
 
   const [fechaInicio, setFechaInicio] = useState(new Date().toISOString());
   const [fechaFinal, setFechaFinal] = useState(new Date().toISOString());
+
+
 
   const loadPatronos = async () => {
     try {
@@ -101,16 +124,42 @@ function ReporteHuesped() {
   const [pageSize, setPageSize] = useState(5);
   const [page1, setPage1] = useState(1);
   const [pageSize1, setPageSize1] = useState(5);
+  useEffect(
+      () => {
+        const fetchLugar =async () =>
+          {
+            const lugarData = await LugarApi.getLugarByPais(selectedPais);
+            console.log(lugarData.data); 
+            lugarData.data.unshift({
+              id_lugar: -1,
+              codigo: "Todas las Casas"
+            })
+            setLugares( lugarData.data || [])
+          }
+          fetchLugar();
+      },[selectedPais]);
 
+    const loadPaises = async() =>
+    {
+      const paisData = await PaisApi.getPaisForTable();
+      paisData.data.unshift({
+          id_pais: -1,
+          nombre: "Todos los Paises",
+        })
+      setPaises(paisData.data);
+    };
   useEffect(() => {
     loadData();
+    loadPaises();
   }, [fechaInicio, fechaFinal, selectedDepartamento, selectedMunicipio, patrono, genero]);
 
   useEffect(() => {
     //console.log("SE CORRIO EL FETCH DEPARTAMENTOS");
     const fetchDepartamentos = async () => {
       try {
-        const departamentosData = await getDepartamentos();
+         const pais = await personaApi.getPaisByPersona(usuario.id_persona);
+         const departamentosData = await getDepartamentoByPais(pais.data.id_pais);
+        setDepartamentos(departamentosData);
         departamentosData.unshift({ departamento_id: -1, nombre: "Todos los Departamentos" });
         setDepartamentos(departamentosData);
         //console.log("Departamentos cargados: ", departamentosData);
@@ -828,7 +877,71 @@ function ReporteHuesped() {
           },
         }}
       >
-        <Card className="mt-10 rounded-xl">
+        <Card className="mt-10 rounded-xl mb-5">
+          <Collapse
+      activeKey={isOpen ? ["1"] : []}
+      onChange={() => setIsOpen(!isOpen)}
+     // bordered={false}
+      expandIconPosition="start"
+      className="bg-white rounded shadow-sm"
+      expandIcon={({ isActive }) =>
+        isActive ? <UpOutlined /> : <DownOutlined />
+      }
+    >
+      <Panel
+        header={<span className="text-gray-700 font-medium">Filtros Avanzados</span>}
+        key="1"
+      >
+        <Col flex={"100%"} style={{ marginBottom: 25, height: 50 }}>
+                            <Row gutter={25}>
+                              <Col xs={{ flex: "100%" }} lg={{ flex: "50%" }} style={{ marginBottom: 25, height: 50 }}>
+                                <Select
+                                
+                                  style={{ width: "100%", height: "100%", fontSize: "16px" }}
+                                  showSearch
+                                  
+                                  value={selectedPais}
+                                  disabled={userLog.role !== "master"}
+                                  
+                                  onChange={(value) => {
+                                    setSelectedPais(value);
+                                    setSelectedDepartamento(-1);
+                                    setSelectedMunicipio(-1);
+                                    setSelectedLugar(-1);
+                                  }}
+                                  placeholder="País"
+                                  size="large"
+                                  options={paises.map((d) => ({
+                                    value: d.id_pais,
+                                    label: d.nombre,
+                                  }))}
+                                  filterOption={(input, option) =>
+                                    option.label.toLowerCase().includes(input.toLowerCase())
+                                  }
+                                    
+                                />
+                              </Col>
+                              <Col xs={{ flex: "100%" }} lg={{ flex: "50%" }} style={{ marginBottom: 25, height: 50 }}>
+                                <Select
+                                  style={{ width: "100%", height: "100%", fontSize: "16px" }}
+                                  showSearch
+                                  placeholder="Casa"
+                                  size="large"
+                                  
+                                  value={selectedLugar}
+                                  disabled={selectedPais === -1 || userLog.role !== "master"}
+                                  onChange={(value) => setSelectedLugar(value)}
+                                  options={lugares?.map((lugar) => ({
+                                    value: lugar.id_lugar,
+                                    label: lugar.codigo,
+                                  }))}
+                                    
+                                />
+                              </Col>
+                            </Row>
+                          </Col>
+        
+
           <Row>
             <Col flex={"100%"} style={{ marginBottom: 25, height: 50 }}>
               {/* Select de departamentos*/}
@@ -917,7 +1030,9 @@ function ReporteHuesped() {
                 }}
               />
             </Col>
-          </Row>
+          </Row>      
+      </Panel>
+    </Collapse>
         </Card>
       </ConfigProvider>
     );
