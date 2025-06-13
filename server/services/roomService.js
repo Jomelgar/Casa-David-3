@@ -131,6 +131,9 @@ exports.deleteCamaById = async (id) => {
 
 exports.createCama = async (camaData) => {
   const cama = await Cama.create(camaData);
+  console.log(cama.dataValues);
+  const habitacion = await Habitacion.findByPk(cama.dataValues.id_habitacion);
+  await habitacion.update({ disponible: true });
   return cama;
 };
 

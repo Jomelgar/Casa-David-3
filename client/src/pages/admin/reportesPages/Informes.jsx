@@ -914,7 +914,7 @@ const Informes = () => {
         0
       );
 
-      if(-1 === selectedPais)setTotalBeca(totalBecados);
+      if(selectedPais !== -1)setTotalBeca(totalBecados);
       else setTotalBeca(0);
 
       // Camas ocupadas por becados
@@ -1011,9 +1011,6 @@ const Informes = () => {
         ).length;
       }
       setPrimeraVez(hombresPrimeraVez + mujeresPrimeraVez);
-
-       //TODO: Poner que obtenga moneda local o usd etc.
-      console.log(donaciones);
       if(selectedPais === -1)
       {
         setMonedaLocal('$');
@@ -1028,10 +1025,11 @@ const Informes = () => {
           const tasaMonedaLocal = parseFloat(data.rates[becado.Pai.codigo_iso]);
           const tasaMonedaDestino = parseFloat(data.rates['USD']);
 
-          becado.valor = tasaMonedaDestino / tasaMonedaLocal;
+          becado.valor = becado.valor * tasaMonedaDestino / tasaMonedaLocal;
           totalBecados += becado.valor;
         }
         setTotalBeca(Number(totalBecados.toFixed(2)));
+        console.log(totalBeca);
 
         // DONACIONES
         let totalDonacionCalculada = 0;
@@ -1046,7 +1044,7 @@ const Informes = () => {
           totalDonacionCalculada += donacion.valor;
         }
         setTotalDonacion(Number(totalDonacionCalculada.toFixed(2)));
-        console.log(donaciones);
+        console.log(totalDonacion);
 
       }else
       {
@@ -1329,7 +1327,7 @@ const Informes = () => {
               Donaciones de Huespedes
             </div>
             <div className="text-xl font-bold">
-              {monedaLocal} {totalBeca + totalDonacion}
+              {monedaLocal} {(totalBeca + totalDonacion).toFixed(2)}
             </div>
           </div>
         </div>

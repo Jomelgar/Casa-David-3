@@ -251,7 +251,7 @@ function Pagos() {
       dataIndex: "valor",
       key: "valor",
       sorter: (a, b) => a.valor - b.valor,
-      render: (text) => <div>{monedaLocal}: {text.toFixed(2)}</div>,
+      render: (text) => <div>{monedaLocal} {text.toFixed(2)}</div>,
     },
     {
       title:"No. Recibo",
@@ -787,9 +787,9 @@ function Pagos() {
                 headStyle={{ color: "white", fontSize: 30 }}
               >
                 {donacions.length > 0 ? (
-                  <div>{monedaLocal}: {totalDonacion.toFixed(2)}</div>
+                  <div>{monedaLocal} {totalDonacion.toFixed(2)}</div>
                 ) : (
-                  <p>{monedaLocal}: 0.0</p>
+                  <p> 0.0</p>
                 )}
               </Card>
             </Col>
@@ -810,9 +810,9 @@ function Pagos() {
                 headStyle={{ color: "white", fontSize: 30 }}
               >
                 {becados.length > 0 ? (
-                  <div>{monedaLocal}: {totalBeca.toFixed(2)}</div>
+                  <div>{monedaLocal} {totalBeca.toFixed(2)}</div>
                 ) : (
-                  <p>{monedaLocal}: 0.0</p>
+                  <p>{monedaLocal} 0.0</p>
                 )}
               </Card>
             </Col>
@@ -832,7 +832,7 @@ function Pagos() {
                 }}
                 headStyle={{ color: "white", fontSize: 30 }}
               >
-                Total: {(totalBeca + totalDonacion).toFixed(2)}
+                {monedaLocal} {(totalBeca + totalDonacion).toFixed(2)}
               </Card>
             </Col>
           </Row>
