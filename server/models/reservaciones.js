@@ -1,5 +1,5 @@
 const { DataTypes } = require("sequelize");
-const sequelize = require("../Db");
+const sequelize = require("../db");
 const { PacienteHuesped } = require("./huesped");
 const { Hospital } = require("./hospital");
 const { Lugar } = require("./persona");

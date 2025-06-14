@@ -1,5 +1,5 @@
 const { attribute } = require('@sequelize/core/_non-semver-use-at-your-own-risk_/expression-builders/attribute.js');
-const sequelize = require('../Db');
+const sequelize = require('../db');
 const { Pais } = require('../models/pais'); // Asegúrate de tener el modelo de Pais definido
 const { Persona, Lugar } = require('../models/persona');
 

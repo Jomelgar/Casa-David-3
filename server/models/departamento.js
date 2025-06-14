@@ -1,4 +1,4 @@
-const sequelize = require("../Db");
+const sequelize = require("../db");
 const Sequelize = require("sequelize");
 const {Pais} = require("./pais");
 

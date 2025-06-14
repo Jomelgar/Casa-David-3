@@ -9,7 +9,7 @@ const {
   AfiliadoReservacion,
   Ofrenda,
 } = require("../models/reservaciones");
-const { Sequelize } = require("../Db");
+const { Sequelize } = require("../db");
 
 const { Afiliado, Patrono, PatronoAfiliado } = require("../models/afiliado");
 const { where } = require("sequelize");
@@ -131,6 +131,9 @@ exports.deleteCamaById = async (id) => {
 
 exports.createCama = async (camaData) => {
   const cama = await Cama.create(camaData);
+  console.log(cama.dataValues);
+  const habitacion = await Habitacion.findByPk(cama.dataValues.id_habitacion);
+  await habitacion.update({ disponible: true });
   return cama;
 };
 
@@ -369,6 +372,16 @@ exports.getHombres = async (fechaInicio, fechaFinal) => {
                       model: Departamento,
                       required: true,
                     }]
+                  },
+                  {
+                    model: Lugar,
+                    required: true,
+                    include: [
+                      {
+                        model: Pais,
+                        required: true,
+                      }
+                    ]
                   }
                 ],
                 where: {
@@ -426,6 +439,16 @@ exports.getMujeres = async (fechaInicio, fechaFinal) => {
                       model: Departamento,
                       required: true,
                     }]
+                  },
+                  {
+                    model: Lugar,
+                    required: true,
+                    include: [
+                      {
+                        model: Pais,
+                        required: true,
+                      }
+                    ]
                   }
                 ],
                 where: {

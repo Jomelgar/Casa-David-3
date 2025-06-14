@@ -1186,6 +1186,7 @@ const countrySelector3 = (
         const response = await hospitalesApi.postHospitalesRequest({
           nombre: hospitalFormat[0],
           direccion: hospitalFormat[1],
+          id_pais : userLog.id_pais
         });
 
         if (!response || response.status < 200 || response.status >= 300) {
@@ -1982,6 +1983,10 @@ const countrySelector3 = (
               dni_afiliado: "",
               nombre_afiliado: "",
             });
+            const found1 = countries.find((c) => c.code === changeuser.referencia_telefonica);
+            setSelectedCountry(found1);
+            setSelectedCountryCode(changeuser.referencia_telefonica);
+            setreferenciaTelefonica(changeuser.referencia_telefonica);
             const municipioHuesped = await fetchMunicipioById(municipio_id);
             if (municipioHuesped) {
               setSelectedDepartamentoHuesped(municipioHuesped.departamento_id);
@@ -1992,10 +1997,10 @@ const countrySelector3 = (
           case 1:
             console.log("Entro a case 1 supuestamente paciente");
             setPaciente({ ...changeuser, becada: false });
-            const found = countries.find((c) => c.code === changeuser.referencia_telefonica);
-            setSelectedCountry(found);
-            setSelectedCountryCode(changeuser.referencia_telefonica);
-            setreferenciaTelefonica(changeuser.referencia_telefonica);
+            const found2 = countries.find((c) => c.code === changeuser.referencia_telefonica);
+            setSelectedCountry3(found2);
+            setSelectedCountryCode3(changeuser.referencia_telefonica);
+            setreferenciaTelefonica3(changeuser.referencia_telefonica);
             const municipioPaciente = await fetchMunicipioById(municipio_id);
             if (municipioPaciente) {
               setSelectedDepartamentoPaciente(
@@ -2003,11 +2008,14 @@ const countrySelector3 = (
               );
               setSelectedMunicipioPaciente(municipio_id);
             }
-
             break;
           case 2:
             console.log("Entro a case 2 supuestamente acompanante");
             setAcompanante({ ...changeuser });
+            const found3 = countries.find((c) => c.code === changeuser.referencia_telefonica);
+            setSelectedCountry2(found3);
+            setSelectedCountryCode2(changeuser.referencia_telefonica);
+            setreferenciaTelefonica2(changeuser.referencia_telefonica);
             const municipioAcompanante = await fetchMunicipioById(municipio_id);
             if (municipioAcompanante) {
               setSelectedDepartamentoAcompanante(
@@ -2051,7 +2059,11 @@ const countrySelector3 = (
             console.log("Eseta en reservacion");
             return;
           } else searchDni(newValue, 0);
-        }}
+        }}else
+        {
+          newValue = newValue.toUpperCase().replace(/[^A-Z0-9-]/g, '');
+          searchDni(newValue, 0);
+        }
         break;
 
       case "fecha_nacimiento":
@@ -2065,7 +2077,7 @@ const countrySelector3 = (
 
       case "dni_afiliado":
         if(newValue !==null ){
-          newValue = aplicarFormatoDNI(value, dniFormat);
+          newValue = aplicarFormatoDNI(value.toUpperCase(), dniFormat);
           if  (validarFormatoConGuiones(newValue, dniFormat)) {
             searchDni(newValue, 1);
           }
@@ -2140,20 +2152,36 @@ const validarFormatoConGuiones = (valor, formato) => {
 
 
   // Funcion que maneja el cambio del texto en los inputs/selects del front
-  const handleSetChangePaciente = (key, value, previousValue = null) => {
+  const handleSetChangePaciente = async(key, value, previousValue = null) => {
     let newValue = value;
 
     switch (key) {
 
 
       case "dni":
-        if(selected3=="DNI"){
+        if(selected3==="DNI"){
         newValue = aplicarFormatoDNI(value, dniFormat);
+        
         if (validarFormatoConGuiones(newValue, dniFormat)) {
+          if (await isInListaNegar(newValue)) {
+            ResetearAtributos();
+            console.log("Esta en ngra");
+            return;
+          } else if (await isInSolicitudes(newValue)) {
+            ResetearAtributos();
+            console.log("Esta en solid");
+            return;
+          } else if (await isInReservaciones(newValue)) {
+            ResetearAtributos();
+
+            console.log("Eseta en reservacion");
+            return;
+          } else searchDni(newValue, 1);
+        }}else
+        {
+          newValue = newValue.toUpperCase().replace(/[^A-Z0-9-]/g, '');
           searchDni(newValue, 1);
-        }}
-
-
+        }
         break;
 
       case "direccion":
@@ -2240,24 +2268,28 @@ const validarFormatoConGuiones = (valor, formato) => {
 
     switch (key) {
       case "dni":
-        if(selected2=="DNI"){
+        if(selected2==="DNI"){
         newValue = aplicarFormatoDNI(value, dniFormat);
+        
         if (validarFormatoConGuiones(newValue, dniFormat)) {
-          searchDni(newValue, 1);
-        }
+          if (await isInListaNegar(newValue)) {
+            ResetearAtributos();
+            console.log("Esta en ngra");
+            return;
+          } else if (await isInSolicitudes(newValue)) {
+            ResetearAtributos();
+            console.log("Esta en solid");
+            return;
+          } else if (await isInReservaciones(newValue)) {
+            ResetearAtributos();
 
-        if (validarFormatoConGuiones(newValue, dniFormat)) {
-            if (await isInListaNegar(newValue)) {
-              resetearAcompanante();
-              return;
-            } else if (await isInSolicitudes(newValue)) {
-              resetearAcompanante();
-              return;
-            } else if (await isInReservaciones(newValue)) {
-              resetearAcompanante();
-              return;
-            } else searchDni(newValue, 2);
-          }
+            console.log("Eseta en reservacion");
+            return;
+          } else searchDni(newValue, 2);
+        }}else
+        {
+          newValue = newValue.toUpperCase().replace(/[^A-Z0-9-]/g, '');
+          searchDni(newValue, 2);
         }
         break;
 
@@ -2931,7 +2963,7 @@ const validarCamposAcompanante = () => {
               <Input
                 prefix={<IdcardOutlined style={styleIconInput} />}
                 size="large"
-                placeholder={selected==="DNI"? "Identidad Nacional": selected==="DNI Extranjero"? "Identidad Extrajera":  selected}
+                placeholder={selected==="DNI"? "Identidad Nacional": selected==="DNI Extranjero"? "Identidad Extrajera":  "Pasaporte"}
                 maxLength={obtenerDigitos(selected)}
                 type="text"
                 style={{

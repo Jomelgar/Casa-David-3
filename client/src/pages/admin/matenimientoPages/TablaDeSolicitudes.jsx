@@ -113,12 +113,14 @@ function TablaDeSolicitudes() {
     try {
       const response = await HabitacionApi.getAllHabitacionesRequest();
       if (response && response.data) {
+        console.log(response);
         const habitacionesFiltradas = response.data.filter(
           (habitacion) =>
             habitacion.genero === genero &&
             habitacion.disponible &&
             habitacion.id_lugar === userLog.id_lugar
         );
+        console.log();
         setHabitaciones(habitacionesFiltradas);
       } else {
         console.error("Error al obtener las habitaciones:", response);
@@ -204,6 +206,7 @@ function TablaDeSolicitudes() {
       message.error(
         "Por favor selecciona una habitación y una cama. Revise si la cama pertenece a la habitacion correcta"
       );
+      setLoading(false);
       return;
     }
 

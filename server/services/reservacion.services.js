@@ -1,4 +1,4 @@
-const Sequelize = require("../Db");
+const Sequelize = require("../db");
 
 const { Op } = require("@sequelize/core");
 const { ListaSolicitud } = require("../models/lista");

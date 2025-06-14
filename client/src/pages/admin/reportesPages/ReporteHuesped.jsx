@@ -135,8 +135,13 @@ function ReporteHuesped() {
               codigo: "Todas las Casas"
             })
             setLugares( lugarData.data || [])
+            const departamentosData = await getDepartamentoByPais(selectedPais);
+            departamentosData.unshift({ departamento_id: -1, nombre: "Todos los Departamentos" });
+            setDepartamentos(departamentosData);
           }
           fetchLugar();
+          
+
       },[selectedPais]);
 
     const loadPaises = async() =>
@@ -151,11 +156,9 @@ function ReporteHuesped() {
   useEffect(() => {
     loadData();
     loadPaises();
-  }, [fechaInicio, fechaFinal, selectedDepartamento, selectedMunicipio, patrono, genero]);
+  }, [fechaInicio, fechaFinal, selectedDepartamento, selectedMunicipio, patrono, genero,selectedPais,selectedLugar]);
 
-  useEffect(() => {
-    //console.log("SE CORRIO EL FETCH DEPARTAMENTOS");
-    const fetchDepartamentos = async () => {
+  const fetchDepartamentos = async () => {
       try {
          const pais = await personaApi.getPaisByPersona(usuario.id_persona);
          const departamentosData = await getDepartamentoByPais(pais.data.id_pais);
@@ -168,6 +171,7 @@ function ReporteHuesped() {
       }
     };
 
+  useEffect(() => {
     fetchDepartamentos();
   }, []);
 
@@ -261,7 +265,6 @@ function ReporteHuesped() {
           dataSource.map(async (persona) => {
             const municipio = await fetchMunicipioById(persona.municipio_id);
             const departamento = await fetchDepartamentoById(municipio.departamento_id);
-            //console.log("Departamento: ", departamento);
             return {
               ...persona,
               departamento: departamento.nombre,
@@ -269,8 +272,6 @@ function ReporteHuesped() {
             };
           })
         );
-
-        //console.log("Personas y procedencia: ", personasyProcedencia);
         setTotalHombres(personasyProcedencia);
       }
     } catch (error) {
@@ -339,9 +340,28 @@ function ReporteHuesped() {
       if (!response || response.status < 200 || response.status >= 300) {
         throw new Error("No se pudo cargar la informacion de la Persona");
       }
+      
+console.log("Ejemplo de ofrenda:", response.data.hombres.rows[0]);
+
 
       let todo = response.data.hombres.rows;
-
+ //console.log(todo[0].PacienteHuesped.Huesped.Persona.Lugar.Pais);
+     
+      if (selectedPais !== -1){
+        todo= todo.filter(
+          (ofrenda)=>
+              ofrenda.PacienteHuesped.Huesped.Persona.Lugar.id_pais=== selectedPais
+          
+        );
+      };
+      
+      if (selectedLugar !== -1){
+        todo= todo.filter(
+          (ofrenda)=>
+            ofrenda.PacienteHuesped.Huesped.Persona.id_lugar===selectedLugar
+        );
+      };
+      
       if (genero !== -1) {
         todo = todo.filter(
           (ofrenda) =>
@@ -414,6 +434,18 @@ function ReporteHuesped() {
 
       let todo1 = response1.data.hombres.rows;
 
+      if(selectedPais !== -1)
+      {
+        todo1 = todo1.filter((persona) => 
+          persona.PacienteHuesped.Huesped.Persona.Lugar.id_pais === selectedPais
+        )
+      }
+      if(selectedLugar !== -1)
+      {
+        todo1 = todo1.filter((persona) => 
+          persona.PacienteHuesped.Huesped.Persona.id_lugar === selectedLugar
+        )
+      }
       if (genero !== -1) {
         todo1 = todo1.filter(
           (ofrenda) =>
@@ -948,10 +980,11 @@ function ReporteHuesped() {
               <Select
                 style={{ width: "100%", height: "100%" }}
                 showSearch
+                disabled={selectedPais === -1}
                 value={selectedDepartamento}
                 onChange={(value) => {
                   setSelectedDepartamento(value);
-                  setSelectedMunicipio(null); // Resetear municipio al cambiar departamento
+                  setSelectedMunicipio(-1); // Resetear municipio al cambiar departamento
                 }}
                 placeholder="Departamento"
                 size="large"
@@ -970,6 +1003,7 @@ function ReporteHuesped() {
                 style={{ width: "100%", height: "100%" }}
                 showSearch
                 value={selectedMunicipio}
+                disabled={selectedDepartamento === -1}
                 onChange={(value) => {
                   setSelectedMunicipio(value);
                 }}

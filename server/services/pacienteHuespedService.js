@@ -1,4 +1,4 @@
-const sequelize = require('../Db');
+const sequelize = require('../db');
 const {PacienteHuesped} = require('../models/huesped');
 
 exports.getAllPH = async () =>{

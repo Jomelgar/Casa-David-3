@@ -2,7 +2,7 @@ const {Pais} = require('../models/pais');
 const {Hospital} = require('../models/hospital');
 const {Lugar,Municipio} = require('../models/persona');
 const {Departamento} = require('../models/departamento');
-const sequelize = require('../Db');
+const sequelize = require('../db');
 
 
 exports.getDepartamentosConMunicipiosPorPais = async (id_pais) => {

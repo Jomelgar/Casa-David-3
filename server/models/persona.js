@@ -1,6 +1,6 @@
 const Sequelize  = require('sequelize');
 const {Pais} = require('./pais');
-const sequelize = require('../Db');
+const sequelize = require('../db');
 const {Departamento} = require('./departamento'); 
 
 const Persona = sequelize.define('Persona', {

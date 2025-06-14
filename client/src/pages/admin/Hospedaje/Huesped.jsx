@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { Tabs, Table } from "antd";
@@ -45,6 +45,7 @@ import OfrendasHuesped from "../../../components/Hospedaje/OfrendasHuesped";
 import Modalito2 from "../../../components/huesped/infoModal";
 import PagarModal from "../../../components/huesped/dateModal";
 import PatronoHuesped from "../../../components/Hospedaje/PatronoHuesped";
+import PaisApi from "../../../api/Pais.api";
 
 const { TabPane } = Tabs;
 
@@ -65,6 +66,7 @@ function Huesped() {
     causa_visita: "",
   };
 
+  const pais = useRef();
   const [reglas, setReglas] = useState([]);
   const [idRegla, setIdRegla] = useState(null);
   const [observaciones, setObservaciones] = useState("");
@@ -146,7 +148,8 @@ function Huesped() {
 
   const loadInformacion = async () => {
     // cargar informacion del huesped
-
+    const paisData = await PersonaApi.getPaisByPersona(usuario.id_persona);
+    pais.current = (paisData.data);
     const resReservacion = await ReservacionesApi.getReservacionRequest(
       idReservacion
     );
@@ -236,7 +239,7 @@ function Huesped() {
       resOfrendas.data.map((item) => ({
         ofrenda: item.id_ofrenda,
         key: item.id_ofrenda,
-        cantidad: "Lps. " + item.valor,
+        cantidad: pais.current?.divisa + " " + item.valor,
         fecha: dayjs(item.fecha).format("DD-MM-YYYY"), // Formatear la fecha aquí
         recibo: item.recibo,
         observacion: item.observacion,
@@ -591,6 +594,7 @@ function Huesped() {
       return;
     }
 
+    console.log(huesped);
     const response = await Lista_Negra.postListRequest({
       id_persona: huesped.id_persona,
       id_regla: idRegla,
@@ -896,7 +900,7 @@ function Huesped() {
 
           // Sumar la cantidad donada al día correspondiente
           semanas[weekOfMonth][dias[diaSemana]] += parseFloat(
-            ofrenda.cantidad.replace("Lps. ", "")
+            ofrenda.cantidad.replace(pais.current?.divisa, "")
           );
         }
       });
@@ -905,7 +909,7 @@ function Huesped() {
       Object.values(semanas).forEach((semana) => {
         Object.keys(semana).forEach((clave) => {
           if (clave !== "semana" && semana[clave] !== "-") {
-            semana[clave] = `Lps. ${semana[clave].toFixed(2)}`;
+            semana[clave] = `${pais.current?.divisa} ${semana[clave].toFixed(2)}`;
           }
         });
       });
@@ -967,7 +971,7 @@ function Huesped() {
             Total de Donaciones
           </h1>
           <div className="bg-white-100 py-3 px-5 text-lg rounded-tr-md rounded-br-md text-green-500 border-t border-r border-b border-green-500">
-            Lps. {totalOfrendas}
+            {pais.current?.divisa} {totalOfrendas}
           </div>
         </Flex>
       </Flex>
