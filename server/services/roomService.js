@@ -272,7 +272,13 @@ exports.getBecados = async (fechaInicio, fechaFinal) => {
             },
             {
               model: Cama,
-              include: Habitacion,
+              include: {
+                model: Habitacion,
+                include: { 
+                  model: Lugar,
+                  attributes: ["id_lugar", 'codigo']
+                 }
+              }
             },
           ],
         },
@@ -325,12 +331,19 @@ try {
             },
             {
               model: Cama,
-              include: Habitacion,
+              include: {
+                model: Habitacion,
+                include: { 
+                  model: Lugar,
+                  attributes: ["id_lugar", 'codigo']
+                 }
+              }
+
             },
           ],
         },
         {
-              model: Pais
+          model: Pais
         }
       ],
     });

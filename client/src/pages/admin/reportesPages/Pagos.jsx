@@ -32,6 +32,7 @@ import PopUpExport from "./PopUpsInformes/PopUpExport";
 import { validarPrivilegio } from "../../../utilities/validarUserLog";
 import { getUserFromToken } from "../../../utilities/auth.utils";
 import UserApi from "../../../api/User.api";
+import LugarApi from "../../../api/Lugar.api";
 
 
 dayjs.extend(customParseFormat);
@@ -300,6 +301,8 @@ function Pagos() {
   const [selectedPais, setSelectedPais] = useState(-1);
   const [monedaLocal, setMonedaLocal] = useState(null);
   const [isoLocal, setIsoLocal] = useState(null);
+  const [ lugares, setLugares ] = useState([]);
+  const [selectedLugar, setSelectedLugar] = useState(-1);
 
   const [departamentos, setDepartamentos] = useState([]);
   const [searchDepartamento, setSearchDepartamento] = useState("");
@@ -400,6 +403,16 @@ function Pagos() {
     }
   }
 
+  const loadLugares = async(paisID) => {
+    try {
+      const response = await LugarApi.getLugarByPais(paisID);
+      console.log("Lugres:" , response.data);
+      setLugares([{value: -1, label: "Todas las casas"}, ...response.data.map(l => ({value: l.id_lugar, label: l.codigo}))])
+    } catch (error){
+      console.error("Error fetching paises:", error);
+    }
+  }
+
   const updateMoneda = async(paisID) => {
     try {
       const response = await PaisApi.getPaisForTable();
@@ -419,11 +432,13 @@ function Pagos() {
 
   useEffect(() => {
     if (selectedPais !== -1) {
+      loadLugares(selectedPais);
       loadDepartamentos(selectedPais);
       updateMoneda();
     } else {
       setMonedaLocal("$");
       setIsoLocal("USD");
+      setLugares([{value: -1, label: "Todas las Casas"}]);
       setDepartamentos([{ value: -1, label: "Todos los Departamentos" }]);
     }
     // Reiniciar municipio seleccionado al cambiar el departamento
@@ -453,7 +468,7 @@ function Pagos() {
   const loadData = async () => {
     setLoading(true);
   
-    const data = [];
+    setDataSource([]);
   
     const reponseDonaciones = await OfrendasApi.getOfrendasDonaciones(
       fechaInicio,
@@ -469,11 +484,19 @@ function Pagos() {
       return;
     }
   
-    let donaciones =
-      reponseDonaciones.data.donacion.filter(
+    const userToken = getUserFromToken();
+    const tienePrivilegio = validarPrivilegio(userToken, 11);
+
+    let donaciones = reponseDonaciones.data.donacion;
+
+    // Si NO tiene el privilegio 11, aplicar el filtro por lugar
+    if (!tienePrivilegio) {
+      donaciones = donaciones.filter(
         (ofrenda) =>
-          ofrenda.Reservacion.Cama.Habitacion.id_lugar === userLog.id_lugar
-      ) || [];
+          ofrenda.Reservacion.Cama.Habitacion.Lugar.id_lugar === userLog.id_lugar
+      );
+    }
+
   
     if (genero !== -1) {
       donaciones = donaciones.filter(
@@ -518,6 +541,14 @@ function Pagos() {
         (ofrenda) =>
           ofrenda.Pai.id_pais ===
           selectedPais
+      );
+    }
+
+    if (selectedLugar !== -1) {
+      donaciones = personasyProcedencia.filter(
+        (ofrenda) =>
+          ofrenda.Reservacion.Cama.Habitacion.Lugar.id_lugar ===
+          selectedLugar
       );
     }
   
@@ -584,12 +615,15 @@ function Pagos() {
   
     //console.log(responseBecados);
   
-    let becados =
-      responseBecados.data.becados.filter((ofrenda) =>
-        ofrenda.Reservacion.Cama
-          ? ofrenda.Reservacion.Cama.Habitacion.id_lugar === userLog.id_lugar
-          : false
-      ) || [];
+    let becados = responseBecados.data.becados;
+
+    if (!tienePrivilegio) {
+      becados = becados.filter(
+        (ofrenda) =>
+          ofrenda.Reservacion.Cama.Habitacion.Lugar.id_lugar === userLog.id_lugar
+      );
+    }
+
   
     if (genero !== -1) {
       becados = becados.filter(
@@ -636,6 +670,15 @@ function Pagos() {
           selectedPais
       );
     }
+
+    if (selectedLugar !== -1) {
+      becados = becadosyProcedencia.filter(
+        (ofrenda) =>
+          ofrenda.Reservacion.Cama.Habitacion.Lugar.id_lugar ===
+          selectedLugar
+      );
+    }
+
   
     if (selectedDepartamento !== -1) {
       becados = becadosyProcedencia.filter(
@@ -707,7 +750,7 @@ function Pagos() {
 
   useEffect(() => {
     loadData();
-  }, [fechaInicio, fechaFinal, genero, selectedPais, selectedDepartamento, selectedMunicipio, patrono]);
+  }, [fechaInicio, fechaFinal, genero, selectedPais, selectedDepartamento, selectedMunicipio, selectedLugar, patrono]);
 
   
 
@@ -748,6 +791,33 @@ function Pagos() {
           placeholder="País"
           size="large"
           options={paises}
+          filterOption={(input, option) =>
+            option.label.toLowerCase().includes(input.toLowerCase())
+          }
+        />
+      </Col>
+    </>
+    );
+  }
+
+  const renderLugarFilter = () => {
+    if (!validarPrivilegio(userLog, 11)) {
+      console.log("No es master")
+      return null;
+    }
+    console.log("Opciones: ", paises);
+  
+    return (
+    <>
+      <Col flex={"100%"} style={{ marginBottom: 25, height: 50 }} >
+        <Select
+          style={{ width: "100%", height: "100%" }}
+          showSearch
+          value={selectedLugar}
+          onChange={(value) => setSelectedLugar(value)}
+          placeholder="Casa"
+          size="large"
+          options={lugares}
           filterOption={(input, option) =>
             option.label.toLowerCase().includes(input.toLowerCase())
           }
@@ -849,6 +919,9 @@ function Pagos() {
                 }}
               />
             </Col>
+          </Row>
+          <Row>
+            {renderLugarFilter()}
           </Row>
         </Card>
       </ConfigProvider>
