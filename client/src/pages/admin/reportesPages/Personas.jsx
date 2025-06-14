@@ -18,8 +18,17 @@ import TablaReservacion from "../../../components/Tablas/TablaReservacion";
 import { useLayout } from "../../../context/LayoutContext";
 import * as XLSX from "xlsx";
 import { Content } from "antd/es/layout/layout";
+import PaisApi from "../../../api/Pais.api";             // para listar países
+import { getUserFromToken } from "../../../utilities/auth.utils";  // para obtener token
+import { validarPrivilegio } from "../../../utilities/validarUserLog"; // para chequear rol de master
+import { Select, Card, Row, Col } from "antd";            // componentes Antd
+import { GlobalOutlined } from "@ant-design/icons";       // icono del filtro
+
 
 function Personas() {
+  const [paises, setPaises] = useState([]);
+  const [selectedPais, setSelectedPais] = useState(-1);
+  const [filteredData, setFilteredData] = useState([]); // datos filtrados por país
   const { setCurrentPath } = useLayout();
   const [dataSource, setDataSource] = useState([]);
   const [page, setPage] = useState(1);
@@ -28,6 +37,7 @@ function Personas() {
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [changeUser, setChangeUser] = useState({});
   const [isEditable, setIsEditable] = useState(false);
+  const [idPaisUsuario, setIdPaisUsuario] = useState(-1);
   //const [selectedRowKeys, setSelectedRowKeys] = useState([]);
 
   const { isXS, isTableMid } = useLayout();
@@ -62,6 +72,8 @@ function Personas() {
         );
   
         setDataSource(personasConProcedencia);
+                setFilteredData(personasConProcedencia);
+
       }
     } catch (error) {
       console.log(error);
@@ -135,10 +147,61 @@ function Personas() {
     }
     return ret;
   }
+    // Carga inicial de países y país del usuario
+  useEffect(() => {
+    const fetchPaises = async () => {
+            // 1) Obtener país del usuario (master)
+      const token = getUserFromToken();
+      const userProp = await PersonaApi.getPersonaRequest(token.userId);
+      const paisResp = await PersonaApi.getPaisByPersona(userProp.data.id_persona);
+      const idPais = paisResp.data.id_pais;
+      // guardamos en el estado
+      setIdPaisUsuario(idPais);
+
+     // 2) Obtener todos los países
+       const respTodos = await PaisApi.getPaisForTable();
+       const opts = respTodos.data.map(p => ({ value: p.id_pais, label: p.nombre }));
+       opts.unshift({ value: -1, label: "Todos los Países" });
+       setPaises(opts);
+      // preseleccionar siempre el país del usuario
+      setSelectedPais(idPaisUsuario);
+      // 3) Solo preseleccionar si eres MASTER; si no, dejamos "Todos"
+      if (validarPrivilegio(getUserFromToken(), 11)) {
+        setSelectedPais(idPais);
+      } else {
+        setSelectedPais(-1);
+      }
+     };
+     fetchPaises();
+   }, []);
+
 
   useEffect(() => {
     cargarInformacion();
   }, []);
+
+   // Cada vez que cambien `selectedPais`, `dataSource` o `paises`, actualiza `filteredData`
+useEffect(() => {
+  // 1) si no tengo privilegio "master", muestro todo
+  if (!validarPrivilegio(getUserFromToken(), 11)) {
+    setFilteredData(dataSource);
+    return;
+  }
+
+  // 2) soy master → al elegir "Todos" o mi propio país, muestro todo
+  if (selectedPais === -1 || selectedPais === idPaisUsuario) {
+    setFilteredData(dataSource);
+    return;
+  }
+
+  // 3) soy master y elegí otro país → filtro por procedencia (nombre de país)
+  const labelPais = paises.find(p => p.value === selectedPais)?.label;
+  setFilteredData(
+    dataSource.filter(item => item.procedencia?.includes(labelPais))
+  );
+}, [selectedPais, dataSource, paises, idPaisUsuario]);
+
+
 
   const columns = [
     {
@@ -539,6 +602,41 @@ function Personas() {
 
   return (
     <div id="contentPersona">
+
+      { /* --- filtro de país, solo para master --- */ }
+  { validarPrivilegio(getUserFromToken(), 11) && (
+    <ConfigProvider theme={{ token: { colorPrimary: "#77d9a1" } }}>
+      <Card style={{ marginBottom: 16 }}>
+        <Row>
+          <Col flex="auto">
+            <div style={{
+              display: "flex",
+              alignItems: "center",
+              border: "1px solid #d9d9d9",
+              borderRadius: 4,
+              padding: "4px 11px",
+              height: 40
+            }}>
+              <GlobalOutlined style={{ marginRight: 8, fontSize: 16, color: "#8c8c8c" }} />
+              <Select
+                showSearch
+                value={selectedPais}
+                onChange={setSelectedPais}
+                placeholder="País"
+                options={paises}
+                style={{ flex: 1, border: "none", fontSize: 16 }}
+                filterOption={(input, option) =>
+                  option.label.toLowerCase().includes(input.toLowerCase())
+                }
+                bordered={false}
+              />
+            </div>
+          </Col>
+        </Row>
+      </Card>
+    </ConfigProvider>
+  )}
+
       
 
       <ConfigProvider
@@ -557,7 +655,7 @@ function Personas() {
       >
         <Table
           columns={columns}
-          dataSource={dataSource}
+            dataSource={filteredData}
           scroll={{ x: true, y: isXS ? 200 : isTableMid ? 300 : 750 }}
           pagination={{
             current: page,

@@ -1,4 +1,3 @@
-
 -- Privilegios
 INSERT INTO privilegio (id_privilegio, descripcion)
 VALUES
