@@ -998,8 +998,9 @@ const loadCausasVisita = async () => {
               style={{ marginBottom: 25, height: 50 }}
             >
               <Select
-                style={{ width: "100%", height: "100%" }}
+                style={{ width: "100%", height: "100%"}}
                 placeholder="Genero"
+                size="large"
                 options={generos}
                 value={genero}
                 onChange={(e) => {

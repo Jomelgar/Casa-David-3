@@ -1057,6 +1057,7 @@ console.log("Ejemplo de ofrenda:", response.data.hombres.rows[0]);
               <Select
                 style={{ width: "100%", height: "100%" }}
                 placeholder="Genero"
+                size="large"
                 options={generos}
                 value={genero}
                 onChange={(e) => {
