@@ -1413,6 +1413,7 @@ const Informes = () => {
         visible={exportVisible}
         onConfirm={onExportClick}
         onCancel={() => setExportVisible(false)}
+        monedaOrigen={monedaLocal}
       />
     </div>
     

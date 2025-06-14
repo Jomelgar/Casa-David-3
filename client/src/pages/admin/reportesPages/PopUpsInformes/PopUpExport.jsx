@@ -10,31 +10,23 @@ import { validarPrivilegio } from '../../../../utilities/validarUserLog';
 const { Text } = Typography;
 const { Option } = Select;
 
-function PopUpExport({ visible, onConfirm, onCancel }) {
-  const [monedaLocal, setMonedaLocal] = useState(null);
-  const [divisaLocal, setDivisaLocal] = useState(null);
+function PopUpExport({ visible, onConfirm, onCancel, monedaOrigen }) {
+  //const [monedaLocal, setMonedaLocal] = useState(null);
+  //const [divisaLocal, setDivisaLocal] = useState(null);
   const [options, setOptions] = useState([]);
   const [monedaSel, setMonedaSel] = useState(null);
-  const [divisaSel, setDivisaSel] = useState(null);
+  //const [divisaSel, setDivisaSel] = useState(null);
   const { openNotification } = useLayout();
 
   const API_KEY = '44948c701865425a8109ae020dedea23';
 
   const fetchCurrencies = async() => {
-    const userToken = getUserFromToken();
-    const userProp = await UserApi.getUserRequest(userToken.userId);
-    const personaId = userProp.data.id_persona;
-    const paisResponse = await axiosInstance.get(`/personas/${personaId}/pais`);
-    const idPais = paisResponse.data.id_pais;
-    const {codigo_iso,divisa} = (await axiosInstance.get(`/pais/${idPais}/iso`)).data;
-    setMonedaLocal( codigo_iso );
-
+    const response = await PaisApi.getPaisForTable();
+    const paises = response.data;
     
     if(validarPrivilegio(getUserFromToken(), 11)) {
       try {
-        const response = await PaisApi.getPaisForTable();
-
-        const lista = response.data.map((e) => ({
+        const lista = paises.map((e) => ({
           value: `${e.codigo_iso}|${e.divisa}`,
           label: e.codigo_iso,
         }));
@@ -45,10 +37,11 @@ function PopUpExport({ visible, onConfirm, onCancel }) {
       }
     } else {
       try{
+        const match = paises.find(p => p.codigo_iso === monedaOrigen);
         const lista = [
           {
-            value: `${codigo_iso}|${divisa}`,
-            label: codigo_iso
+            value: `${monedaOrigen}|${match.divisa}`,
+            label: monedaOrigen
           },
           {
             value: 'USD|$',
@@ -78,15 +71,15 @@ function PopUpExport({ visible, onConfirm, onCancel }) {
 
     const [moneda, divisa] = monedaSel.split('|');
 
-    if (monedaLocal !== moneda) {
-      const response = await fetch(`https://api.currencyfreaks.com/latest?apikey=${API_KEY}&symbols=${monedaLocal},${moneda}`);
+    if (monedaOrigen !== moneda) {
+      const response = await fetch(`https://api.currencyfreaks.com/latest?apikey=${API_KEY}&symbols=${monedaOrigen},${moneda}`);
       const data = await response.json();
 
-      const tasaMonedaLocal = parseFloat(data.rates[monedaLocal]);
+      const tasaMonedaOrigen = parseFloat(data.rates[monedaOrigen]);
       const tasaMonedaDestino = parseFloat(data.rates[moneda]);
 
       // Calcular la tasa de conversión entre las dos monedas
-      tasa = tasaMonedaDestino / tasaMonedaLocal;
+      tasa = tasaMonedaDestino / tasaMonedaOrigen;
     }
 
 

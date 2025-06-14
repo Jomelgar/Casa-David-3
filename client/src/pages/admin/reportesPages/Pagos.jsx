@@ -23,13 +23,15 @@ import { HiOutlineCurrencyDollar } from "react-icons/hi";
 import PatronoApi from "../../../api/Patrono.api";
 
 import ProcedenciaApi from "../../../api/Procedencia.api";
-import { getDepartamentos, getDepartamentoById } from '../../../api/departamentoApi';
+import PaisApi from "../../../api/Pais.api";
+import { getDepartamentoById, getDepartamentoByPais } from '../../../api/departamentoApi';
 import { getMunicipiosByDepartamentoId, getMunicipioById } from '../../../api/municipioApi';
 
 import { useLayout } from "../../../context/LayoutContext";
 import PopUpExport from "./PopUpsInformes/PopUpExport";
-import UserApi from "../../../api/User.api";
+import { validarPrivilegio } from "../../../utilities/validarUserLog";
 import { getUserFromToken } from "../../../utilities/auth.utils";
+import UserApi from "../../../api/User.api";
 
 
 dayjs.extend(customParseFormat);
@@ -40,8 +42,9 @@ const { RangePicker } = DatePicker;
 
 function Pagos() {
   const[exportVisible, setExportVisible] = useState(false);
-  const[monedaLocal, setMonedaLocal] = useState(null);
   
+  const API_KEY = '44948c701865425a8109ae020dedea23';
+
   const { setCurrentPath } = useLayout();
 
   const abrirModal  = () => {
@@ -251,7 +254,10 @@ function Pagos() {
       dataIndex: "valor",
       key: "valor",
       sorter: (a, b) => a.valor - b.valor,
-      render: (text) => <div>{monedaLocal}: {text.toFixed(2)}</div>,
+      render: (text) => {
+        const num = parseFloat(text);
+        return <div>{monedaLocal} {isNaN(num) ? "0.00" : num.toFixed(2)}</div>;
+      },
     },
     {
       title:"No. Recibo",
@@ -268,7 +274,7 @@ function Pagos() {
 
   const [becados, setBecados] = useState([]);
   const [donacions, setDonacions] = useState([]);
-  const { userLog } = useLayout();
+  const { userLog, userRole } = useLayout();
   const [totalBeca, setTotalBeca] = useState(0.0);
   const [totalDonacion, setTotalDonacion] = useState(0.0);
 
@@ -289,6 +295,11 @@ function Pagos() {
   const [searchPatrono, setSearchPatrono] = useState("");
 
   const [loading, setLoading] = useState(false);
+  
+  const [paises, setPaises] = useState([]);
+  const [selectedPais, setSelectedPais] = useState(-1);
+  const [monedaLocal, setMonedaLocal] = useState(null);
+  const [isoLocal, setIsoLocal] = useState(null);
 
   const [departamentos, setDepartamentos] = useState([]);
   const [searchDepartamento, setSearchDepartamento] = useState("");
@@ -352,9 +363,9 @@ function Pagos() {
   };
 
   ////                       CAMNBIOSSSSSSSSSSSSSSSSSSSSSSSSSS
-  const loadDepartamentos = async () => {
+  const loadDepartamentos = async (paisID) => {
     try {
-      const response = await getDepartamentos();
+      const response = await getDepartamentoByPais(paisID);
       setDepartamentos([{ value: -1, label: "Todos los Departamentos" }, ...response.map(d => ({ value: d.departamento_id, label: d.nombre }))]);
     } catch (error) {
       console.error("Error fetching departamentos:", error);
@@ -370,10 +381,54 @@ function Pagos() {
     }
   };
 
+  const loadPaises = async() => {
+    const userToken = getUserFromToken();
+    const userProp = await UserApi.getUserRequest(userToken.userId);
+    const personaId = userProp.data.id_persona;
+    const paisResponse = await axiosInstance.get(`/personas/${personaId}/pais`);
+    const idPais = paisResponse.data.id_pais;
+    const {codigo_iso,divisa} = (await axiosInstance.get(`/pais/${idPais}/iso`)).data;
+    setMonedaLocal( divisa );
+    setIsoLocal( codigo_iso );
+    setSelectedPais( idPais );
+
+    try {
+      const response = await PaisApi.getPaisForTable();
+      setPaises([{ value: -1, label: "Todos los Paises" }, ...response.data.map(m => ({ value: m.id_pais, label: m.nombre }))]);
+    } catch (error) {
+      console.error("Error fetching paises:", error);
+    }
+  }
+
+  const updateMoneda = async(paisID) => {
+    try {
+      const response = await PaisApi.getPaisForTable();
+      const pais = response.data.find(p => p.id_pais === selectedPais);
+
+      setMonedaLocal(pais.divisa);
+      setIsoLocal(pais.codigo_iso);
+    } catch (error) {
+      console.error("Error fetching paises:", error);
+    }
+  }
+
   useEffect(() => {
-    loadDepartamentos();
     loadPatronos();
+    loadPaises();
   }, []);
+
+  useEffect(() => {
+    if (selectedPais !== -1) {
+      loadDepartamentos(selectedPais);
+      updateMoneda();
+    } else {
+      setMonedaLocal("$");
+      setIsoLocal("USD");
+      setDepartamentos([{ value: -1, label: "Todos los Departamentos" }]);
+    }
+    // Reiniciar municipio seleccionado al cambiar el departamento
+    setSelectedDepartamento(-1);
+  }, [selectedPais])
 
   useEffect(() => {
     if (selectedDepartamento !== -1) {
@@ -399,14 +454,6 @@ function Pagos() {
     setLoading(true);
   
     const data = [];
-
-    const userToken = getUserFromToken();
-    const userProp = await UserApi.getUserRequest(userToken.userId);
-    const personaId = userProp.data.id_persona;
-    const paisResponse = await axiosInstance.get(`/personas/${personaId}/pais`);
-    const idPais = paisResponse.data.id_pais;
-    const {codigo_iso,divisa} = (await axiosInstance.get(`/pais/${idPais}/iso`)).data;
-    setMonedaLocal( divisa );
   
     const reponseDonaciones = await OfrendasApi.getOfrendasDonaciones(
       fechaInicio,
@@ -465,6 +512,14 @@ function Pagos() {
         };
       })
     );
+
+    if (selectedPais !== -1) {
+      donaciones = personasyProcedencia.filter(
+        (ofrenda) =>
+          ofrenda.Pai.id_pais ===
+          selectedPais
+      );
+    }
   
     if (selectedDepartamento !== -1) {
       donaciones = personasyProcedencia.filter(
@@ -486,28 +541,32 @@ function Pagos() {
       donaciones = donaciones.filter(compararPatrono);
     }
   
-    donaciones.forEach((ofrenda) => {
-      data.push({
-        key: ofrenda.id_ofrenda,
-        nombre:
-          ofrenda.Reservacion.PacienteHuesped.Huesped.Persona.primer_nombre +
-          " " +
-          ofrenda.Reservacion.PacienteHuesped.Huesped.Persona.primer_apellido,
-        dni: ofrenda.Reservacion.PacienteHuesped.Huesped.Persona.dni,
-        fecha: dayjs(ofrenda.fecha).format('DD-MM-YYYY'), 
-        valor: parseFloat(ofrenda.valor),
-        recibo: ofrenda.recibo,
-        observacion: ofrenda.observacion,
-      });
-    });
+    const donacionesConvertidas = await Promise.all(
+      donaciones.map(async (ofrenda) => {
+        const valorConvertido = await convertirADolar(ofrenda);
+
+        return {
+          key: ofrenda.id_ofrenda,
+          nombre:
+            ofrenda.Reservacion.PacienteHuesped.Huesped.Persona.primer_nombre +
+            " " +
+            ofrenda.Reservacion.PacienteHuesped.Huesped.Persona.primer_apellido,
+          dni: ofrenda.Reservacion.PacienteHuesped.Huesped.Persona.dni,
+          fecha: dayjs(ofrenda.fecha).format('DD-MM-YYYY'), 
+          valor: parseFloat(valorConvertido).toFixed(2),
+          recibo: ofrenda.recibo,
+          observacion: ofrenda.observacion,
+        };
+      })
+    );
   
-    const totalDonaciones = donaciones.reduce(
+    const totalDonaciones = donacionesConvertidas.reduce(
       (total, reservacion) => total + parseFloat(reservacion.valor),
       0
     );
   
     setTotalDonacion(totalDonaciones);
-    setDonacions(donaciones);
+    setDonacions(donacionesConvertidas);
   
     const responseBecados = await OfrendasApi.getOfrendasBecados(
       fechaInicio,
@@ -523,7 +582,7 @@ function Pagos() {
       return;
     }
   
-    console.log(responseBecados);
+    //console.log(responseBecados);
   
     let becados =
       responseBecados.data.becados.filter((ofrenda) =>
@@ -569,6 +628,14 @@ function Pagos() {
         };
       })
     );
+
+    if (selectedPais !== -1) {
+      becados = becadosyProcedencia.filter(
+        (ofrenda) =>
+          ofrenda.Pai.id_pais ===
+          selectedPais
+      );
+    }
   
     if (selectedDepartamento !== -1) {
       becados = becadosyProcedencia.filter(
@@ -590,36 +657,57 @@ function Pagos() {
       becados = becados.filter(compararPatrono);
     }
   
-    becados.forEach((ofrenda) => {
-      data.push({
-        key: ofrenda.id_ofrenda,
-        nombre:
-          ofrenda.Reservacion.PacienteHuesped.Huesped.Persona.primer_nombre +
-          " " +
-          ofrenda.Reservacion.PacienteHuesped.Huesped.Persona.primer_apellido,
-        dni: ofrenda.Reservacion.PacienteHuesped.Huesped.Persona.dni,
-        fecha: dayjs(ofrenda.fecha).format('DD-MM-YYYY'), 
-        valor: parseFloat(ofrenda.valor),
-        recibo: ofrenda.recibo,
-        observacion: ofrenda.observacion,
-      });
-    });
+    const becadosConvertidos = await Promise.all(
+      becados.map(async (ofrenda) => {
+        const valorConvertido = await convertirADolar(ofrenda);
+
+        return {
+          key: ofrenda.id_ofrenda,
+          nombre:
+            ofrenda.Reservacion.PacienteHuesped.Huesped.Persona.primer_nombre +
+            " " +
+            ofrenda.Reservacion.PacienteHuesped.Huesped.Persona.primer_apellido,
+          dni: ofrenda.Reservacion.PacienteHuesped.Huesped.Persona.dni,
+          fecha: dayjs(ofrenda.fecha).format('DD-MM-YYYY'), 
+          valor: parseFloat(valorConvertido).toFixed(2),
+          recibo: ofrenda.recibo,
+          observacion: ofrenda.observacion,
+        };
+      })
+    );
   
-    const totalBecados = becados.reduce(
+    const totalBecados = becadosConvertidos.reduce(
       (total, ofrenda) => total + parseFloat(ofrenda.valor),
       0
     );
   
     setTotalBeca(totalBecados);
-    setBecados(becados);
+    setBecados(becadosConvertidos);
   
-    setDataSource(data);
+    setDataSource([...donacionesConvertidas, ...becadosConvertidos]);
   
     setLoading(false);
   };
+
+  const convertirADolar = async (ofrenda) => {
+    let convertido = ofrenda.valor
+    if(selectedPais === -1){
+      const moneda = ofrenda.Pai.codigo_iso;
+
+      const response = await fetch(`https://api.currencyfreaks.com/latest?apikey=${API_KEY}&symbols=${moneda},USD`);
+      const data = await response.json();
+
+      const tasaMonedaOrigen = parseFloat(data.rates[moneda]);
+      const tasaMonedaDestino = parseFloat(data.rates["USD"]);
+
+      convertido = parseFloat(ofrenda.valor) * tasaMonedaDestino / tasaMonedaOrigen;
+    }
+    return convertido;
+  };
+
   useEffect(() => {
     loadData();
-  }, [fechaInicio, fechaFinal, genero, selectedDepartamento, selectedMunicipio, patrono]);
+  }, [fechaInicio, fechaFinal, genero, selectedPais, selectedDepartamento, selectedMunicipio, patrono]);
 
   
 
@@ -642,6 +730,33 @@ function Pagos() {
     }
   };
 
+  const renderPaisFilter = () => {
+    if (!validarPrivilegio(userLog, 11)) {
+      console.log("No es master")
+      return null;
+    }
+    console.log("Opciones: ", paises);
+  
+    return (
+    <>
+      <Col flex={"100%"} style={{ marginBottom: 25, height: 50 }} >
+        <Select
+          style={{ width: "100%", height: "100%" }}
+          showSearch
+          value={selectedPais}
+          onChange={(value) => setSelectedPais(value)}
+          placeholder="País"
+          size="large"
+          options={paises}
+          filterOption={(input, option) =>
+            option.label.toLowerCase().includes(input.toLowerCase())
+          }
+        />
+      </Col>
+    </>
+    );
+  }
+
   const renderFiltros = () => {
     return (
       <ConfigProvider
@@ -660,7 +775,8 @@ function Pagos() {
         }}
       >
         <Card className="mt-10 rounded-xl">
-        <Row>
+          <Row>
+            {renderPaisFilter()}
             <Col flex={"100%"} style={{ marginBottom: 25, height: 50 }}>
               <Select
                 style={{ width: "100%", height: "100%" }}
@@ -787,9 +903,9 @@ function Pagos() {
                 headStyle={{ color: "white", fontSize: 30 }}
               >
                 {donacions.length > 0 ? (
-                  <div>{monedaLocal}: {totalDonacion.toFixed(2)}</div>
+                  <div>{monedaLocal} {totalDonacion.toFixed(2)}</div>
                 ) : (
-                  <p>{monedaLocal}: 0.0</p>
+                  <p>{monedaLocal} 0.0</p>
                 )}
               </Card>
             </Col>
@@ -810,9 +926,9 @@ function Pagos() {
                 headStyle={{ color: "white", fontSize: 30 }}
               >
                 {becados.length > 0 ? (
-                  <div>{monedaLocal}: {totalBeca.toFixed(2)}</div>
+                  <div>{monedaLocal} {totalBeca.toFixed(2)}</div>
                 ) : (
-                  <p>{monedaLocal}: 0.0</p>
+                  <p>{monedaLocal} 0.0</p>
                 )}
               </Card>
             </Col>
@@ -832,7 +948,7 @@ function Pagos() {
                 }}
                 headStyle={{ color: "white", fontSize: 30 }}
               >
-                Total: {(totalBeca + totalDonacion).toFixed(2)}
+                {monedaLocal} {(totalBeca + totalDonacion).toFixed(2)}
               </Card>
             </Col>
           </Row>
@@ -890,6 +1006,7 @@ function Pagos() {
         visible={exportVisible}
         onConfirm={exportarExcel}
         onCancel={() => setExportVisible(false)}
+        monedaOrigen={isoLocal}
       />
     </>
     
