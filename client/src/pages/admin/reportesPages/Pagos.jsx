@@ -12,6 +12,7 @@ import {
   Spin,
   ConfigProvider,
   Select,
+  Collapse,
 } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
@@ -33,7 +34,7 @@ import { validarPrivilegio } from "../../../utilities/validarUserLog";
 import { getUserFromToken } from "../../../utilities/auth.utils";
 import UserApi from "../../../api/User.api";
 import LugarApi from "../../../api/Lugar.api";
-
+const { Panel } = Collapse;
 
 dayjs.extend(customParseFormat);
 
@@ -298,7 +299,7 @@ function Pagos() {
   const [loading, setLoading] = useState(false);
   
   const [paises, setPaises] = useState([]);
-  const [selectedPais, setSelectedPais] = useState(-1);
+  const [selectedPais, setSelectedPais] = useState(userLog.role === "master"? -1 : userLog.id_pais);
   const [monedaLocal, setMonedaLocal] = useState(null);
   const [isoLocal, setIsoLocal] = useState(null);
   const [ lugares, setLugares ] = useState([]);
@@ -312,8 +313,14 @@ function Pagos() {
   const [searchMunicipio, setSearchMunicipio] = useState("");
 
 
-  const [fechaInicio, setFechaInicio] = useState(new Date().toISOString());
-  const [fechaFinal, setFechaFinal] = useState(new Date().toISOString());
+  const [fechaInicio, setFechaInicio] = useState(() => {
+    const hoy = new Date();
+    return hoy.toISOString().split("T")[0];
+  });
+  const [fechaFinal, setFechaFinal] = useState(() => {
+    const hoy = new Date();
+    return hoy.toISOString().split("T")[0];
+  });
 
   const [dataSource, setDataSource] = useState([]);
 
@@ -390,10 +397,17 @@ function Pagos() {
     const personaId = userProp.data.id_persona;
     const paisResponse = await axiosInstance.get(`/personas/${personaId}/pais`);
     const idPais = paisResponse.data.id_pais;
-    const {codigo_iso,divisa} = (await axiosInstance.get(`/pais/${idPais}/iso`)).data;
-    setMonedaLocal( divisa );
-    setIsoLocal( codigo_iso );
-    setSelectedPais( idPais );
+    if(selectedPais !== -1)
+    {
+      const {codigo_iso,divisa} = (await axiosInstance.get(`/pais/${idPais}/iso`)).data;
+      setMonedaLocal( divisa );
+      setIsoLocal( codigo_iso );
+      setSelectedPais( idPais );
+    }else
+    {
+      setIsoLocal('USD');
+      setMonedaLocal('$');
+    }
 
     try {
       const response = await PaisApi.getPaisForTable();
@@ -490,10 +504,11 @@ function Pagos() {
     let donaciones = reponseDonaciones.data.donacion;
 
     // Si NO tiene el privilegio 11, aplicar el filtro por lugar
+    console.log(donaciones);
     if (!tienePrivilegio) {
       donaciones = donaciones.filter(
         (ofrenda) =>
-          ofrenda.Reservacion.Cama.Habitacion.Lugar.id_lugar === userLog.id_lugar
+          ofrenda.Reservacion.Cama.Habitacion.id_lugar === userLog.id_lugar
       );
     }
 
@@ -620,7 +635,7 @@ function Pagos() {
     if (!tienePrivilegio) {
       becados = becados.filter(
         (ofrenda) =>
-          ofrenda.Reservacion.Cama.Habitacion.Lugar.id_lugar === userLog.id_lugar
+          ofrenda.Reservacion.Cama.Habitacion.id_lugar === userLog.id_lugar
       );
     }
 
@@ -828,105 +843,118 @@ function Pagos() {
   }
 
   const renderFiltros = () => {
-    return (
-      <ConfigProvider
-        input={{ className: "cursor-default" }}
-        theme={{
-          token: {
-            colorPrimaryHover: "#92e1b4",
-            colorPrimary: "#77d9a1",
-            colorText: "#626262",
-            colorBgContainerDisabled: "#fcfcfc",
-            colorTextDisabled: "#939393",
-          },
-          components: {
-            Input: {},
-          },
-        }}
-      >
-        <Card className="mt-10 rounded-xl">
-          <Row>
-            {renderPaisFilter()}
-            <Col flex={"100%"} style={{ marginBottom: 25, height: 50 }}>
-              <Select
-                style={{ width: "100%", height: "100%" }}
-                showSearch
-                value={selectedDepartamento}
-                onChange={(value) => setSelectedDepartamento(value)}
-                placeholder="Departamento"
-                size="large"
-                options={departamentos}
-                filterOption={(input, option) =>
-                  option.label.toLowerCase().includes(input.toLowerCase())
-                }
-              />
-            </Col>
-            <Col flex={"100%"} style={{ marginBottom: 25, height: 50 }}>
-              <Select
-                style={{ width: "100%", height: "100%" }}
-                showSearch
-                value={selectedMunicipio}
-                onChange={(value) => setSelectedMunicipio(value)}
-                placeholder="Municipio"
-                size="large"
-                options={municipios}
-                filterOption={(input, option) =>
-                  option.label.toUpperCase().includes(input.toUpperCase())
-                }
-              />
-            </Col>
-          </Row>
-          <Row gutter={25}>
-            <Col
-              xs={{ flex: "100%" }}
-              lg={{ flex: "50%" }}
-              style={{ marginBottom: 25, height: 50 }}
-            >
-              <Select
-                style={{ width: "100%", height: "100%" }}
-                id="selectPatrono"
-                showSearch
-                searchValue={searchPatrono}
-                onSearch={(e) => {
-                  setSearchProcedencia(e);
-                }}
-                optionFilterProp="children"
-                filterOption={(input, option) =>
-                  (option?.label ?? "").includes(input)
-                }
-                placeholder="Patrono"
-                options={patronos}
-                size="large"
-                value={patrono}
-                onChange={(e) => {
-                  setPatrono(e);
-                }}
-              />
-            </Col>
+  return (
+    <ConfigProvider
+      input={{ className: "cursor-default" }}
+      theme={{
+        token: {
+          colorPrimaryHover: "#92e1b4",
+          colorPrimary: "#77d9a1",
+          colorText: "#626262",
+          colorBgContainerDisabled: "#fcfcfc",
+          colorTextDisabled: "#939393",
+        },
+        components: {
+          Input: {},
+        },
+      }}
+    >
+      <Card className="mt-10 rounded-xl mb-5">
+        <Collapse
+          accordion
+          className="bg-white rounded shadow-sm"
+          defaultActiveKey={["1"]}
+        >
+          <Panel
+            header={<span className="text-gray-700 font-medium">Filtros Avanzados</span>}
+            key="1"
+          >
+            <Row>
+              {renderPaisFilter()}
+              <Col flex={"100%"} style={{ marginBottom: 25, height: 50 }}>
+                <Select
+                  style={{ width: "100%", height: "100%" }}
+                  showSearch
+                  value={selectedDepartamento}
+                  onChange={(value) => setSelectedDepartamento(value)}
+                  placeholder="Departamento"
+                  size="large"
+                  options={departamentos}
+                  filterOption={(input, option) =>
+                    option.label.toLowerCase().includes(input.toLowerCase())
+                  }
+                />
+              </Col>
+              <Col flex={"100%"} style={{ marginBottom: 25, height: 50 }}>
+                <Select
+                  style={{ width: "100%", height: "100%" }}
+                  showSearch
+                  value={selectedMunicipio}
+                  onChange={(value) => setSelectedMunicipio(value)}
+                  placeholder="Municipio"
+                  size="large"
+                  options={municipios}
+                  filterOption={(input, option) =>
+                    option.label.toUpperCase().includes(input.toUpperCase())
+                  }
+                />
+              </Col>
+            </Row>
 
-            <Col
-              xs={{ flex: "100%" }}
-              lg={{ flex: "50%" }}
-              style={{ marginBottom: 25, height: 50 }}
-            >
-              <Select
-                style={{ width: "100%", height: "100%" }}
-                placeholder="Genero"
-                options={generos}
-                value={genero}
-                onChange={(e) => {
-                  setGenero(e);
-                }}
-              />
-            </Col>
-          </Row>
-          <Row>
-            {renderLugarFilter()}
-          </Row>
-        </Card>
-      </ConfigProvider>
-    );
-  };
+            <Row gutter={25}>
+              <Col
+                xs={{ flex: "100%" }}
+                lg={{ flex: "50%" }}
+                style={{ marginBottom: 25, height: 50 }}
+              >
+                <Select
+                  style={{ width: "100%", height: "100%" }}
+                  id="selectPatrono"
+                  showSearch
+                  searchValue={searchPatrono}
+                  onSearch={(e) => {
+                    setSearchProcedencia(e);
+                  }}
+                  optionFilterProp="children"
+                  filterOption={(input, option) =>
+                    (option?.label ?? "").includes(input)
+                  }
+                  placeholder="Patrono"
+                  options={patronos}
+                  size="large"
+                  value={patrono}
+                  onChange={(e) => {
+                    setPatrono(e);
+                  }}
+                />
+              </Col>
+
+              <Col
+                xs={{ flex: "100%" }}
+                lg={{ flex: "50%" }}
+                style={{ marginBottom: 25, height: 50 }}
+              >
+                <Select
+                  style={{ width: "100%", height: "100%" }}
+                  placeholder="Género"
+                  options={generos}
+                  value={genero}
+                  onChange={(e) => {
+                    setGenero(e);
+                  }}
+                />
+              </Col>
+            </Row>
+
+            <Row>
+              {renderLugarFilter()}
+            </Row>
+          </Panel>
+        </Collapse>
+      </Card>
+    </ConfigProvider>
+  );
+};
 
   const render = () => {
     return (
