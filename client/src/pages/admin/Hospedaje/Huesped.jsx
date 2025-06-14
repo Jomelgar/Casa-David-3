@@ -594,6 +594,7 @@ function Huesped() {
       return;
     }
 
+    console.log(huesped);
     const response = await Lista_Negra.postListRequest({
       id_persona: huesped.id_persona,
       id_regla: idRegla,
