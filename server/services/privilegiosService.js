@@ -1,4 +1,4 @@
-const sequelize = require("../Db");
+const sequelize = require("../db");
 const { Privilegio, UsuarioPrivilegio, Usuario } = require("../models/usuario");
 
 //Privilegios

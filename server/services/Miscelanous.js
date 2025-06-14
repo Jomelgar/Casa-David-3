@@ -1,7 +1,7 @@
 const { ListaEspera } = require('../models/lista');
 const Paciente = require('../models/paciente');
 const { Persona } = require('../models/persona');
-const sequelize = require('../Db');
+const sequelize = require('../db');
 
 async function getPersonsInListaEsperaService() {
   return await ListaEspera.findAll({

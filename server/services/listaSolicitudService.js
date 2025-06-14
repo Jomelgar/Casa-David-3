@@ -5,7 +5,7 @@ const {
   PacienteHuesped,
   AfiliadoHuesped,
 } = require("../models/huesped");
-const sequelize = require("../Db");
+const sequelize = require("../db");
 const Paciente = require("../models/paciente");
 const { Hospital } = require("../models/hospital");
 const { Patrono, PatronoAfiliado, Afiliado } = require("../models/afiliado");

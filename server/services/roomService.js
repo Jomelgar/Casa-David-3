@@ -9,7 +9,7 @@ const {
   AfiliadoReservacion,
   Ofrenda,
 } = require("../models/reservaciones");
-const { Sequelize } = require("../Db");
+const { Sequelize } = require("../db");
 
 const { Afiliado, Patrono, PatronoAfiliado } = require("../models/afiliado");
 const { where } = require("sequelize");

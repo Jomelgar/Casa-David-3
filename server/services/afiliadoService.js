@@ -1,4 +1,4 @@
-const sequelize = require('../Db');
+const sequelize = require('../db');
 const {Afiliado, Patrono, PatronoAfiliado} = require('../models/afiliado');
 
 

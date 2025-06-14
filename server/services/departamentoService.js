@@ -1,6 +1,6 @@
 const {Departamento} = require('../models/departamento')
 const {Municipio} = require('../models/persona');
-const sequelize = require('../Db');
+const sequelize = require('../db');
 
 exports.getAllDepartamento = async () => {
     const departamentos = await Departamento.findAll();
