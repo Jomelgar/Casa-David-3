@@ -191,7 +191,7 @@ const InformacionPersonal = ({
       selectedCountryCode.current = user.referencia_telefonica;
       setSelectedDepartamento(departamento.departamento_id);
       setSelectedMunicipio(user.municipio_id);
-      handleSetChangeUser("municipio_id",selectedMunicipio);
+      handleSetChangeUser("municipio_id",user.municipio_id);
     }
   };
 
