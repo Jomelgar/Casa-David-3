@@ -1,76 +1,69 @@
-const sequelize = require('../db');
-const Paciente       = require('../models/paciente');
+
+const Paciente = require('../models/paciente');
+const { PacienteHuesped, Huesped } = require("../models/huesped");
 const CausaVisita    = require('../models/causaVisita');
-const { Persona, Ocupacion, Municipio } = require('../models/persona');
+const { Persona, Ocupacion, Municipio,Lugar } = require('../models/persona');
 const { Departamento } = require('../models/departamento');
 const { Hospital }    = require('../models/hospital');
 const { Pais } = require('../models/pais');
 const { Reservacion } = require('../models/reservaciones');
+const { Sequelize } = require("../db");
 
-exports.getAllPacientes = async () => {
-  const causasRaw = await CausaVisita.findAll({
-    attributes: ['id_causa_visita', 'causa'],
-    raw: true
-  });
-  const causaMap = Object.fromEntries(
-    causasRaw.map(c => [c.id_causa_visita, c.causa])
-  );
-
-  const pacientes = await Paciente.findAll({
-    attributes: ['id_paciente', 'id_causa_visita'],
-    include: [
-      {
-        model: Persona,
-        attributes: [
-          'primer_nombre',
-          'segundo_nombre',
-          'primer_apellido',
-          'segundo_apellido',
-          'genero',
-          'fecha_nacimiento'
-        ],
-        include: [
-          {
-            model: Municipio,
-            attributes: ['nombre'],
-            include: [{ model: Departamento, attributes: ['nombre'] }]
-          },
-          { model: Ocupacion, attributes: ['descripcion'] },
-        ]
+exports.getAllPacientes = async (fechaInicio,fechaFinal) => {
+  const pacientes = await Reservacion.findAndCountAll({
+      where: {
+        fecha_entrada: {
+          [Sequelize.Op.gte]: fechaInicio,
+        },
+        fecha_salida: {
+          [Sequelize.Op.lte]: fechaFinal,
+        },
       },
-      { model: Hospital, attributes: ['nombre', 'id_pais'],
-        include: [{ model: Pais, attributes: ['nombre'] }]
-      }
-    ],
-    order: [['id_paciente', 'ASC']]
-  });
-
-  return pacientes.map(pac => {
-    const p = pac.Persona;
-    const nombre = [
-      p.primer_nombre,
-      p.segundo_nombre,
-      p.primer_apellido,
-      p.segundo_apellido
-    ].filter(Boolean).join(' ');
-    const edad = Math.floor(
-      (Date.now() - new Date(p.fecha_nacimiento)) /
-      (1000 * 60 * 60 * 24 * 365.25)
-    );
-    return {
-      id: pac.id_paciente,
-      nombre,
-      id_pais: pac.Hospital.id_pais,
-      pais: pac.Hospital.Pai.nombre,
-      departamento: p.Municipio.Departamento.nombre,
-      municipio: p.Municipio.nombre,
-      ocupacion: p.Ocupacion.descripcion,
-      genero: p.genero,
-      hospital: pac.Hospital?.nombre ?? null,
-      causa: causaMap[pac.id_causa_visita] ?? null,
-      edad,
-    };
-  });
+      include: [
+        {
+          model: PacienteHuesped,
+          required: true,
+          include: [
+            {
+              model: Paciente,
+              required: true,
+              include: [
+                {
+                  model: Hospital
+                },
+                {
+                  model: Persona,
+                  required: true,
+                  include:
+                  [
+                    {model: Municipio,
+                      required: true,
+                      include:
+                      [{
+                        model: Departamento,
+                        required: true,
+                      }]
+                    },
+                    {
+                      model: Lugar,
+                      required: true,
+                      include: [
+                        {
+                          model: Pais,
+                          required: true,
+                        }
+                      ]
+                    }
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+  console.log(pacientes);
+  return pacientes;
 };
 
 
@@ -93,7 +86,7 @@ exports.editarPaciente = async (id, pacienteUpdate) => {
 };
 
 exports.getPacienteByDNI = async dni => {
-  const tx = await sequelize.transaction();
+  const tx = await Sequelize.transaction();
   try {
     const persona  = await Persona.findOne({ where: { dni }, transaction: tx });
     if (!persona) throw new Error('No se encontró persona con ese DNI');

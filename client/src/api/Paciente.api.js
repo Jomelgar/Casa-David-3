@@ -12,7 +12,7 @@ const getPacienteRequest = async (id) => {
 
 const getPacientesRequest = async () => {
   try {
-    const response = await axiosInstance.get(`pacientes`);
+    const response = await axiosInstance.get(`pacientes2`);
 
     return response;
   } catch (error) {
@@ -56,20 +56,15 @@ const deletePacienteRequest = async (id) => {
   }
 };
 
-const getPacienteAndPersonaForTabla = async () => {
+const getPacienteAndPersonaForTabla = async (begin_date,end_date) => {
   try {
-    const response = await axiosInstance.get('pacientes2');
-
-    const flattenedData = response.data.map((item) => ({
-      causa: item.causa,
-      nombre: item.Persona.nombre,
-      id: item.Persona.id,
-      genero: item.Persona.genero,
-      //   ocupacion: item.Persona.Ocupacion.ocupacion,
-      apellido: item.Persona.apellido,
-    }));
-
-    return flattenedData;
+    const response = await axiosInstance.get('pacientes',{
+        params: {
+          fechaInicio: begin_date,
+          fechaFinal: end_date,
+        },
+      });
+    return response;
   } catch (error) {
     console.error('There was an error fetching the data!', error);
     return null;

@@ -2,7 +2,9 @@ const pacienteService = require('../services/pacienteService');
 
 exports.getAllPacientes = async (req, res) => {
     try{
-    const pacientes = await pacienteService.getAllPacientes();
+    console.log("Request:",req.query);
+    const { fechaInicio, fechaFinal } = req.query;
+    const pacientes = await pacienteService.getAllPacientes(fechaInicio,fechaFinal);
     res.status(201).json(pacientes);
     } catch (error){
       res.status(500).json({ error: error.message });
