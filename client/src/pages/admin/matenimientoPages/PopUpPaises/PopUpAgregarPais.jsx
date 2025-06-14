@@ -186,7 +186,7 @@ function PopUpFormulario({ visible, onClose, onLoad}) {
         </div>
 
         <div>
-          <Text strong>Formato DNI:</Text>
+          <Text strong>Formato Identidad Nacional:</Text>
           <Input
             placeholder="####-####-#####"
             value={formatoDNI}

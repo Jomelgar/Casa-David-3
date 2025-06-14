@@ -301,7 +301,8 @@ exports.excelPagosGenerales = async (req, res) => {
 
     worksheet.getCell("A2").value = `${divisa} ${donaciones}`;
     worksheet.getCell("B2").value = `${divisa} ${cortesia}`;
-    worksheet.getCell("C2").value = `${divisa} ${donaciones + cortesia}`;
+    const total = parseFloat(donaciones) + parseFloat(cortesia);
+    worksheet.getCell("C2").value = `${divisa} ${total}`;
 
     for (const header of ["A1", "B1", "C1"]) {
       worksheet.getCell(header).fill = {

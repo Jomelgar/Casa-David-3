@@ -316,6 +316,7 @@ function CrearUsuarios() {
         const response = await hospitalesApi.postHospitalesRequest({
           nombre: hospitalFormat[0],
           direccion: hospitalFormat[1],
+          id_pais: userData.id_pais
         });
 
         if (!response || response.status !== 201) {

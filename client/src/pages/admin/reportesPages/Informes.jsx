@@ -54,7 +54,7 @@ const Informes = () => {
   const [fechaFinal, setFechaFinal] = useState(dayjs().format(dateFormat));
   const [loading, setLoading] = useState(false);
   const [monedaLocal, setMonedaLocal] = useState(null);
-
+  const [codigoIso, setCodigoIso] = useState('USD');
   const [totalDinero,setTotalDinero] = useState('Cargando...');
   const [totalDonacion, setTotalDonacion] = useState(0);
   const [totalBeca, setTotalBeca] = useState(0);
@@ -96,6 +96,9 @@ const Informes = () => {
   const [listaCausasVisita, setListaCausasVisita] = useState([]);
   const [ocupacionSeleccionada, setOcupacionSeleccionada] = useState(-1);
   const [listaOcupaciones, setListaOcupaciones] = useState([]);
+  const [dataSource,setDataSource] = useState([]);
+  const[donacionesInfo,setDonacionesInfo] = useState([]);
+  const[becadosInfo,setBecadosInfo] = useState([]);
 
   const[exportVisible, setExportVisible] = useState(false);
 
@@ -436,7 +439,7 @@ const Informes = () => {
 
       //console.log("Data de las mujeres: ", responseMujeres.data);
       let mujeresData = responseMujeres.data.hombres.rows;
-
+      
       // Filtrar por genero
       if (genero !== -1) {
         mujeresData = mujeresData.filter(
@@ -728,9 +731,29 @@ const Informes = () => {
           dni: ofrenda.Reservacion.PacienteHuesped.Huesped.Persona.dni,
           fecha: dayjs(ofrenda.fecha).format(dateFormat),
           valor: parseFloat(ofrenda.valor),
+          recibo: ofrenda.recibo,
+          observacion: ofrenda.observacion,
         });
       });
 
+      const donacionesConvertidas = await Promise.all(
+            donaciones.map(async (ofrenda) => {
+              const valorConvertido = await convertirADolar(ofrenda);
+              return {
+                key: ofrenda.id_ofrenda,
+                nombre:
+                  ofrenda.Reservacion.PacienteHuesped.Huesped.Persona.primer_nombre +
+                  " " +
+                  ofrenda.Reservacion.PacienteHuesped.Huesped.Persona.primer_apellido,
+                dni: ofrenda.Reservacion.PacienteHuesped.Huesped.Persona.dni,
+                fecha: dayjs(ofrenda.fecha).format('DD-MM-YYYY'), 
+                valor: parseFloat(valorConvertido).toFixed(2),
+                recibo: ofrenda.recibo,
+                observacion: ofrenda.observacion,
+              };
+            })
+      );
+      
       const totalDonaciones = donaciones.reduce(
         (total, reservacion) => total + parseFloat(reservacion.valor),
         0
@@ -911,8 +934,29 @@ const Informes = () => {
           dni: ofrenda.Reservacion.PacienteHuesped.Huesped.Persona.dni,
           fecha: dayjs(ofrenda.fecha).format(dateFormat),
           valor: parseFloat(ofrenda.valor),
+          recibo: ofrenda.recibo,
+          observacion: ofrenda.observacion,
         });
       });
+
+      const becadosConvertidos = await Promise.all(
+            becados.map(async (ofrenda) => {
+              const valorConvertido = await convertirADolar(ofrenda);
+      
+              return {
+                key: ofrenda.id_ofrenda,
+                nombre:
+                  ofrenda.Reservacion.PacienteHuesped.Huesped.Persona.primer_nombre +
+                  " " +
+                  ofrenda.Reservacion.PacienteHuesped.Huesped.Persona.primer_apellido,
+                dni: ofrenda.Reservacion.PacienteHuesped.Huesped.Persona.dni,
+                fecha: dayjs(ofrenda.fecha).format('DD-MM-YYYY'), 
+                valor: parseFloat(valorConvertido).toFixed(2),
+                recibo: ofrenda.recibo,
+                observacion: ofrenda.observacion,
+              };
+            })
+      );
 
       const totalBecados = becados.reduce(
         (total, ofrenda) => total + parseFloat(ofrenda.valor),
@@ -1018,6 +1062,7 @@ const Informes = () => {
       if(selectedPais === -1)
       {
         setMonedaLocal('$');
+        setCodigoIso('USD');
         const API_KEY = '44948c701865425a8109ae020dedea23';
 
         // BECADOS
@@ -1053,7 +1098,9 @@ const Informes = () => {
       {
         const {codigo_iso,divisa} = (await axiosInstance.get(`/pais/${selectedPais}/iso`)).data;
         setMonedaLocal(divisa);
+        setCodigoIso(codigo_iso);
       }
+      setDataSource([...donacionesConvertidas, ...becadosConvertidos]);
       setLoading(false);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -1074,38 +1121,48 @@ const Informes = () => {
     setExportVisible(true); 
   };
 
-  const onExportClick = async (tasa, moneda, divisa) => {
-    const donacionesConvertidas = parseFloat(totalDonacion) * tasa;
-    const becasConvertidas = parseFloat(totalBeca) * tasa;
+  const convertirADolar = async (ofrenda) => {
+    let convertido = ofrenda.valor
+    if(selectedPais === -1){
+      const moneda = ofrenda.Pai.codigo_iso;
+      const API_KEY = '44948c701865425a8109ae020dedea23';
+      const response = await fetch(`https://api.currencyfreaks.com/latest?apikey=${API_KEY}&symbols=${moneda},USD`);
+      const data = await response.json();
+
+      const tasaMonedaOrigen = parseFloat(data.rates[moneda]);
+      const tasaMonedaDestino = parseFloat(data.rates["USD"]);
+
+      convertido = parseFloat(ofrenda.valor) * tasaMonedaDestino / tasaMonedaOrigen;
+    }
+    return convertido;
+  };
+
+  const exportarExcel = async (tasa, moneda, divisa) => {
+    
+    const donacionesConvertidas = totalDonacion * tasa;
+    const becasConvertidas = totalBeca * tasa;
+    const pagosConvertidos = dataSource.map(pago => ({
+      ...pago,
+      valor: (parseFloat(pago.valor) * tasa).toFixed(2),
+    }));
     
     const data = {
-      fechaInicio,
-      fechaFinal,
-      hombreInfo,
-      mujerInfo,
-      moneda,
-      divisa,
-      donaciones: donacionesConvertidas + becasConvertidas,
-      primeraVez,
-      hospedadosDia,
-      camasCortesia,
+      donaciones: donacionesConvertidas.toFixed(2),
+      cortesia: becasConvertidas.toFixed(2),
+      datosPagos: pagosConvertidos,
+      moneda: moneda,
+      divisa: divisa
     };
 
-    const res = await axiosInstance.post("/reportesExcel", data, {
-      responseType: "arraybuffer",
-    });
+    const res = await axiosInstance.post("/excelPagosGenerales", data, { responseType: "arraybuffer" });
 
-    const url = window.URL.createObjectURL(
-      new Blob([res.data], {
-        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      })
-    );
+    const url = window.URL.createObjectURL(new Blob([res.data], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }));
     const link = document.createElement("a");
     link.href = url;
-    link.setAttribute("download", `Reporte_${fechaInicio}_${fechaFinal}.xlsx`);
+    link.setAttribute("download", `Reporte_Pagos_${fechaInicio}_${fechaFinal}.xlsx`);
     document.body.appendChild(link);
     link.click();
-    link.parentNode.removeChild(link);
+    document.body.removeChild(link);
   };
 
   const renderFiltros = () => {
@@ -1410,9 +1467,9 @@ const Informes = () => {
       </button>
       <PopUpExport
         visible={exportVisible}
-        onConfirm={onExportClick}
+        onConfirm={exportarExcel}
         onCancel={() => setExportVisible(false)}
-        monedaOrigen={monedaLocal}
+        monedaOrigen={codigoIso}
       />
     </div>
     
