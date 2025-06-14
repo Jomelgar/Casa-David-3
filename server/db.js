@@ -3,7 +3,7 @@ require("dotenv").config();
 const { Sequelize } = require("sequelize");
 const options = (process.env.DEV_MODE) ? {} :
   {
-    ssl: {
+    ssl: { 
       require: true,
       rejectUnauthorized: false,
     },
