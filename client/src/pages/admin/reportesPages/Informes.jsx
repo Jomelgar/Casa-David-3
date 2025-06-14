@@ -55,7 +55,7 @@ const Informes = () => {
   const [loading, setLoading] = useState(false);
   const [monedaLocal, setMonedaLocal] = useState(null);
 
-  const [totalDinero,setTotalDinero] = useState(0);
+  const [totalDinero,setTotalDinero] = useState('Cargando...');
   const [totalDonacion, setTotalDonacion] = useState(0);
   const [totalBeca, setTotalBeca] = useState(0);
   const [camasCortesia, setCamasCortesia] = useState(0);
@@ -101,13 +101,8 @@ const Informes = () => {
 
   useEffect(() =>
     {
-      if(selectedPais === -1) setTotalDinero(Number(totalDonacion + totalBeca).toFixed(2));
-    },[totalDonacion])
-
-  useEffect(() =>
-    {
-      if(selectedPais !== -1) setTotalDinero(Number(totalDonacion + totalBeca).toFixed(2));
-    },[totalBeca])
+      setTotalDinero(Number(totalDonacion + totalBeca).toFixed(2));
+    },[totalDonacion,totalBeca])
 
   useEffect(() => {
     loadData();
@@ -280,8 +275,8 @@ const Informes = () => {
   };
 
   const loadData = async () => {
-    setLoading(true);
     await loadPaises();
+    if(selectedPais === -1) setTotalDinero('Cargando...');
     loadHospitales();
     loadCausasVisita();
     loadOcupaciones();
@@ -289,7 +284,6 @@ const Informes = () => {
     const data = [];
 
     try {
-      setTotalDinero('Cargando...');
       //* Sacar data de los Hombres
       const responseHombres = await ReservacionesApi.getReservacionesHombres(
         fechaInicio,
@@ -1038,7 +1032,7 @@ const Informes = () => {
           becado.valor = becado.valor * tasaMonedaDestino / tasaMonedaLocal;
           totalBecados += becado.valor;
         }
-        await setTotalBeca(Number(totalBecados.toFixed(2)));
+        setTotalBeca(Number(totalBecados.toFixed(2)));
         console.log(totalBeca);
 
         // DONACIONES
@@ -1054,6 +1048,7 @@ const Informes = () => {
           totalDonacionCalculada += donacion.valor;
         }
         setTotalDonacion(Number(totalDonacionCalculada.toFixed(2)));
+        setTotalDinero(Number(totalDonacion + totalBeca).toFixed(2));
       }else
       {
         const {codigo_iso,divisa} = (await axiosInstance.get(`/pais/${selectedPais}/iso`)).data;
