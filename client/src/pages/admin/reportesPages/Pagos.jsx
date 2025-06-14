@@ -397,18 +397,10 @@ function Pagos() {
     const personaId = userProp.data.id_persona;
     const paisResponse = await axiosInstance.get(`/personas/${personaId}/pais`);
     const idPais = paisResponse.data.id_pais;
-    if(selectedPais !== -1)
-    {
-      const {codigo_iso,divisa} = (await axiosInstance.get(`/pais/${idPais}/iso`)).data;
-      setMonedaLocal( divisa );
-      setIsoLocal( codigo_iso );
-      setSelectedPais( idPais );
-    }else
-    {
-      setIsoLocal('USD');
-      setMonedaLocal('$');
-    }
-
+    setSelectedPais( idPais );
+    const {codigo_iso,divisa} = (await axiosInstance.get(`/pais/${idPais}/iso`)).data;
+    setMonedaLocal( divisa );
+    setIsoLocal( codigo_iso );
     try {
       const response = await PaisApi.getPaisForTable();
       setPaises([{ value: -1, label: "Todos los Paises" }, ...response.data.map(m => ({ value: m.id_pais, label: m.nombre }))]);
@@ -420,7 +412,7 @@ function Pagos() {
   const loadLugares = async(paisID) => {
     try {
       const response = await LugarApi.getLugarByPais(paisID);
-      console.log("Lugres:" , response.data);
+      //console.log("Lugres:" , response.data);
       setLugares([{value: -1, label: "Todas las casas"}, ...response.data.map(l => ({value: l.id_lugar, label: l.codigo}))])
     } catch (error){
       console.error("Error fetching paises:", error);
@@ -456,6 +448,7 @@ function Pagos() {
       setDepartamentos([{ value: -1, label: "Todos los Departamentos" }]);
     }
     // Reiniciar municipio seleccionado al cambiar el departamento
+    setSelectedLugar(-1);
     setSelectedDepartamento(-1);
   }, [selectedPais])
 
@@ -504,7 +497,7 @@ function Pagos() {
     let donaciones = reponseDonaciones.data.donacion;
 
     // Si NO tiene el privilegio 11, aplicar el filtro por lugar
-    console.log(donaciones);
+    //console.log(donaciones);
     if (!tienePrivilegio) {
       donaciones = donaciones.filter(
         (ofrenda) =>
@@ -789,55 +782,44 @@ function Pagos() {
   };
 
   const renderPaisFilter = () => {
-    if (!validarPrivilegio(userLog, 11)) {
-      console.log("No es master")
+    if (!validarPrivilegio(userLog, 11)) 
+      //console.log("No es master")
       return null;
-    }
-    console.log("Opciones: ", paises);
+    
+    //console.log("Opciones: ", paises);
   
     return (
     <>
-      <Col flex={"100%"} style={{ marginBottom: 25, height: 50 }} >
-        <Select
-          style={{ width: "100%", height: "100%" }}
-          showSearch
-          value={selectedPais}
-          onChange={(value) => setSelectedPais(value)}
-          placeholder="País"
-          size="large"
-          options={paises}
-          filterOption={(input, option) =>
-            option.label.toLowerCase().includes(input.toLowerCase())
-          }
-        />
-      </Col>
-    </>
-    );
-  }
-
-  const renderLugarFilter = () => {
-    if (!validarPrivilegio(userLog, 11)) {
-      console.log("No es master")
-      return null;
-    }
-    console.log("Opciones: ", paises);
-  
-    return (
-    <>
-      <Col flex={"100%"} style={{ marginBottom: 25, height: 50 }} >
-        <Select
-          style={{ width: "100%", height: "100%" }}
-          showSearch
-          value={selectedLugar}
-          onChange={(value) => setSelectedLugar(value)}
-          placeholder="Casa"
-          size="large"
-          options={lugares}
-          filterOption={(input, option) =>
-            option.label.toLowerCase().includes(input.toLowerCase())
-          }
-        />
-      </Col>
+      <Row gutter={25}>
+        <Col xs={{ flex: "100%" }} lg={{ flex: "50%" }} style={{ marginBottom: 25, height: 50 }} >
+          <Select
+            style={{ width: "100%", height: "100%" }}
+            showSearch
+            value={selectedPais}
+            onChange={(value) => setSelectedPais(value)}
+            placeholder="País"
+            size="large"
+            options={paises}
+            filterOption={(input, option) =>
+              option.label.toLowerCase().includes(input.toLowerCase())
+            }
+          />
+        </Col>
+        <Col xs={{ flex: "100%" }} lg={{ flex: "50%" }} style={{ marginBottom: 25, height: 50 }} >
+          <Select
+            style={{ width: "100%", height: "100%" }}
+            showSearch
+            value={selectedLugar}
+            onChange={(value) => setSelectedLugar(value)}
+            placeholder="Casa"
+            size="large"
+            options={lugares}
+            filterOption={(input, option) =>
+              option.label.toLowerCase().includes(input.toLowerCase())
+            }
+          />
+        </Col>
+      </Row>
     </>
     );
   }
@@ -869,8 +851,8 @@ function Pagos() {
             header={<span className="text-gray-700 font-medium">Filtros Avanzados</span>}
             key="1"
           >
+            {renderPaisFilter()}
             <Row>
-              {renderPaisFilter()}
               <Col flex={"100%"} style={{ marginBottom: 25, height: 50 }}>
                 <Select
                   style={{ width: "100%", height: "100%" }}
@@ -944,10 +926,6 @@ function Pagos() {
                   }}
                 />
               </Col>
-            </Row>
-
-            <Row>
-              {renderLugarFilter()}
             </Row>
           </Panel>
         </Collapse>
