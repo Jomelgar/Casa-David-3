@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { PiHouseLight } from "react-icons/pi";
 import { CiMoneyBill } from "react-icons/ci";
 import { FaGift, FaBed } from "react-icons/fa";
@@ -55,6 +55,7 @@ const Informes = () => {
   const [loading, setLoading] = useState(false);
   const [monedaLocal, setMonedaLocal] = useState(null);
 
+  const [totalDinero,setTotalDinero] = useState(0);
   const [totalDonacion, setTotalDonacion] = useState(0);
   const [totalBeca, setTotalBeca] = useState(0);
   const [camasCortesia, setCamasCortesia] = useState(0);
@@ -97,6 +98,16 @@ const Informes = () => {
   const [listaOcupaciones, setListaOcupaciones] = useState([]);
 
   const[exportVisible, setExportVisible] = useState(false);
+
+  useEffect(() =>
+    {
+      if(selectedPais === -1) setTotalDinero(Number(totalDonacion + totalBeca).toFixed(2));
+    },[totalDonacion])
+
+  useEffect(() =>
+    {
+      if(selectedPais !== -1) setTotalDinero(Number(totalDonacion + totalBeca).toFixed(2));
+    },[totalBeca])
 
   useEffect(() => {
     loadData();
@@ -278,6 +289,7 @@ const Informes = () => {
     const data = [];
 
     try {
+      setTotalDinero('Cargando...');
       //* Sacar data de los Hombres
       const responseHombres = await ReservacionesApi.getReservacionesHombres(
         fechaInicio,
@@ -731,7 +743,6 @@ const Informes = () => {
       );
 
       if(selectedPais !== -1)setTotalDonacion(totalDonaciones);
-      else setTotalDonacion(0);
 
       // * Donaciones de becados
       const responseBecados = await OfrendasApi.getOfrendasBecados(
@@ -915,7 +926,6 @@ const Informes = () => {
       );
 
       if(selectedPais !== -1)setTotalBeca(totalBecados);
-      else setTotalBeca(0);
 
       // Camas ocupadas por becados
       let becadosHombres = 0;
@@ -1028,7 +1038,7 @@ const Informes = () => {
           becado.valor = becado.valor * tasaMonedaDestino / tasaMonedaLocal;
           totalBecados += becado.valor;
         }
-        setTotalBeca(Number(totalBecados.toFixed(2)));
+        await setTotalBeca(Number(totalBecados.toFixed(2)));
         console.log(totalBeca);
 
         // DONACIONES
@@ -1044,14 +1054,11 @@ const Informes = () => {
           totalDonacionCalculada += donacion.valor;
         }
         setTotalDonacion(Number(totalDonacionCalculada.toFixed(2)));
-        console.log(totalDonacion);
-
       }else
       {
         const {codigo_iso,divisa} = (await axiosInstance.get(`/pais/${selectedPais}/iso`)).data;
         setMonedaLocal(divisa);
       }
-
       setLoading(false);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -1327,7 +1334,7 @@ const Informes = () => {
               Donaciones de Huespedes
             </div>
             <div className="text-xl font-bold">
-              {monedaLocal} {(totalBeca + totalDonacion).toFixed(2)}
+              {monedaLocal} {totalDinero}
             </div>
           </div>
         </div>
