@@ -303,7 +303,7 @@ function Pagos() {
   const [monedaLocal, setMonedaLocal] = useState(null);
   const [isoLocal, setIsoLocal] = useState(null);
   const [ lugares, setLugares ] = useState([]);
-  const [selectedLugar, setSelectedLugar] = useState(-1);
+  const [selectedLugar, setSelectedLugar] = useState(userLog.role === "master"? -1 : userLog.id_lugar);
 
   const [departamentos, setDepartamentos] = useState([]);
   const [searchDepartamento, setSearchDepartamento] = useState("");
@@ -448,7 +448,7 @@ function Pagos() {
       setDepartamentos([{ value: -1, label: "Todos los Departamentos" }]);
     }
     // Reiniciar municipio seleccionado al cambiar el departamento
-    setSelectedLugar(-1);
+    setSelectedLugar(userLog.role === "master"? -1 : userLog.id_pais);
     setSelectedDepartamento(-1);
   }, [selectedPais])
 
@@ -781,13 +781,7 @@ function Pagos() {
     }
   };
 
-  const renderPaisFilter = () => {
-    if (!validarPrivilegio(userLog, 11)) 
-      //console.log("No es master")
-      return null;
-    
-    //console.log("Opciones: ", paises);
-  
+  const renderPaisFilter = () => {  
     return (
     <>
       <Row gutter={25}>
@@ -795,6 +789,7 @@ function Pagos() {
           <Select
             style={{ width: "100%", height: "100%" }}
             showSearch
+            disabled={!validarPrivilegio(userLog, 11)}
             value={selectedPais}
             onChange={(value) => setSelectedPais(value)}
             placeholder="País"
@@ -810,6 +805,7 @@ function Pagos() {
             style={{ width: "100%", height: "100%" }}
             showSearch
             value={selectedLugar}
+            disabled={!validarPrivilegio(userLog, 11) || selectedPais === -1}
             onChange={(value) => setSelectedLugar(value)}
             placeholder="Casa"
             size="large"
@@ -858,6 +854,7 @@ function Pagos() {
                   style={{ width: "100%", height: "100%" }}
                   showSearch
                   value={selectedDepartamento}
+                  disabled={selectedPais === -1}
                   onChange={(value) => setSelectedDepartamento(value)}
                   placeholder="Departamento"
                   size="large"
@@ -872,6 +869,7 @@ function Pagos() {
                   style={{ width: "100%", height: "100%" }}
                   showSearch
                   value={selectedMunicipio}
+                  disabled={selectedDepartamento === -1}
                   onChange={(value) => setSelectedMunicipio(value)}
                   placeholder="Municipio"
                   size="large"
