@@ -1287,6 +1287,7 @@ const Informes = () => {
                         style={{ width: "100%", height: "100%", fontSize: "16px" }}
                         placeholder="Todas las edades"
                         type="number"
+                        size="large"
                         min={0}
                         value={edadEscrita}
                         onChange={(e) => setEdadEscrita(e.target.value)}
@@ -1299,6 +1300,7 @@ const Informes = () => {
                       <Select
                         style={{ width: "100%", height: "100%", fontSize: "16px" }}
                         placeholder="Hospital"
+                        size="large"
                         disabled={selectedPais === -1}
                         options={listaHospitales}
                         value={hospitalSeleccionado}
@@ -1309,6 +1311,7 @@ const Informes = () => {
                       <Select
                         style={{ width: "100%", height: "100%", fontSize: "16px" }}
                         placeholder="Causa de visita"
+                        size="large"
                         options={listaCausasVisita}
                         value={causaVisitaSeleccionada}
                         onChange={(value) => setCausaVisitaSeleccionada(value)}
@@ -1321,6 +1324,7 @@ const Informes = () => {
                       <Select
                         style={{ width: "100%", height: "100%", fontSize: "16px" }}
                         placeholder="Ocupación"
+                        size="large"
                         options={listaOcupaciones}
                         value={ocupacionSeleccionada}
                         onChange={(value) => setOcupacionSeleccionada(value)}
