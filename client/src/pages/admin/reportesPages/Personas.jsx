@@ -156,35 +156,24 @@ function Personas() {
     
 useEffect(() => {
   const fetchPaises = async () => {
-    // 1) Obtener token y datos del usuario
+    // 1) Obtener país del usuario (master)
     const token = getUserFromToken();
     const userProp = await PersonaApi.getPersonaRequest(token.userId);
-
-    // 2) Llamada a getPaisByPersona con try/catch para prevenir null
-    let paisResp;
-    try {
-      paisResp = await PersonaApi.getPaisByPersona(userProp.data.id_persona);
-    } catch (e) {
-      // Si falla la petición, fingimos un objeto con data null
-      paisResp = { data: null };
-    }
-    // Extraemos el id, o -1 si vino null/undefined
-    const idPais = paisResp?.data?.id_pais ?? -1;
-    // Lo guardamos en el estado para usarlo luego en el filtro
+    const paisResp = await PersonaApi.getPaisByPersona(userProp.data.id_persona);
+   const idPais = paisResp?.data?.id_pais ?? -1;
+    // guardamos en el estado para usarlo luego en el filtro
     setIdPaisUsuario(idPais);
 
-    // 3) Cargar todas las opciones de país para el Select
+    // 2) Obtener todas las opciones de países
     const respTodos = await PaisApi.getPaisForTable();
     const opts = respTodos.data.map(p => ({
       value: p.id_pais,
-      label: p.nombre,
+      label: p.nombre
     }));
-    // Insertamos la opción “Todos los Países” al inicio
     opts.unshift({ value: -1, label: "Todos los Países" });
     setPaises(opts);
 
-    // 4) Preseleccionar: solo si eres MASTER preselecciona su propio país,
-    //    si no, déjalo en “Todos” (-1)
+    // 3) Preseleccionar sólo si eres MASTER; si no, dejar "-1" = "Todos"
     if (validarPrivilegio(getUserFromToken(), 11)) {
       setSelectedPais(idPais);
     } else {
@@ -194,7 +183,6 @@ useEffect(() => {
 
   fetchPaises();
 }, []);
-
 
 
 
@@ -254,6 +242,7 @@ useEffect(() => {
                 confirm();
               }}
             ></Input>
+             <div style={{ marginTop: 8, display: "flex", gap: 8 }}>
             <Button
               className="buscar_button"
               onClick={() => {
@@ -273,6 +262,7 @@ useEffect(() => {
             >
               Resetear
             </Button>
+            </div>
           </div>
         );
       },
@@ -311,7 +301,7 @@ useEffect(() => {
                 confirm();
               }}
             ></Input>
-
+<div style={{ marginTop: 8, display: "flex", gap: 8 }}>
             <Button
               onClick={() => {
                 confirm();
@@ -330,6 +320,7 @@ useEffect(() => {
             >
               Resetear
             </Button>
+            </div>
           </div>
         );
       },
@@ -369,7 +360,7 @@ useEffect(() => {
                 confirm();
               }}
             ></Input>
-
+          <div style={{ marginTop: 8, display: "flex", gap: 8 }}>
             <Button
               onClick={() => {
                 confirm();
@@ -388,6 +379,7 @@ useEffect(() => {
             >
               Resetear
             </Button>
+          </div>
           </div>
         );
       },
@@ -427,7 +419,7 @@ useEffect(() => {
                 confirm();
               }}
             ></Input>
-
+          <div style={{ marginTop: 8, display: "flex", gap: 8 }}>
             <Button
               onClick={() => {
                 confirm();
@@ -446,6 +438,7 @@ useEffect(() => {
             >
               Resetear
             </Button>
+          </div>
           </div>
         );
       },
@@ -487,7 +480,7 @@ useEffect(() => {
           <div className="p-5">
             <Input
               autoFocus
-              placeholder="Ingrese asi: departamento,municipio"
+              placeholder="Ingrese la Procedencia"
               value={selectedKeys[0]}
               onChange={(e) => {
                 setSelectedKeys(e.target.value ? [e.target.value] : []);
@@ -500,7 +493,7 @@ useEffect(() => {
                 confirm();
               }}
             ></Input>
-
+          <div style={{ marginTop: 8, display: "flex", gap: 8 }}>
             <Button
               onClick={() => {
                 confirm();
@@ -519,6 +512,7 @@ useEffect(() => {
             >
               Resetear
             </Button>
+          </div>
           </div>
         );
       },
