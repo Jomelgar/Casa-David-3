@@ -3180,7 +3180,7 @@ const validarCamposAcompanante = () => {
             </Col>
           </Row>
           <Row>
-            <Col flex={"100%"} style={{ marginBottom: 25, height: 50 }}>
+            <Col flex={"100%"} style={{ marginBottom: 25, height: 40 }}>
               <div style={{ display: "flex", gap: "10px" }}>
                 <Select
                   showSearch
@@ -3232,6 +3232,7 @@ const validarCamposAcompanante = () => {
                     borderRadius: emptyFieldsHuesped.municipio_id
                       ? "8px"
                       : undefined,
+                      marginLeft: "10px"
                   }}
                   //options={municipiosFiltradosHuesped}
                   size="large"
@@ -3705,7 +3706,7 @@ const validarCamposAcompanante = () => {
                 </Col>
               </Row>
               <Row>
-                <Col flex={"100%"} style={{ marginBottom: 25, height: 50 }}>
+                <Col flex={"100%"} style={{ marginBottom: 25, height: 40 }}>
                   <div style={{ display: "flex", gap: "10px" }}>
                     <Select
                       showSearch
@@ -3755,6 +3756,7 @@ const validarCamposAcompanante = () => {
                         borderRadius: emptyFieldsAcompanante.municipio_id
                           ? "8px"
                           : undefined,
+                          marginLeft: "10px"
                       }}
                       options={municipios.map((m) => ({
                         value: m.municipio_id,
@@ -4128,7 +4130,7 @@ const validarCamposAcompanante = () => {
             </Col>
           </Row>
           <Row>
-            <Col flex={"100%"} style={{ marginBottom: 25, height: 50 }}>
+            <Col flex={"100%"} style={{ marginBottom: 25, height: 40 }}>
               <div style={{ display: "flex", gap: "10px" }}>
                 <Select
                   showSearch
@@ -4179,6 +4181,7 @@ const validarCamposAcompanante = () => {
                     borderRadius: emptyFieldsPaciente.municipio_id
                       ? "8px"
                       : undefined,
+                      marginLeft: "10px"
                   }}
                   options={municipios.map((m) => ({
                     value: m.municipio_id,
