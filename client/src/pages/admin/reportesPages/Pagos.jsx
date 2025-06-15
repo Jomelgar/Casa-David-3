@@ -397,7 +397,7 @@ function Pagos() {
     const personaId = userProp.data.id_persona;
     const paisResponse = await axiosInstance.get(`/personas/${personaId}/pais`);
     const idPais = paisResponse.data.id_pais;
-    setSelectedPais( idPais );
+    //setSelectedPais( idPais );
     const {codigo_iso,divisa} = (await axiosInstance.get(`/pais/${idPais}/iso`)).data;
     setMonedaLocal( divisa );
     setIsoLocal( codigo_iso );
