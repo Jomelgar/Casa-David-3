@@ -46,7 +46,7 @@ function ListaNegra() {
   const [filtered, setFiltered] = useState([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
 
-  const { openNotification, setCurrentPath } = useLayout();
+  const { openNotification, setCurrentPath, userLog } = useLayout();
 
   const [nuevapersona, setNuevapersona] = useState({});
   const [selectedPerson, setSelectedPerson] = useState(null);
@@ -130,7 +130,7 @@ function ListaNegra() {
           value: -1,
           label: "Todos los Paises",
         });
-      setSelectedPais(idPais);
+      setSelectedPais(userLog.role === "master"? -1 : userLog.id_pais);
       setPaises(listaPaises);
       setSelectedPaisDNI(paisResponse.data.formato_dni);
     }catch (error) {
