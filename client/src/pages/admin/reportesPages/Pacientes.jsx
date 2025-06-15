@@ -430,11 +430,11 @@ const loadCausasVisita = async () => {
           nombre:
             item.PacienteHuesped.Paciente.Persona.primer_nombre +
             " " +
-            item.PacienteHuesped.Paciente.Persona.segundo_nombre,
+            item.PacienteHuesped.Paciente.Persona.segundo_nombre ?? "",
           apellido:
             item.PacienteHuesped.Paciente.Persona.primer_apellido +
             " " +
-            item.PacienteHuesped.Paciente.Persona.segundo_apellido,
+            item.PacienteHuesped.Paciente.Persona.segundo_apellido ?? "",
           procedencia: item.PacienteHuesped.Paciente.Persona.Municipio.Departamento.nombre +
             " " + item.PacienteHuesped.Paciente.Persona.Municipio.nombre,
           hospital: item.PacienteHuesped.Paciente.Hospital.nombre,
@@ -447,11 +447,11 @@ const loadCausasVisita = async () => {
           nombre:
             item.PacienteHuesped.Paciente.Persona.primer_nombre +
             " " +
-            item.PacienteHuesped.Paciente.Persona.segundo_nombre,
+            item.PacienteHuesped.Paciente.Persona.segundo_nombre ?? "",
           apellido:
             item.PacienteHuesped.Paciente.Persona.primer_apellido +
             " " +
-            item.PacienteHuesped.Paciente.Persona.segundo_apellido,
+            item.PacienteHuesped.Paciente.Persona.segundo_apellido ?? "",
           procedencia: item.PacienteHuesped.Paciente.Persona.Municipio.Departamento.nombre +
             " " + item.PacienteHuesped.Paciente.Persona.Municipio.nombre,
           hospital: item.PacienteHuesped.Paciente.Hospital.nombre,
@@ -878,7 +878,7 @@ const loadCausasVisita = async () => {
         <Row 
             xs={{ flex: "100%" }}
             lg={{ flex: "50%" }}
-            style={{ marginBottom: 50, height: 50 }}
+            style={{ marginBottom: 50, height: 50,}}
           >
           <Title level={5} style={{ marginBottom: 20, color: "#4a4a4a" }}>
             Selecciona un rango de edades: <strong>{edad[0]} - {edad[1]}</strong>

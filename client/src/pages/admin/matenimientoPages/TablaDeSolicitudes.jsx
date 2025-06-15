@@ -354,26 +354,27 @@ function TablaDeSolicitudes() {
           title={`Hospedar a ${nombreDeLaPersona}`}
           visible={modalVisible}
           onOk={handleModalOk}
-          onCancel={() => setModalVisible(false)}
+          onCancel={() => {
+            setSelectedHabitacion(null);
+            setSelectedCama(null);
+            fetchData();
+            setModalVisible(false);}}
           okText="Hospedar"
           cancelText="Cancelar"
           confirmLoading={loading}
         >
           <p>Selecciona una habitación:</p>
-          <Select style={{ width: 200 }} onChange={handleHabitacionChange}>
+          <Select style={{ width: 200 }} onChange={handleHabitacionChange} value={selectedHabitacion}>
             {habitaciones.map((habitacion) => (
-              <Option
-                key={habitacion.id_habitacion}
-                value={habitacion.id_habitacion}
-              >
+              <Option key={habitacion.id_habitacion}>
                 {habitacion.nombre}
               </Option>
             ))}
           </Select>
           <p>Selecciona una cama:</p>
-          <Select style={{ width: 200 }} onChange={handleCamaChange}>
+          <Select style={{ width: 200 }} onChange={handleCamaChange} value={selectedCama}>
             {camasDisponibles.map((cama) => (
-              <Option key={cama.id_cama} value={cama.id_cama}>
+              <Option key={cama.id_cama}>
                 {cama.nomre}
               </Option>
             ))}
