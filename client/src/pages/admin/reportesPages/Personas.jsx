@@ -72,7 +72,13 @@ function Personas() {
         );
   
         setDataSource(personasConProcedencia);
+        setDataSource(
+    personasConProcedencia.map(p => ({ ...p, key: p.id_persona }))
+  );
                 setFilteredData(personasConProcedencia);
+                 setFilteredData(
+    personasConProcedencia.map(p => ({ ...p, key: p.id_persona }))
+  );
 
       }
     } catch (error) {
@@ -147,33 +153,39 @@ function Personas() {
     }
     return ret;
   }
-    // Carga inicial de países y país del usuario
-  useEffect(() => {
-    const fetchPaises = async () => {
-            // 1) Obtener país del usuario (master)
-      const token = getUserFromToken();
-      const userProp = await PersonaApi.getPersonaRequest(token.userId);
-      const paisResp = await PersonaApi.getPaisByPersona(userProp.data.id_persona);
-      const idPais = paisResp.data.id_pais;
-      // guardamos en el estado
-      setIdPaisUsuario(idPais);
+    
+useEffect(() => {
+  const fetchPaises = async () => {
+    // 1) Obtener país del usuario (master)
+    const token = getUserFromToken();
+    const userProp = await PersonaApi.getPersonaRequest(token.userId);
+    const paisResp = await PersonaApi.getPaisByPersona(userProp.data.id_persona);
+    const idPais = paisResp.data.id_pais;
+    // lo guardamos en el estado para usarlo luego en el filtro
+    setIdPaisUsuario(idPais);
 
-     // 2) Obtener todos los países
-       const respTodos = await PaisApi.getPaisForTable();
-       const opts = respTodos.data.map(p => ({ value: p.id_pais, label: p.nombre }));
-       opts.unshift({ value: -1, label: "Todos los Países" });
-       setPaises(opts);
-      // preseleccionar siempre el país del usuario
-      setSelectedPais(idPaisUsuario);
-      // 3) Solo preseleccionar si eres MASTER; si no, dejamos "Todos"
-      if (validarPrivilegio(getUserFromToken(), 11)) {
-        setSelectedPais(idPais);
-      } else {
-        setSelectedPais(-1);
-      }
-     };
-     fetchPaises();
-   }, []);
+    // 2) Obtener todas las opciones de países
+    const respTodos = await PaisApi.getPaisForTable();
+    const opts = respTodos.data.map(p => ({
+      value: p.id_pais,
+      label: p.nombre
+    }));
+    // anteponer "Todos los Países"
+    opts.unshift({ value: -1, label: "Todos los Países" });
+
+    setPaises(opts);
+
+    // 3) Preseleccionar sólo si eres MASTER; si no, dejar "-1" = "Todos"
+    if (validarPrivilegio(getUserFromToken(), 11)) {
+      setSelectedPais(idPais);
+    } else {
+      setSelectedPais(-1);
+    }
+  };
+
+  fetchPaises();
+}, []);  // Sólo a la primera carga
+
 
 
   useEffect(() => {
