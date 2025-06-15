@@ -8,6 +8,8 @@ import {
   DeleteOutlined,
   PlusCircleOutlined,
 } from "@ant-design/icons";
+import axiosInstance from '../../../api/axiosInstance';
+import UserApi from "../../../api/User.api";
 import PersonaApi from "../../../api/Persona.api";
 import ProcedenciaApi from "../../../api/Procedencia.api";
 import { getMunicipioById } from "../../../api/municipioApi";
@@ -158,9 +160,10 @@ useEffect(() => {
   const fetchPaises = async () => {
     // 1) Obtener país del usuario (master)
     const token = getUserFromToken();
-    const userProp = await PersonaApi.getPersonaRequest(token.userId);
-    const paisResp = await PersonaApi.getPaisByPersona(userProp.data.id_persona);
-   const idPais = paisResp?.data?.id_pais ?? -1;
+    const userProp = await UserApi.getUserRequest(token.userId);
+    const personaId = userProp.data.id_persona;
+    const paisResp = await axiosInstance.get(`/personas/${personaId}/pais`);
+   const idPais = paisResp.data.id_pais;
     // guardamos en el estado para usarlo luego en el filtro
     setIdPaisUsuario(idPais);
 
