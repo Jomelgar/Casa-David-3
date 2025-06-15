@@ -156,26 +156,35 @@ function Personas() {
     
 useEffect(() => {
   const fetchPaises = async () => {
-    // 1) Obtener país del usuario (master)
+    // 1) Obtener token y datos del usuario
     const token = getUserFromToken();
     const userProp = await PersonaApi.getPersonaRequest(token.userId);
-    const paisResp = await PersonaApi.getPaisByPersona(userProp.data.id_persona);
-    const idPais = paisResp.data.id_pais;
-    // lo guardamos en el estado para usarlo luego en el filtro
+
+    // 2) Llamada a getPaisByPersona con try/catch para prevenir null
+    let paisResp;
+    try {
+      paisResp = await PersonaApi.getPaisByPersona(userProp.data.id_persona);
+    } catch (e) {
+      // Si falla la petición, fingimos un objeto con data null
+      paisResp = { data: null };
+    }
+    // Extraemos el id, o -1 si vino null/undefined
+    const idPais = paisResp?.data?.id_pais ?? -1;
+    // Lo guardamos en el estado para usarlo luego en el filtro
     setIdPaisUsuario(idPais);
 
-    // 2) Obtener todas las opciones de países
+    // 3) Cargar todas las opciones de país para el Select
     const respTodos = await PaisApi.getPaisForTable();
     const opts = respTodos.data.map(p => ({
       value: p.id_pais,
-      label: p.nombre
+      label: p.nombre,
     }));
-    // anteponer "Todos los Países"
+    // Insertamos la opción “Todos los Países” al inicio
     opts.unshift({ value: -1, label: "Todos los Países" });
-
     setPaises(opts);
 
-    // 3) Preseleccionar sólo si eres MASTER; si no, dejar "-1" = "Todos"
+    // 4) Preseleccionar: solo si eres MASTER preselecciona su propio país,
+    //    si no, déjalo en “Todos” (-1)
     if (validarPrivilegio(getUserFromToken(), 11)) {
       setSelectedPais(idPais);
     } else {
@@ -184,7 +193,8 @@ useEffect(() => {
   };
 
   fetchPaises();
-}, []);  // Sólo a la primera carga
+}, []);
+
 
 
 
@@ -206,12 +216,13 @@ useEffect(() => {
     return;
   }
 
-  // 3) soy master y elegí otro país → filtro por procedencia (nombre de país)
+  // 3) soy master y elegí otro país → filtro por procedencia
   const labelPais = paises.find(p => p.value === selectedPais)?.label;
   setFilteredData(
     dataSource.filter(item => item.procedencia?.includes(labelPais))
   );
 }, [selectedPais, dataSource, paises, idPaisUsuario]);
+
 
 
 
